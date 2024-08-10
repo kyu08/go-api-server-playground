@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/signal"
 
-	pb "github.com/kyu08/go-api-server-playground/pkg/grpc" // TODO: rename
+	pb "github.com/kyu08/go-api-server-playground/pkg/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
