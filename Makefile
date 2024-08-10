@@ -4,6 +4,18 @@ gen-proto:
 	--go-grpc_out=../pkg/grpc --go-grpc_opt=paths=source_relative \
 	*.proto
 
+.PHONY: run
+run:
+	go run ./cmd/server/main.go
+
+.PHONY: build
+build:
+	go build ./...
+
+.PHONY: resolver-list
+resolver-list:
+	grpcurl -plaintext localhost:8080 list
+
 .PHONY: test-req # あとで消す
 test-req:
-	grpcurl -plaintext -d '{"name": "kyu"}' localhost:8080  myapp.GreetingService.Hello
+	grpcurl -plaintext localhost:8080  twitter.TwitterService.Health

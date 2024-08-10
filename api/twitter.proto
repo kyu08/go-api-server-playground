@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "pkg/grpc";
+
+package twitter;
+
+service TwitterService {
+  rpc Health (HealthRequest) returns (HealthResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string message = 1;
+}
