@@ -23,7 +23,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterTwitterServiceServer(s, NewMyServer())
+	pb.RegisterTwitterServiceServer(s, NewTwitterServer())
 
 	reflection.Register(s)
 
@@ -45,11 +45,11 @@ type twitterServer struct {
 	pb.UnimplementedTwitterServiceServer
 }
 
-func NewMyServer() *twitterServer {
+func NewTwitterServer() *twitterServer {
 	return &twitterServer{}
 }
 
 // TODO: 実装例があれば参考にしつつ別パッケージに分離する
-func (s *twitterServer) Health(ctx context.Context, req *pb.HealthRequest) (*pb.HealthResponse, error) {
+func (s *twitterServer) Health(ctx context.Context, _ *pb.HealthRequest) (*pb.HealthResponse, error) {
 	return &pb.HealthResponse{Message: "twitter"}, nil
 }
