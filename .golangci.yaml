@@ -1,0 +1,40 @@
+# see: https://golangci-lint.run/usage/configuration/
+run:
+  concurrency: 4
+  timeout: 10m
+  go: 1.22
+
+linters:
+  # see: https://zenn.dev/sanpo_shiho/books/61bc1e1a30bf27/viewer/642fe9
+  enable-all: true
+  disable:
+    # deprecated
+    - deadcode
+    - golint
+    - ifshort
+    - interfacer
+    - maligned
+    - nosnakecase
+    - rowserrcheck
+    - scopelint
+    - structcheck
+    - sqlclosecheck
+    - varcheck
+    - wastedassign
+    - execinquery
+    - gomnd
+    - depguard
+
+    # deprecatedではないが思想が合わないので無効化しているlinterたち
+
+linters-settings:
+  revive:
+    rules:
+      # ライブラリではないのでPublic関数のコメントチェックを無効化
+      - name: exported
+        disabled: true
+
+  tagliatelle:
+    case:
+      rules:
+        json: snake

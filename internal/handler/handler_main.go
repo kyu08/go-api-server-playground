@@ -9,5 +9,6 @@ type TwitterServer struct {
 }
 
 func NewTwitterServer() *TwitterServer {
+	//nolint:exhaustruct,exhaustivestruct // 明示的に初期化する必要が特にない
 	return &TwitterServer{}
 }
