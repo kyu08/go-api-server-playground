@@ -2,7 +2,10 @@ module github.com/kyu08/go-api-server-playground
 
 go 1.22.6
 
+require github.com/go-sql-driver/mysql v1.8.1
+
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/air-verse/air v1.52.3 // indirect
 	github.com/izumin5210/cgt v0.0.0-20181103063432-ac2ef913eb51 // indirect
 	golang.org/x/net v0.28.0 // indirect

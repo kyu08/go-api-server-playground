@@ -28,6 +28,28 @@ lint: tools-lint
 build:
 	go build ./...
 
+.PHONY: start-db
+start-db:
+	docker compose up -d --build --renew-anon-volumes --force-recreate mysql
+
+.PHONY: run-db-cli
+run-db-cli:
+	docker compose run cli
+
+.PHONY: db-log
+db-log:
+	docker logs --tail 50 --follow --timestamps
+
+.PHONY: container-stop
+container-stop:
+	docker compose stop
+
+.PHONY: container-restart
+container-restart:
+	make container-stop
+	docker volume rm $(docker volume ls -qf dangling=true)
+	make start-db
+
 .PHONY: resolver-list
 resolver-list:
 	grpcurl -plaintext localhost:8080 list
