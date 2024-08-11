@@ -29,9 +29,9 @@ func main() {
 
 	reflection.Register(server)
 
-	// hoge
 	go func() {
 		log.Printf("start gRPC server on port %d", port)
+
 		if err := server.Serve(listener); err != nil {
 			panic(err)
 		}
