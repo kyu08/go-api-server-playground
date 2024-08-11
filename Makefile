@@ -4,6 +4,10 @@ gen-proto: tools-proto
 	--go-grpc_out=../pkg/grpc --go-grpc_opt=paths=source_relative \
 	*.proto
 
+.PHONY: gen-sqlc
+gen-sqlc: tools-sqlc
+	sqlc generate
+
 .PHONY: run
 run: tools-run
 	air
@@ -60,4 +64,10 @@ tools-test:
 tools-lint:
 	@if ! which golangci-lint > /dev/null; then \
 		echo "Please install golangci-lint"; \
+	fi
+
+.PHONY: tools-sqlc
+tools-sqlc:
+	@if ! which sqlc > /dev/null; then \
+		echo "Please install sqlc"; \
 	fi
