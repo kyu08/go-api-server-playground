@@ -1,0 +1,10 @@
+runners:
+  greq: grpc://localhost:8080
+steps:
+- greq:
+    twitter.TwitterService/Health:
+      message: {}
+  test: |
+    current.res.headers["content-type"][0] == "application/grpc"
+    && compare(current.res.message, {"message":"twitter"})
+    && current.res.status == 0

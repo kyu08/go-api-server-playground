@@ -1,0 +1,22 @@
+name: E2E
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the server
+        run: go run cmd/server/main.go
+      - uses: k2tzumi/runn-action@latest
+        with:
+          path_pattern: e2e/**/*.yaml
