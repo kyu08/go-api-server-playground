@@ -12,6 +12,10 @@ run: tools-run
 test: tools-test
 	go test -v ./... | cgt
 
+.PHONY: test-e2e
+test-e2e: tools-test-e2e
+	runn run --grpc-no-tls e2e/**/*.yaml
+
 .PHONY: lint
 lint: tools-lint
 	golangci-lint run -c ./.golangci.yaml --fix --tests ./...
@@ -38,6 +42,12 @@ tools-proto:
 tools-run:
 	@if ! which air > /dev/null; then \
 		echo "Please install air-verse/air"; \
+	fi
+
+.PHONY: tools-test-e2e
+tools-test-e2e:
+	@if ! which runn > /dev/null; then \
+		echo "Please install k1LoW/runn"; \
 	fi
 
 .PHONY: tools-test
