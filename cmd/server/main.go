@@ -24,14 +24,15 @@ func main() {
 		panic(err)
 	}
 
-	s := grpc.NewServer()
-	pb.RegisterTwitterServiceServer(s, handler.NewTwitterServer())
+	server := grpc.NewServer()
+	pb.RegisterTwitterServiceServer(server, handler.NewTwitterServer())
 
-	reflection.Register(s)
+	reflection.Register(server)
 
 	go func() {
 		log.Printf("start gRPC server on port %d", port)
-		if err := s.Serve(listener); err != nil {
+
+		if err := server.Serve(listener); err != nil {
 			panic(err)
 		}
 	}()
@@ -40,5 +41,5 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	log.Println("stopping gRPC server...")
-	s.GracefulStop()
+	server.GracefulStop()
 }

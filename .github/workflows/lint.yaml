@@ -1,0 +1,17 @@
+name: lint
+
+on:
+  pull_request:
+    paths:
+      - '**.go'
+      - '.github/workflows/lint.yaml'
+      - '.golangci.yaml'
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
