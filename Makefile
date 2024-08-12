@@ -8,7 +8,7 @@ dev-tools:
 	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 	go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 	echo "--------------------------------------------------"
-	echo "⚠️golangci-lint, direnvは別途installしてください。"
+	echo "⚠️golangci-lintは別途installしてください。"
 	echo "--------------------------------------------------"
 
 # 自動生成系

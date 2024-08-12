@@ -14,7 +14,6 @@
 | Linter                         | [golangci-lint](https://github.com/golangci/golangci-lint) |
 | SQLからのコード生成            | [sqlc](https://github.com/sqlc-dev/sqlc)                   |
 | ローカルでのコンテナ実行ツール | docker compose                                             |
-| ローカルでの環境変数管理       | [direnv](https://github.com/direnv/direnv)                 |
 
 # DDL更新時の手順
 1. `./sql/schema/schema.sql`を更新
