@@ -27,6 +27,7 @@ linters:
 
     # deprecatedではないが思想が合わないので無効化しているlinterたち
     - varnamelen # 過度に感じたので無効化
+    - godox # PRを跨いでTODOコメントを消化することがあるので無効化
 
 linters-settings:
   revive:
