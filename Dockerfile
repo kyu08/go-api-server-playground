@@ -7,6 +7,7 @@ COPY . ./
 RUN go build -o /app/server cmd/server/main.go
 
 FROM alpine
+RUN apk --no-cache add tzdata
 COPY --from=builder /app/server /server
 USER 1001
 CMD ["/server"]

@@ -14,6 +14,8 @@ import (
 )
 
 func (s *TwitterServer) Health(ctx context.Context, _ *pb.HealthRequest) (*pb.HealthResponse, error) {
+	log.Printf("Received: %v", "Health")
+
 	a := testSQL(ctx, s.config)
 
 	return &pb.HealthResponse{Message: "twitter" + fmt.Sprintf("%+v", a)}, nil

@@ -70,6 +70,6 @@ container-restart:
 resolver-list:
 	grpcurl -plaintext localhost:8080 list
 
-.PHONY: test-req # TODO: E2Eを導入したら消す
+.PHONY: test-req # TODO: E2Eを導入したら消す https://blog.ojisan.io/container-test-on-gha/
 test-req:
 	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
