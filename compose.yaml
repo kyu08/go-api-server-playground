@@ -39,6 +39,15 @@ services:
     networks:
       - backend-network
     command: mysql -hmysql -uuser -ppassword db
+  e2e:
+    image: ghcr.io/k1low/runn:v0.116.3
+    volumes:
+      - ./e2e:/e2e
+    depends_on:
+      - server
+    networks:
+      - backend-network
+    command: run --grpc-no-tls e2e/**/*.yaml
 
 networks:
   backend-network:
