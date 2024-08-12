@@ -26,6 +26,8 @@ func testSQL(ctx context.Context, config *config.Config) {
 		panic(err)
 	}
 
+	// TODO: DBとのコネクション生成をmain.goに移動する
+
 	//nolint:exhaustruct,exhaustivestruct // 必要なフィールドだけ初期化したい
 	mysqlConf := mysql.Config{
 		User:             config.DBUser,
