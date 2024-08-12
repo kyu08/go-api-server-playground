@@ -9,12 +9,12 @@ services:
       - DB_USER=user
       - DB_PASSWD=password
       - DB_ADDR=mysql:3306
-      # - DB_ADDR=localhost:3306
       - DB_NAME=db
     networks:
       - backend-network
     depends_on:
-      - mysql
+      mysql:
+          condition: service_healthy
   mysql:
     build:
       context: .
@@ -29,6 +29,11 @@ services:
     restart: always
     networks:
       - backend-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 1s
+      retries: 20
+      timeout: 20s
   cli:
     image: mysql:8.4
     networks:
