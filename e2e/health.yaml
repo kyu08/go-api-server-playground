@@ -1,5 +1,5 @@
 runners:
-  greq: grpc://localhost:8080
+  greq: grpc://server:8080 # docker composeで立てたserverに対してリクエストを送りたいのでlocalhostではなくservice名を指定している
 steps:
 - greq:
     twitter.TwitterService/Health:
