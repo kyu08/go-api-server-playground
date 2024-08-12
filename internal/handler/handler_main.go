@@ -1,18 +1,19 @@
 package handler
 
 import (
-	"github.com/kyu08/go-api-server-playground/internal/config"
+	"database/sql"
+
 	pb "github.com/kyu08/go-api-server-playground/pkg/grpc"
 )
 
 type TwitterServer struct {
 	pb.UnimplementedTwitterServiceServer
-	config *config.Config
+	db *sql.DB
 }
 
-func NewTwitterServer(config *config.Config) *TwitterServer {
+func NewTwitterServer(db *sql.DB) *TwitterServer {
 	//nolint:exhaustruct,exhaustivestruct // 明示的に初期化する必要が特にない
 	return &TwitterServer{
-		config: config,
+		db: db,
 	}
 }

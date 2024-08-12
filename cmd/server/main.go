@@ -11,6 +11,7 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/config"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
 	pb "github.com/kyu08/go-api-server-playground/pkg/grpc"
+	"github.com/kyu08/go-api-server-playground/sql"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -21,25 +22,31 @@ func main() {
 		panic(err)
 	}
 
-	const (
-		// docker composeで起動する際にhostを指定してしまうとうまく接続できないので空文字にしている。
-		// ローカルでも起動したい場合は環境変数等で分岐するといいかもしれない(起動はできるが毎回プロンプトが表示されて面倒)
-		host = ""
-		port = 8080
-	)
-
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, port))
+	db, err := sql.NewDBConnection(config)
 	if err != nil {
 		panic(err)
 	}
 
 	server := grpc.NewServer()
-	pb.RegisterTwitterServiceServer(server, handler.NewTwitterServer(config))
+	pb.RegisterTwitterServiceServer(server, handler.NewTwitterServer(db))
 
 	reflection.Register(server)
 
+	// TODO: アプリケーションのpanicをcatchする
 	go func() {
+		const (
+			// NOTE: docker composeで起動する際にhostを指定してしまうとうまく接続できないので空文字にしている。
+			// ローカルでも起動したい場合は環境変数等で分岐するといいかもしれない(起動はできるが毎回プロンプトが表示されて面倒)
+			host = ""
+			port = 8080
+		)
+
 		log.Printf("start gRPC server on port %d", port)
+
+		listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, port))
+		if err != nil {
+			panic(err)
+		}
 
 		if err := server.Serve(listener); err != nil {
 			panic(err)
@@ -50,5 +57,5 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	log.Println("stopping gRPC server...")
-	server.GracefulStop()
+	server.GracefulStop() // NOTE: 受け付けているリクエストを捌き切ってからサーバーを停止するために必要
 }
