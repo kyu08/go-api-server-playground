@@ -1,0 +1,45 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_USER=user
+      - DB_PASSWD=password
+      - DB_ADDR=mysql:3306
+      - DB_NAME=db
+    networks:
+      - backend-network
+    depends_on:
+      mysql:
+          condition: service_healthy
+  mysql:
+    build:
+      context: .
+      dockerfile: ./sql/docker_init/Dockerfile
+    ports:
+      - "3306:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: mysql
+        MYSQL_DATABASE: db
+        MYSQL_USER: user
+        MYSQL_PASSWORD: password
+    restart: always
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 1s
+      retries: 20
+      timeout: 20s
+  cli:
+    image: mysql:8.4
+    networks:
+      - backend-network
+    command: mysql -hmysql -uuser -ppassword db
+
+networks:
+  backend-network:
+    driver: bridge
