@@ -48,6 +48,25 @@ func testSQL(ctx context.Context, config *config.Config) []oursql.Author {
 		panic(err)
 	}
 
+	count := 0
+
+	for {
+		if count > 10 {
+			panic("database connect error")
+		}
+
+		err := db.Ping()
+		if err == nil {
+			// 成功
+			break
+		} else {
+			// 1秒待ってリトライ
+			time.Sleep(time.Second)
+
+			count++
+		}
+	}
+
 	queries := oursql.New(db)
 
 	authors, err := queries.ListAuthors(ctx)

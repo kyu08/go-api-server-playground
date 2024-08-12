@@ -26,6 +26,7 @@ linters:
     - depguard
 
     # deprecatedではないが思想が合わないので無効化しているlinterたち
+    - varnamelen
 
 linters-settings:
   revive:

@@ -13,6 +13,8 @@ services:
       - DB_NAME=db
     networks:
       - backend-network
+    depends_on:
+      - mysql
   mysql:
     build:
       context: .
