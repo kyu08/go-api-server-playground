@@ -11,3 +11,11 @@
 | E2Eテストツール | [runn](https://github.com/k1LoW/runn)                      |
 | 依存関係更新    | dependabot                                                 |
 | Linter          | [golangci-lint](https://github.com/golangci/golangci-lint) |
+
+# DDL更新時の手順
+1. `./sql/schema/schema.sql`を更新
+1. `make gen-sqlc`
+
+# DML更新時の手順
+1. `./sql/query/query.sql`を更新
+1. `make gen-sqlc`
