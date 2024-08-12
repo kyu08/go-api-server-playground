@@ -8,6 +8,7 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/air-verse/air v1.52.3 // indirect
 	github.com/izumin5210/cgt v0.0.0-20181103063432-ac2ef913eb51 // indirect
+	github.com/sethvargo/go-envconfig v1.1.0
 	golang.org/x/net v0.28.0 // indirect
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/text v0.17.0 // indirect

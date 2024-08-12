@@ -3,36 +3,33 @@ package handler
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/kyu08/go-api-server-playground/internal/config"
 	pb "github.com/kyu08/go-api-server-playground/pkg/grpc"
+	oursql "github.com/kyu08/go-api-server-playground/sql"
 )
 
 func (s *TwitterServer) Health(ctx context.Context, _ *pb.HealthRequest) (*pb.HealthResponse, error) {
+	testSQL(ctx, s.config)
+
 	return &pb.HealthResponse{Message: "twitter"}, nil
 }
 
-func testSQL() {
-	ctx := context.Background()
-
+func testSQL(ctx context.Context, config *config.Config) {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		panic(err)
 	}
-	const (
-		User   = "user"
-		Passwd = "password"
-		Addr   = "localhost:3306"
-		DBName = "db"
-	)
 
 	mysqlConf := mysql.Config{
-		User:             User,
-		Passwd:           Passwd,
-		Addr:             Addr,
-		DBName:           DBName,
+		User:             config.DBUser,
+		Passwd:           config.DBPasswd,
+		Addr:             config.DBAddr,
+		DBName:           config.DBName,
 		Net:              "tcp",
 		Collation:        "utf8mb4_unicode_ci", // TODO: 調べる
 		Loc:              jst,
@@ -44,4 +41,15 @@ func testSQL() {
 	}
 
 	db, err := sql.Open("mysql", mysqlConf.FormatDSN())
+	if err != nil {
+		panic(err)
+	}
+
+	queries := oursql.New(db)
+
+	authors, err := queries.ListAuthors(ctx)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("authors: %v\n", authors)
 }
