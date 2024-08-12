@@ -25,6 +25,8 @@
 1. `make gen-sqlc`
 
 # ローカルでの起動手順
+1. `make container-up`でコンテナを起動する
+
+# ローカルでの開発手順
 1. `make dev-tools`で必要なツールをインストール
-1. `direnv allow`で環境変数を読み込む
-1. (TODO: docker化したら続きを書く)
+1. 必要に応じて`make test-e2e`, `make lint`などを実行
