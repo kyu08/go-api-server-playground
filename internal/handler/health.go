@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
@@ -13,12 +14,12 @@ import (
 )
 
 func (s *TwitterServer) Health(ctx context.Context, _ *pb.HealthRequest) (*pb.HealthResponse, error) {
-	testSQL(ctx, s.config)
+	a := testSQL(ctx, s.config)
 
-	return &pb.HealthResponse{Message: "twitter"}, nil
+	return &pb.HealthResponse{Message: "twitter" + fmt.Sprintf("%+v", a)}, nil
 }
 
-func testSQL(ctx context.Context, config *config.Config) {
+func testSQL(ctx context.Context, config *config.Config) []oursql.Author {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		panic(err)
@@ -53,4 +54,6 @@ func testSQL(ctx context.Context, config *config.Config) {
 	}
 
 	log.Printf("authors: %v\n", authors)
+
+	return authors
 }

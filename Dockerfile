@@ -1,12 +1,12 @@
-FROM golang:1.22.6-bookworm as builder
+FROM golang:1.22.6-alpine AS builder
 WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
-COPY . .
-RUN go build -o /app/server /app/cmd/server/main.go
+COPY . ./
+RUN go build -o /app/server cmd/server/main.go
 
-FROM gcr.io/distroless/static-debian12
+FROM alpine
 COPY --from=builder /app/server /server
 USER 1001
 CMD ["/server"]

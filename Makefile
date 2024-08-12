@@ -44,9 +44,9 @@ lint:
 build:
 	go build ./...
 
-.PHONY: start-db
-start-db:
-	docker compose up -d --build --renew-anon-volumes --force-recreate mysql
+.PHONY: container-up
+container-up:
+	docker compose up -d --build --renew-anon-volumes --force-recreate
 
 .PHONY: run-db-cli
 run-db-cli:
@@ -64,7 +64,7 @@ container-stop:
 container-restart:
 	make container-stop
 	docker volume rm $(docker volume ls -qf dangling=true)
-	make start-db
+	make container-up
 
 .PHONY: resolver-list
 resolver-list:
