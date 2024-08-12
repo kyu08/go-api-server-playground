@@ -6,10 +6,17 @@ package twitter;
 
 service TwitterService {
   rpc Health (HealthRequest) returns (HealthResponse);
+  rpc CountAuthors (CountAuthorsRequest) returns (CountAuthorsResponse);
 }
 
 message HealthRequest {}
 
 message HealthResponse {
   string message = 1;
+}
+
+message CountAuthorsRequest {}
+
+message CountAuthorsResponse {
+  int64 count = 1;
 }

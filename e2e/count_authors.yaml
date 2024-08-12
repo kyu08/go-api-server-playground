@@ -1,0 +1,10 @@
+runners:
+  greq: grpc://server:8080
+steps:
+- greq:
+    twitter.TwitterService/CountAuthors:
+      message: {}
+  test: |
+    current.res.headers["content-type"][0] == "application/grpc"
+    && compare(current.res.message, {"count":"3"})
+    && current.res.status == 0
