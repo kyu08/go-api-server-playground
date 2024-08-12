@@ -3,11 +3,10 @@ package handler
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/kyu08/go-api-server-playground/internal/config"
 	pb "github.com/kyu08/go-api-server-playground/pkg/grpc"
 	oursql "github.com/kyu08/go-api-server-playground/sql"
@@ -25,13 +24,14 @@ func testSQL(ctx context.Context, config *config.Config) {
 		panic(err)
 	}
 
+	//nolint:exhaustruct,exhaustivestruct // 必要なフィールドだけ初期化したい
 	mysqlConf := mysql.Config{
 		User:             config.DBUser,
 		Passwd:           config.DBPasswd,
 		Addr:             config.DBAddr,
 		DBName:           config.DBName,
 		Net:              "tcp",
-		Collation:        "utf8mb4_unicode_ci", // TODO: 調べる
+		Collation:        "utf8mb4_general_ci",
 		Loc:              jst,
 		MaxAllowedPacket: 0,
 		ServerPubKey:     "",
@@ -51,5 +51,6 @@ func testSQL(ctx context.Context, config *config.Config) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("authors: %v\n", authors)
+
+	log.Printf("authors: %v\n", authors)
 }
