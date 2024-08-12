@@ -23,3 +23,8 @@
 # DML更新時の手順
 1. `./sql/query/query.sql`を更新
 1. `make gen-sqlc`
+
+# ローカルでの起動手順
+1. `make dev-tools`で必要なツールをインストール
+1. `direnv allow`で環境変数を読み込む
+1. (TODO: docker化したら続きを書く)
