@@ -12,19 +12,19 @@ import (
 
 const createAuthor = `-- name: CreateAuthor :execresult
 insert into authors (
-  name, bio
+  name2, bio
 ) values (
   ?, ?
 )
 `
 
 type CreateAuthorParams struct {
-	Name string
-	Bio  sql.NullString
+	Name2 string
+	Bio   sql.NullString
 }
 
 func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createAuthor, arg.Name, arg.Bio)
+	return q.db.ExecContext(ctx, createAuthor, arg.Name2, arg.Bio)
 }
 
 const deleteAuthor = `-- name: DeleteAuthor :exec
@@ -38,20 +38,20 @@ func (q *Queries) DeleteAuthor(ctx context.Context, id int64) error {
 }
 
 const getAuthor = `-- name: GetAuthor :one
-select id, name, bio from authors
-where id = ? LIMIT 1
+select id, name2, bio from authors
+where id = ? limit 1
 `
 
 func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
 	row := q.db.QueryRowContext(ctx, getAuthor, id)
 	var i Author
-	err := row.Scan(&i.ID, &i.Name, &i.Bio)
+	err := row.Scan(&i.ID, &i.Name2, &i.Bio)
 	return i, err
 }
 
 const listAuthors = `-- name: ListAuthors :many
-select id, name, bio from authors
-order by name
+select id, name2, bio from authors
+order by name2
 `
 
 func (q *Queries) ListAuthors(ctx context.Context) ([]Author, error) {
@@ -63,7 +63,7 @@ func (q *Queries) ListAuthors(ctx context.Context) ([]Author, error) {
 	var items []Author
 	for rows.Next() {
 		var i Author
-		if err := rows.Scan(&i.ID, &i.Name, &i.Bio); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name2, &i.Bio); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

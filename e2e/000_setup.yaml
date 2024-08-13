@@ -9,7 +9,7 @@ steps:
     db:
       query: |-
         INSERT INTO authors 
-          (name, bio) 
+          (name2, bio) 
         VALUES 
           ('John Doe', 'A mysterious author'),
           ('taro', 'hi'),
