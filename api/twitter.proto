@@ -19,5 +19,4 @@ message CountAuthorsRequest {}
 
 message CountAuthorsResponse {
   int64 count = 1;
-  int64 count2 = 2;
 }

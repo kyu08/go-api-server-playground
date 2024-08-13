@@ -1,4 +1,4 @@
--- name: GetAuthor2 :one
+-- name: GetAuthor :one
 SELECT * FROM authors
 WHERE id = ? LIMIT 1;
 
