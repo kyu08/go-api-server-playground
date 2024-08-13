@@ -34,8 +34,7 @@ test:
 	go test -v ./... | cgt
 
 .PHONY: test-e2e-with-refresh # goコードの変更後に実行したいケース
-test-e2e-with-refresh: 
-	make container-up && docker compose run e2e
+test-e2e-with-refresh: container-up test-e2e
 
 .PHONY: test-e2e
 test-e2e: 
@@ -68,7 +67,7 @@ container-up:
 mysql-cli:
 	docker compose run mysql-cli
 
-.PHONY: db-log
+.PHONY: db-log # とはいえDocker Desktopでみた方がわかりやすそうではある
 db-log:
 	docker logs --tail 50 --follow --timestamps
 
