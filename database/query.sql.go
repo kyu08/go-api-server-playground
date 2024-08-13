@@ -11,9 +11,9 @@ import (
 )
 
 const createAuthor = `-- name: CreateAuthor :execresult
-INSERT INTO authors (
+insert into authors (
   name, bio
-) VALUES (
+) values (
   ?, ?
 )
 `
@@ -28,8 +28,8 @@ func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (sql
 }
 
 const deleteAuthor = `-- name: DeleteAuthor :exec
-DELETE FROM authors
-WHERE id = ?
+delete from authors
+where id = ?
 `
 
 func (q *Queries) DeleteAuthor(ctx context.Context, id int64) error {
@@ -38,8 +38,8 @@ func (q *Queries) DeleteAuthor(ctx context.Context, id int64) error {
 }
 
 const getAuthor = `-- name: GetAuthor :one
-SELECT id, name, bio FROM authors
-WHERE id = ? LIMIT 1
+select id, name, bio from authors
+where id = ? LIMIT 1
 `
 
 func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
@@ -50,8 +50,8 @@ func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
 }
 
 const listAuthors = `-- name: ListAuthors :many
-SELECT id, name, bio FROM authors
-ORDER BY name
+select id, name, bio from authors
+order by name
 `
 
 func (q *Queries) ListAuthors(ctx context.Context) ([]Author, error) {

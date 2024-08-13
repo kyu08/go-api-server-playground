@@ -1,19 +1,18 @@
 -- name: GetAuthor :one
-SELECT * FROM authors
-WHERE id = ? LIMIT 1;
+select * from authors
+where id = ? LIMIT 1;
 
 -- name: ListAuthors :many
-SELECT * FROM authors
-ORDER BY name;
+select * from authors
+order by name;
 
 -- name: CreateAuthor :execresult
-INSERT INTO authors (
+insert into authors (
   name, bio
-) VALUES (
+) values (
   ?, ?
 );
 
 -- name: DeleteAuthor :exec
-DELETE FROM authors
-WHERE id = ?;
-
+delete from authors
+where id = ?;
