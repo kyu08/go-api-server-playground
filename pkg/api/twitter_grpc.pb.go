@@ -4,7 +4,7 @@
 // - protoc             v5.27.3
 // source: twitter.proto
 
-package grpc
+package api
 
 import (
 	context "context"

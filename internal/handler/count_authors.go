@@ -6,11 +6,14 @@ import (
 	"fmt"
 	"log"
 
-	pb "github.com/kyu08/go-api-server-playground/pkg/grpc" // TODO: rename
-	oursql "github.com/kyu08/go-api-server-playground/sql"  // TODO: rename
+	"github.com/kyu08/go-api-server-playground/database"
+	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
 
-func (s *TwitterServer) CountAuthors(ctx context.Context, _ *pb.CountAuthorsRequest) (*pb.CountAuthorsResponse, error) {
+func (s *TwitterServer) CountAuthors(
+	ctx context.Context,
+	_ *api.CountAuthorsRequest,
+) (*api.CountAuthorsResponse, error) {
 	log.Printf("Received: %v", "CountAuthors")
 
 	a, err := testSQL(ctx, s.db)
@@ -22,13 +25,13 @@ func (s *TwitterServer) CountAuthors(ctx context.Context, _ *pb.CountAuthorsRequ
 
 	log.Printf("CountAuthors: %#v", a)
 
-	return &pb.CountAuthorsResponse{
+	return &api.CountAuthorsResponse{
 		Count: int64(len(a)),
 	}, nil
 }
 
-func testSQL(ctx context.Context, db *sql.DB) ([]oursql.Author, error) {
-	queries := oursql.New(db)
+func testSQL(ctx context.Context, db *sql.DB) ([]database.Author, error) {
+	queries := database.New(db)
 
 	authors, err := queries.ListAuthors(ctx)
 	if err != nil {

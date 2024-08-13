@@ -8,10 +8,10 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/kyu08/go-api-server-playground/database"
 	"github.com/kyu08/go-api-server-playground/internal/config"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
-	pb "github.com/kyu08/go-api-server-playground/pkg/grpc"
-	"github.com/kyu08/go-api-server-playground/sql"
+	"github.com/kyu08/go-api-server-playground/pkg/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -22,13 +22,13 @@ func main() {
 		panic(err)
 	}
 
-	db, err := sql.NewDBConnection(config)
+	db, err := database.NewDBConnection(config)
 	if err != nil {
 		panic(err)
 	}
 
 	server := grpc.NewServer()
-	pb.RegisterTwitterServiceServer(server, handler.NewTwitterServer(db))
+	api.RegisterTwitterServiceServer(server, handler.NewTwitterServer(db))
 
 	reflection.Register(server)
 

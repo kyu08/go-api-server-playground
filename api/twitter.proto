@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "pkg/grpc";
+option go_package = "pkg/api";
 
 package twitter;
 
