@@ -5,7 +5,7 @@
 
 | 題材                           | Twitter風のAPIサーバー                                     |
 | :---                           | :---                                                       |
-| 言語                           | Go                                                         |
+| 言語                           | Go 1.22                                                    |
 | 通信方式                       | gRPC                                                       |
 | DB                             | MySQL 8.4                                                  |
 | CI                             | GitHub Actions                                             |
