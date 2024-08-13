@@ -1,5 +1,11 @@
 [sqlfluff]
 dialect = mysql
+templater = placeholder
+exclude_rules = ambiguous.column_count
+
+[sqlfluff:templater:placeholder]
+param_style = question_mark
+my_name = 'john'
 
 [sqlfluff:indentation]
 tab_space_size = 2

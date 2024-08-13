@@ -1,14 +1,14 @@
 -- name: GetAuthor :one
 select * from authors
-where id = ? LIMIT 1;
+where id = ? limit 1;
 
 -- name: ListAuthors :many
 select * from authors
-order by name;
+order by name2;
 
 -- name: CreateAuthor :execresult
 insert into authors (
-  name, bio
+  name2, bio
 ) values (
   ?, ?
 );
