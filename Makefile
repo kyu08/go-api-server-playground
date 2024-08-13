@@ -10,7 +10,7 @@ dev-tools:
 	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 	go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 	echo "--------------------------------------------------"
-	echo "⚠️golangci-lintは別途installしてください。"
+	echo "⚠️golangci-lint, sqlfluffは別途installしてください。"
 	echo "--------------------------------------------------"
 
 # =========================================
@@ -58,6 +58,10 @@ handler-list:
 .PHONY: health-check
 health-check:
 	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
+
+.PHONY: format-sql
+format-sql:
+	sqlfluff format database && sqlfluff fix --FIX-EVEN-UNPARSABLE database && sqlfluff lint database
 
 # =========================================
 # コンテナ関連

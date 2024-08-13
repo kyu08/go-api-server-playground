@@ -1,5 +1,5 @@
-CREATE TABLE authors (
-  id   BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name text    NOT NULL,
-  bio  text
+create table authors (
+  id bigint not null auto_increment primary key,
+  name2 text not null,
+  bio text
 );

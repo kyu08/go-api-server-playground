@@ -9,7 +9,7 @@ import (
 )
 
 type Author struct {
-	ID   int64
-	Name string
-	Bio  sql.NullString
+	ID    int64
+	Name2 string
+	Bio   sql.NullString
 }

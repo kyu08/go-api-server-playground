@@ -9,11 +9,12 @@
 | 通信方式                       | gRPC                                                       |
 | DB                             | MySQL 8.4                                                  |
 | CI                             | GitHub Actions                                             |
-| E2Eテストツール                | [runn](https://github.com/k1LoW/runn)                      |
 | 依存関係更新                   | dependabot                                                 |
-| Linter                         | [golangci-lint](https://github.com/golangci/golangci-lint) |
-| SQLからのコード生成            | [sqlc](https://github.com/sqlc-dev/sqlc)                   |
 | ローカルでのコンテナ実行ツール | docker compose                                             |
+| E2Eテストツール                | [runn](https://github.com/k1LoW/runn)                      |
+| Goコードのlint                 | [golangci-lint](https://github.com/golangci/golangci-lint) |
+| SQLからのコード生成            | [sqlc](https://github.com/sqlc-dev/sqlc)                   |
+| SQLのlint, format              | [sqlfluff](https://github.com/sqlfluff/sqlfluff)           |
 
 # 各種手順
 

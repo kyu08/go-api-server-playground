@@ -1,0 +1,26 @@
+[sqlfluff]
+dialect = mysql
+templater = placeholder
+exclude_rules = ambiguous.column_count
+
+[sqlfluff:templater:placeholder]
+param_style = question_mark
+my_name = 'john'
+
+[sqlfluff:indentation]
+tab_space_size = 2
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.identifiers]
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.literals]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.types]
+extended_capitalisation_policy = lower
