@@ -1,10 +1,27 @@
 runners:
   greq: grpc://server:8080
+  db: mysql://user:password@mysql:3306/db
 steps:
-- greq:
-    twitter.TwitterService/CountAuthors:
-      message: {}
-  test: |
-    current.res.headers["content-type"][0] == "application/grpc"
-    && compare(current.res.message, {"count":"3"})
-    && current.res.status == 0
+  # TODO: エンドポイントの数が増えてきたら毎回これを書くのは辛くなる & パフォーマンス的に悪そう。
+  # E2Eの最初と最後に必ず実行されるシードデータの投入,削除専用のシナリオを作成してもいいかも
+  - db:
+      query: |-
+        DELETE FROM authors;
+  - db:
+      query: |-
+        INSERT INTO authors 
+          (name, bio) 
+        VALUES 
+          ('John Doe', 'A mysterious author'),
+          ('taro', 'hi'),
+          ('John Doe2', 'A mysterious author2');
+  - greq:
+      twitter.TwitterService/CountAuthors:
+        message: {}
+    test: |
+      compare(current.res.message, {"count":"3"})
+      && current.res.status == 0
+      && current.res.headers["content-type"][0] == "application/grpc"
+  - db:
+      query: |-
+        DELETE FROM authors;

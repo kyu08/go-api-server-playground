@@ -33,9 +33,13 @@ gen-sqlc:
 test: 
 	go test -v ./... | cgt
 
-.PHONY: test-e2e # たいていコードの変更後に実行したいのでコンテナの再ビルドも含めてしまう
-test-e2e: 
+.PHONY: test-e2e-with-refresh # goコードの変更後に実行したいケース
+test-e2e-with-refresh: 
 	make container-up && docker compose run e2e
+
+.PHONY: test-e2e
+test-e2e: 
+	docker compose run e2e
 
 .PHONY: lint
 lint: 
@@ -75,5 +79,5 @@ container-stop:
 .PHONY: container-restart
 container-restart:
 	make container-stop
-	docker volume rm $(docker volume ls -qf dangling=true)
+	docker container prune && docker volume rm $(docker volume ls -q)
 	make container-up

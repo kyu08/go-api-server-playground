@@ -30,6 +30,7 @@ func (s *TwitterServer) CountAuthors(
 	}, nil
 }
 
+// TODO: パッケージ構成をいい感じにする
 func testSQL(ctx context.Context, db *sql.DB) ([]database.Author, error) {
 	queries := database.New(db)
 
