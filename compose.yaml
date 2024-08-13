@@ -50,6 +50,7 @@ services:
       - server
     networks:
       - backend-network
+    # MEMO: 詳細な出力がみたい場合は`--debug`を追加する
     command: run --grpc-no-tls --verbose e2e/**/*.yaml
 
 networks:

@@ -1,0 +1,8 @@
+# NOTE: 最後に実行したいためprefixを付与している
+desc: シードデータの削除
+runners:
+  db: mysql://user:password@mysql:3306/db
+steps:
+  - db:
+      query: |-
+        DELETE FROM authors;

@@ -1,0 +1,16 @@
+# NOTE: 最初に実行したいためprefixを付与している
+desc: シードデータの投入
+runners:
+  db: mysql://user:password@mysql:3306/db
+steps:
+  - include:
+      path: zzz_teardown.yaml
+  - desc: シードデータの投入
+    db:
+      query: |-
+        INSERT INTO authors 
+          (name, bio) 
+        VALUES 
+          ('John Doe', 'A mysterious author'),
+          ('taro', 'hi'),
+          ('John Doe2', 'A mysterious author2');
