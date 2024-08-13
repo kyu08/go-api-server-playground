@@ -19,7 +19,7 @@ services:
   mysql:
     build:
       context: .
-      dockerfile: ./sql/docker_init/Dockerfile
+      dockerfile: ./database/docker_init/Dockerfile
     ports:
       - "3306:3306"
     environment:

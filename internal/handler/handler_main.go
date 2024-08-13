@@ -3,11 +3,11 @@ package handler
 import (
 	"database/sql"
 
-	pb "github.com/kyu08/go-api-server-playground/pkg/grpc"
+	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
 
 type TwitterServer struct {
-	pb.UnimplementedTwitterServiceServer
+	api.UnimplementedTwitterServiceServer
 	db *sql.DB
 }
 

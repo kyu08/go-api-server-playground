@@ -4,11 +4,11 @@ import (
 	"context"
 	"log"
 
-	pb "github.com/kyu08/go-api-server-playground/pkg/grpc"
+	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
 
-func (s *TwitterServer) Health(ctx context.Context, _ *pb.HealthRequest) (*pb.HealthResponse, error) {
+func (s *TwitterServer) Health(ctx context.Context, _ *api.HealthRequest) (*api.HealthResponse, error) {
 	log.Printf("Received: %v", "Health")
 
-	return &pb.HealthResponse{Message: "twitter"}, nil
+	return &api.HealthResponse{Message: "twitter"}, nil
 }
