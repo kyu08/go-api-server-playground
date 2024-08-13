@@ -1,0 +1,7 @@
+# NOTE: シードデータを削除するためのrunbook 最後に実行したいためprefixを付与している
+runners:
+  db: mysql://user:password@mysql:3306/db
+steps:
+  - db:
+      query: |-
+        DELETE FROM authors;

@@ -1,0 +1,15 @@
+# NOTE: シードデータをinsertするためのrunbook 最初に実行したいためprefixを付与している
+runners:
+  db: mysql://user:password@mysql:3306/db
+steps:
+  - db:
+      query: |-
+        DELETE FROM authors;
+  - db:
+      query: |-
+        INSERT INTO authors 
+          (name, bio) 
+        VALUES 
+          ('John Doe', 'A mysterious author'),
+          ('taro', 'hi'),
+          ('John Doe2', 'A mysterious author2');
