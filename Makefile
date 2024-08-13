@@ -26,6 +26,9 @@ gen-proto:
 gen-sqlc: 
 	sqlc generate
 
+.PHONY: gen-all
+gen-all: gen-proto gen-sqlc
+
 # =========================================
 # アプリケーションの起動、デバッグなど
 # =========================================
