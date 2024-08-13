@@ -15,6 +15,7 @@ services:
     depends_on:
       mysql:
           condition: service_healthy
+
   mysql:
     build:
       context: .
@@ -30,24 +31,26 @@ services:
     networks:
       - backend-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD
       interval: 1s
       retries: 20
       timeout: 20s
-  cli:
+
+  mysql-cli:
     image: mysql:8.4
     networks:
       - backend-network
     command: mysql -hmysql -uuser -ppassword db
+
   e2e:
     image: ghcr.io/k1low/runn:v0.116.3
     volumes:
       - ./e2e:/e2e
-    depends_on:
+    depends_on: 
       - server
     networks:
       - backend-network
-    command: run --grpc-no-tls e2e/**/*.yaml
+    command: run --grpc-no-tls --verbose e2e/**/*.yaml
 
 networks:
   backend-network:

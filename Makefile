@@ -1,4 +1,6 @@
+# =========================================
 # 開発環境構築
+# =========================================
 .PHONY: dev-tools
 dev-tools:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
@@ -11,7 +13,9 @@ dev-tools:
 	echo "⚠️golangci-lintは別途installしてください。"
 	echo "--------------------------------------------------"
 
+# =========================================
 # 自動生成系
+# =========================================
 .PHONY: gen-proto
 gen-proto: 
 	cd api && protoc --go_out=../pkg/grpc --go_opt=paths=source_relative \
@@ -22,14 +26,16 @@ gen-proto:
 gen-sqlc: 
 	sqlc generate
 
+# =========================================
 # アプリケーションの起動、デバッグなど
+# =========================================
 .PHONY: test
 test: 
 	go test -v ./... | cgt
 
-.PHONY: test-e2e
+.PHONY: test-e2e # たいていコードの変更後に実行したいのでコンテナの再ビルドも含めてしまう
 test-e2e: 
-	runn run --grpc-no-tls e2e/**/*.yaml
+	make container-up && docker compose run e2e
 
 .PHONY: lint
 lint: 
@@ -39,13 +45,24 @@ lint:
 build:
 	go build ./...
 
+.PHONY: handler-list
+handler-list:
+	grpcurl -plaintext localhost:8080 list twitter.TwitterService
+
+.PHONY: health-check
+health-check:
+	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
+
+# =========================================
+# コンテナ関連
+# =========================================
 .PHONY: container-up
 container-up:
-	docker compose up -d --build --renew-anon-volumes --force-recreate
+	docker compose up -d --build --renew-anon-volumes --force-recreate --remove-orphans
 
-.PHONY: run-db-cli
-run-db-cli:
-	docker compose run cli
+.PHONY: mysql-cli
+mysql-cli:
+	docker compose run mysql-cli
 
 .PHONY: db-log
 db-log:
@@ -60,11 +77,3 @@ container-restart:
 	make container-stop
 	docker volume rm $(docker volume ls -qf dangling=true)
 	make container-up
-
-.PHONY: resolver-list
-resolver-list:
-	grpcurl -plaintext localhost:8080 list
-
-.PHONY: test-req # TODO: E2Eを導入したら消す https://blog.ojisan.io/container-test-on-gha/
-test-req:
-	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
