@@ -19,4 +19,4 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Run the server and E2E tests
-        run: docker compose run e2e
+        run: make test-e2e
