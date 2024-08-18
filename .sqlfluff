@@ -7,6 +7,10 @@ exclude_rules = ambiguous.column_count
 param_style = question_mark
 my_name = 'john'
 
+[sqlfluff:rules:layout.long_lines]
+ignore_comment_lines = True
+ignore_comment_clauses = True
+
 [sqlfluff:indentation]
 tab_space_size = 2
 

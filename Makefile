@@ -45,7 +45,7 @@ test-e2e:
 
 .PHONY: lint
 lint: 
-	golangci-lint run -c ./.golangci.yaml --fix --tests ./...
+	golangci-lint run -c ./.golangci.yaml --fix --allow-parallel-runners --tests ./...
 
 .PHONY: build
 build:
@@ -61,7 +61,7 @@ health-check:
 
 .PHONY: format-sql
 format-sql:
-	sqlfluff format database && sqlfluff fix --FIX-EVEN-UNPARSABLE database && sqlfluff lint database
+	sqlfluff format database; sqlfluff fix --FIX-EVEN-UNPARSABLE database; sqlfluff lint database
 
 # =========================================
 # コンテナ関連

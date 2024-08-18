@@ -5,18 +5,19 @@ option go_package = "pkg/api";
 package twitter;
 
 service TwitterService {
-  rpc Health (HealthRequest) returns (HealthResponse);
-  rpc CountAuthors (CountAuthorsRequest) returns (CountAuthorsResponse);
+  rpc Health(HealthRequest) returns (HealthResponse);
+
+  rpc FindUserByScreenName(FindUserByScreenNameRequest)
+      returns (FindUserByScreenNameResponse);
 }
 
 message HealthRequest {}
+message HealthResponse { string message = 1; }
 
-message HealthResponse {
-  string message = 1;
-}
-
-message CountAuthorsRequest {}
-
-message CountAuthorsResponse {
-  int64 count = 1;
+message FindUserByScreenNameRequest { string screen_name = 1; }
+message FindUserByScreenNameResponse {
+  string id = 1;
+  string screen_name = 2;
+  string user_name = 3;
+  string bio = 4;
 }

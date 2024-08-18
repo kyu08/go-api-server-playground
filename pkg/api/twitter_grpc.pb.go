@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TwitterService_Health_FullMethodName       = "/twitter.TwitterService/Health"
-	TwitterService_CountAuthors_FullMethodName = "/twitter.TwitterService/CountAuthors"
+	TwitterService_Health_FullMethodName               = "/twitter.TwitterService/Health"
+	TwitterService_FindUserByScreenName_FullMethodName = "/twitter.TwitterService/FindUserByScreenName"
 )
 
 // TwitterServiceClient is the client API for TwitterService service.
@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TwitterServiceClient interface {
 	Health(ctx context.Context, in *HealthRequest, opts ...grpc.CallOption) (*HealthResponse, error)
-	CountAuthors(ctx context.Context, in *CountAuthorsRequest, opts ...grpc.CallOption) (*CountAuthorsResponse, error)
+	FindUserByScreenName(ctx context.Context, in *FindUserByScreenNameRequest, opts ...grpc.CallOption) (*FindUserByScreenNameResponse, error)
 }
 
 type twitterServiceClient struct {
@@ -49,10 +49,10 @@ func (c *twitterServiceClient) Health(ctx context.Context, in *HealthRequest, op
 	return out, nil
 }
 
-func (c *twitterServiceClient) CountAuthors(ctx context.Context, in *CountAuthorsRequest, opts ...grpc.CallOption) (*CountAuthorsResponse, error) {
+func (c *twitterServiceClient) FindUserByScreenName(ctx context.Context, in *FindUserByScreenNameRequest, opts ...grpc.CallOption) (*FindUserByScreenNameResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CountAuthorsResponse)
-	err := c.cc.Invoke(ctx, TwitterService_CountAuthors_FullMethodName, in, out, cOpts...)
+	out := new(FindUserByScreenNameResponse)
+	err := c.cc.Invoke(ctx, TwitterService_FindUserByScreenName_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (c *twitterServiceClient) CountAuthors(ctx context.Context, in *CountAuthor
 // for forward compatibility.
 type TwitterServiceServer interface {
 	Health(context.Context, *HealthRequest) (*HealthResponse, error)
-	CountAuthors(context.Context, *CountAuthorsRequest) (*CountAuthorsResponse, error)
+	FindUserByScreenName(context.Context, *FindUserByScreenNameRequest) (*FindUserByScreenNameResponse, error)
 	mustEmbedUnimplementedTwitterServiceServer()
 }
 
@@ -78,8 +78,8 @@ type UnimplementedTwitterServiceServer struct{}
 func (UnimplementedTwitterServiceServer) Health(context.Context, *HealthRequest) (*HealthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Health not implemented")
 }
-func (UnimplementedTwitterServiceServer) CountAuthors(context.Context, *CountAuthorsRequest) (*CountAuthorsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CountAuthors not implemented")
+func (UnimplementedTwitterServiceServer) FindUserByScreenName(context.Context, *FindUserByScreenNameRequest) (*FindUserByScreenNameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindUserByScreenName not implemented")
 }
 func (UnimplementedTwitterServiceServer) mustEmbedUnimplementedTwitterServiceServer() {}
 func (UnimplementedTwitterServiceServer) testEmbeddedByValue()                        {}
@@ -120,20 +120,20 @@ func _TwitterService_Health_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TwitterService_CountAuthors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CountAuthorsRequest)
+func _TwitterService_FindUserByScreenName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindUserByScreenNameRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TwitterServiceServer).CountAuthors(ctx, in)
+		return srv.(TwitterServiceServer).FindUserByScreenName(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TwitterService_CountAuthors_FullMethodName,
+		FullMethod: TwitterService_FindUserByScreenName_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TwitterServiceServer).CountAuthors(ctx, req.(*CountAuthorsRequest))
+		return srv.(TwitterServiceServer).FindUserByScreenName(ctx, req.(*FindUserByScreenNameRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -150,8 +150,8 @@ var TwitterService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TwitterService_Health_Handler,
 		},
 		{
-			MethodName: "CountAuthors",
-			Handler:    _TwitterService_CountAuthors_Handler,
+			MethodName: "FindUserByScreenName",
+			Handler:    _TwitterService_FindUserByScreenName_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -5,4 +5,4 @@ runners:
 steps:
   - db:
       query: |-
-        DELETE FROM authors;
+        DELETE FROM user;
