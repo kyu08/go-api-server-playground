@@ -8,14 +8,11 @@ import (
 	"log"
 
 	"github.com/kyu08/go-api-server-playground/database"
+	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
 
-var (
-	ErrGetUserByScreenNameScreenNameEmpty             = errors.New("screen_name is empty")
-	ErrGetUserByScreenNameScreenNameMoreThanMaxLength = errors.New("screen_name is more than max length")
-	ErrGetUserByScreenNameUserNotFound                = errors.New("user not found")
-)
+var ErrGetUserByScreenNameUserNotFound = errors.New("user not found")
 
 func (s *TwitterServer) GetUserByScreenName(
 	ctx context.Context,
@@ -23,18 +20,12 @@ func (s *TwitterServer) GetUserByScreenName(
 ) (*api.GetUserByScreenNameResponse, error) {
 	log.Printf("Received: %v", "GetUserByScreenName")
 
-	const screenNameMaxLength = 20
-
-	if req.GetScreenName() == "" {
-		return nil, ErrGetUserByScreenNameScreenNameEmpty
+	screenName, err := user.NewUserScreenName(req.GetScreenName())
+	if err != nil {
+		return nil, fmt.Errorf("user.NewUserScreenName: %w", err)
 	}
 
-	if screenNameMaxLength < len(req.GetScreenName()) {
-		return nil, ErrGetUserByScreenNameScreenNameMoreThanMaxLength
-	}
-
-	// TODO: 値オブジェクトを使ってvalidate
-	u, err := testSQL(ctx, s.db, req.GetScreenName())
+	u, err := testSQL(ctx, s.db, string(screenName))
 	if err != nil {
 		log.Printf("err: %s", err)
 
