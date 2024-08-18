@@ -45,7 +45,7 @@ test-e2e:
 
 .PHONY: lint
 lint: 
-	golangci-lint run -c ./.golangci.yaml --fix --tests ./...
+	golangci-lint run -c ./.golangci.yaml --fix --allow-parallel-runners --tests ./...
 
 .PHONY: build
 build:

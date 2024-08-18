@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/kyu08/go-api-server-playground/database"
@@ -19,7 +20,7 @@ func (s *TwitterServer) GetUserByScreenName(
 	if err != nil {
 		log.Printf("err: %s", err)
 
-		return nil, err
+		return nil, fmt.Errorf("queries.GetUserByScreenName: %w", err)
 	}
 
 	log.Printf("GetUserByScreenName: %#v", u)
@@ -36,9 +37,11 @@ func (s *TwitterServer) GetUserByScreenName(
 func testSQL(ctx context.Context, db *sql.DB, s string) (*database.User, error) {
 	// TODO: Newの中でやっていることを理解する
 	queries := database.New(db)
+
 	u, err := queries.GetUserByScreenName(ctx, s)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("queries.GetUserByScreenName: %w", err)
 	}
+
 	return &u, nil
 }
