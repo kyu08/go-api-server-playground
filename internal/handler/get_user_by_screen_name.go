@@ -12,11 +12,12 @@ import (
 
 func (s *TwitterServer) GetUserByScreenName(
 	ctx context.Context,
-	_ *api.GetUserByScreenNameRequest,
+	req *api.GetUserByScreenNameRequest,
 ) (*api.GetUserByScreenNameResponse, error) {
 	log.Printf("Received: %v", "GetUserByScreenName")
 
-	u, err := testSQL(ctx, s.db, "s_name")
+	// TODO: validate
+	u, err := testSQL(ctx, s.db, req.GetScreenName())
 	if err != nil {
 		log.Printf("err: %s", err)
 
