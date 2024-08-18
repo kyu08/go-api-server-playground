@@ -6,6 +6,6 @@ insert into user (
   ?, ?, ?, ?, ?, ?
 );
 
--- name: GetUserByScreenName :one
+-- name: FindUserByScreenName :one
 select * from user
 where screen_name = ? limit 1;

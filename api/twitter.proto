@@ -7,15 +7,15 @@ package twitter;
 service TwitterService {
   rpc Health(HealthRequest) returns (HealthResponse);
 
-  rpc GetUserByScreenName(GetUserByScreenNameRequest)
-      returns (GetUserByScreenNameResponse);
+  rpc FindUserByScreenName(FindUserByScreenNameRequest)
+      returns (FindUserByScreenNameResponse);
 }
 
 message HealthRequest {}
 message HealthResponse { string message = 1; }
 
-message GetUserByScreenNameRequest { string screen_name = 1; }
-message GetUserByScreenNameResponse {
+message FindUserByScreenNameRequest { string screen_name = 1; }
+message FindUserByScreenNameResponse {
   string id = 1;
   string screen_name = 2;
   string user_name = 3;

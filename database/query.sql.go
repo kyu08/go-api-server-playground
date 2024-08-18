@@ -40,13 +40,13 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 	)
 }
 
-const getUserByScreenName = `-- name: GetUserByScreenName :one
+const findUserByScreenName = `-- name: FindUserByScreenName :one
 select id, screen_name, user_name, bio, is_private, created_at from user
 where screen_name = ? limit 1
 `
 
-func (q *Queries) GetUserByScreenName(ctx context.Context, screenName string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserByScreenName, screenName)
+func (q *Queries) FindUserByScreenName(ctx context.Context, screenName string) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUserByScreenName, screenName)
 	var i User
 	err := row.Scan(
 		&i.ID,
