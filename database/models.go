@@ -11,7 +11,7 @@ import (
 type User struct {
 	ID         string
 	ScreenName string
-	Name       string
+	UserName   string
 	Bio        string
 	IsPrivate  bool
 	CreatedAt  time.Time

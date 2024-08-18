@@ -9,7 +9,7 @@ steps:
       compare(current.res.message, {
         id: "00000000-0000-0000-0000-000000000000",
         screen_name: "s_name",
-        name: "name",
+        user_name: "name",
         bio: "bio"
       })
       && current.res.status == 0

@@ -9,7 +9,7 @@ steps:
     db:
       query: |-
         insert into user (
-          id, screen_name, name, bio, is_private, created_at
+          id, screen_name, user_name, bio, is_private, created_at
         ) values (
           '00000000-0000-0000-0000-000000000000', 's_name', 'name', 'bio', false, '2020-01-01 00:00:00'
         );

@@ -14,7 +14,7 @@ import (
 const createUser = `-- name: CreateUser :execresult
 
 insert into user (
-  id, screen_name, name,
+  id, screen_name, user_name,
   bio, is_private, created_at
 ) values (
   ?, ?, ?, ?, ?, ?
@@ -24,7 +24,7 @@ insert into user (
 type CreateUserParams struct {
 	ID         string
 	ScreenName string
-	Name       string
+	UserName   string
 	Bio        string
 	IsPrivate  bool
 	CreatedAt  time.Time
@@ -56,7 +56,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 	return q.db.ExecContext(ctx, createUser,
 		arg.ID,
 		arg.ScreenName,
-		arg.Name,
+		arg.UserName,
 		arg.Bio,
 		arg.IsPrivate,
 		arg.CreatedAt,
@@ -64,7 +64,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 }
 
 const getUserByScreenName = `-- name: GetUserByScreenName :one
-select id, screen_name, name, bio, is_private, created_at from user
+select id, screen_name, user_name, bio, is_private, created_at from user
 where screen_name = ? limit 1
 `
 
@@ -74,7 +74,7 @@ func (q *Queries) GetUserByScreenName(ctx context.Context, screenName string) (U
 	err := row.Scan(
 		&i.ID,
 		&i.ScreenName,
-		&i.Name,
+		&i.UserName,
 		&i.Bio,
 		&i.IsPrivate,
 		&i.CreatedAt,

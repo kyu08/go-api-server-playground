@@ -19,7 +19,7 @@
 
 -- name: CreateUser :execresult
 insert into user (
-  id, screen_name, name,
+  id, screen_name, user_name,
   bio, is_private, created_at
 ) values (
   ?, ?, ?, ?, ?, ?

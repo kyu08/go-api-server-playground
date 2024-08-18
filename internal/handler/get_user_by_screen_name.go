@@ -28,7 +28,7 @@ func (s *TwitterServer) GetUserByScreenName(
 	return &api.GetUserByScreenNameResponse{
 		Id:         u.ID,
 		ScreenName: u.ScreenName,
-		Name:       u.Name,
+		UserName:   u.UserName,
 		Bio:        u.Bio,
 	}, nil
 }
