@@ -18,7 +18,7 @@ func (s *TwitterServer) GetUserByScreenName(
 	ctx context.Context,
 	req *api.GetUserByScreenNameRequest,
 ) (*api.GetUserByScreenNameResponse, error) {
-	log.Printf("Received: %v", "GetUserByScreenName")
+	log.Printf("Received: %v", "GetUserByScreenName") // TODO: インターセプター側でログ出力するようにする
 
 	screenName, err := user.NewUserScreenName(req.GetScreenName())
 	if err != nil {
@@ -27,12 +27,8 @@ func (s *TwitterServer) GetUserByScreenName(
 
 	u, err := testSQL(ctx, s.db, string(screenName))
 	if err != nil {
-		log.Printf("err: %s", err)
-
 		return nil, fmt.Errorf("queries.GetUserByScreenName: %w", err)
 	}
-
-	log.Printf("GetUserByScreenName: %#v", u)
 
 	return &api.GetUserByScreenNameResponse{
 		Id:         u.ID,
