@@ -40,7 +40,7 @@ services:
     image: mysql:8.4
     networks:
       - backend-network
-    command: mysql -hmysql -uuser -ppassword db
+    command: mysql -hmysql -uuser -ppassword db --default-character-set=utf8
 
   e2e:
     image: ghcr.io/k1low/runn:v0.116.3

@@ -1,0 +1,16 @@
+desc: GetUserByScreenName
+runners:
+  greq: grpc://server:8080
+steps:
+  - greq:
+      twitter.TwitterService/GetUserByScreenName:
+        message: {"screen_name":"s_name"}
+    test: |
+      compare(current.res.message, {
+        id: "00000000-0000-0000-0000-000000000000",
+        screen_name: "s_name",
+        name: "name",
+        bio: "bio"
+      })
+      && current.res.status == 0
+      && current.res.headers["content-type"][0] == "application/grpc"

@@ -5,11 +5,14 @@
 package database
 
 import (
-	"database/sql"
+	"time"
 )
 
-type Author struct {
-	ID    int64
-	Name2 string
-	Bio   sql.NullString
+type User struct {
+	ID         string
+	ScreenName string
+	Name       string
+	Bio        string
+	IsPrivate  bool
+	CreatedAt  time.Time
 }

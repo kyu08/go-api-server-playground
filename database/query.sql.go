@@ -8,71 +8,76 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
-const createAuthor = `-- name: CreateAuthor :execresult
-insert into authors (
-  name2, bio
+const createUser = `-- name: CreateUser :execresult
+
+insert into user (
+  id, screen_name, name,
+  bio, is_private, created_at
 ) values (
-  ?, ?
+  ?, ?, ?, ?, ?, ?
 )
 `
 
-type CreateAuthorParams struct {
-	Name2 string
-	Bio   sql.NullString
+type CreateUserParams struct {
+	ID         string
+	ScreenName string
+	Name       string
+	Bio        string
+	IsPrivate  bool
+	CreatedAt  time.Time
 }
 
-func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createAuthor, arg.Name2, arg.Bio)
+// -- name: GetAuthor :one
+// select * from authors
+// where id = ? limit 1;
+//
+// -- name: ListAuthors :many
+// select * from authors
+// order by name2;
+//
+// -- name: CreateAuthor :execresult
+// insert into authors (
+//
+//	name2, bio
+//
+// ) values (
+//
+//	?, ?
+//
+// );
+//
+// -- name: DeleteAuthor :exec
+// delete from authors
+// where id = ?;
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, createUser,
+		arg.ID,
+		arg.ScreenName,
+		arg.Name,
+		arg.Bio,
+		arg.IsPrivate,
+		arg.CreatedAt,
+	)
 }
 
-const deleteAuthor = `-- name: DeleteAuthor :exec
-delete from authors
-where id = ?
+const getUserByScreenName = `-- name: GetUserByScreenName :one
+select id, screen_name, name, bio, is_private, created_at from user
+where screen_name = ? limit 1
 `
 
-func (q *Queries) DeleteAuthor(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteAuthor, id)
-	return err
-}
-
-const getAuthor = `-- name: GetAuthor :one
-select id, name2, bio from authors
-where id = ? limit 1
-`
-
-func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
-	row := q.db.QueryRowContext(ctx, getAuthor, id)
-	var i Author
-	err := row.Scan(&i.ID, &i.Name2, &i.Bio)
+func (q *Queries) GetUserByScreenName(ctx context.Context, screenName string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByScreenName, screenName)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.ScreenName,
+		&i.Name,
+		&i.Bio,
+		&i.IsPrivate,
+		&i.CreatedAt,
+	)
 	return i, err
-}
-
-const listAuthors = `-- name: ListAuthors :many
-select id, name2, bio from authors
-order by name2
-`
-
-func (q *Queries) ListAuthors(ctx context.Context) ([]Author, error) {
-	rows, err := q.db.QueryContext(ctx, listAuthors)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Author
-	for rows.Next() {
-		var i Author
-		if err := rows.Scan(&i.ID, &i.Name2, &i.Bio); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
