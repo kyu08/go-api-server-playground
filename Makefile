@@ -3,14 +3,14 @@
 # =========================================
 .PHONY: dev-tools
 dev-tools:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
 	go install github.com/k1LoW/runn/cmd/runn@latest
 	go install github.com/izumin5210/cgt@latest
 	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 	go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 	echo "--------------------------------------------------"
-	echo "⚠️golangci-lint, sqlfluffは別途installしてください。"
+	echo "⚠️protoc, golangci-lint, sqlfluffは別途installしてください。"
 	echo "--------------------------------------------------"
 
 # =========================================
