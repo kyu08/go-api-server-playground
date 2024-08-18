@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	TwitterService_Health_FullMethodName               = "/twitter.TwitterService/Health"
 	TwitterService_FindUserByScreenName_FullMethodName = "/twitter.TwitterService/FindUserByScreenName"
+	TwitterService_CreateUser_FullMethodName           = "/twitter.TwitterService/CreateUser"
 )
 
 // TwitterServiceClient is the client API for TwitterService service.
@@ -29,6 +30,7 @@ const (
 type TwitterServiceClient interface {
 	Health(ctx context.Context, in *HealthRequest, opts ...grpc.CallOption) (*HealthResponse, error)
 	FindUserByScreenName(ctx context.Context, in *FindUserByScreenNameRequest, opts ...grpc.CallOption) (*FindUserByScreenNameResponse, error)
+	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 }
 
 type twitterServiceClient struct {
@@ -59,12 +61,23 @@ func (c *twitterServiceClient) FindUserByScreenName(ctx context.Context, in *Fin
 	return out, nil
 }
 
+func (c *twitterServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateUserResponse)
+	err := c.cc.Invoke(ctx, TwitterService_CreateUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TwitterServiceServer is the server API for TwitterService service.
 // All implementations must embed UnimplementedTwitterServiceServer
 // for forward compatibility.
 type TwitterServiceServer interface {
 	Health(context.Context, *HealthRequest) (*HealthResponse, error)
 	FindUserByScreenName(context.Context, *FindUserByScreenNameRequest) (*FindUserByScreenNameResponse, error)
+	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	mustEmbedUnimplementedTwitterServiceServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedTwitterServiceServer) Health(context.Context, *HealthRequest)
 }
 func (UnimplementedTwitterServiceServer) FindUserByScreenName(context.Context, *FindUserByScreenNameRequest) (*FindUserByScreenNameResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindUserByScreenName not implemented")
+}
+func (UnimplementedTwitterServiceServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
 func (UnimplementedTwitterServiceServer) mustEmbedUnimplementedTwitterServiceServer() {}
 func (UnimplementedTwitterServiceServer) testEmbeddedByValue()                        {}
@@ -138,6 +154,24 @@ func _TwitterService_FindUserByScreenName_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TwitterService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TwitterServiceServer).CreateUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TwitterService_CreateUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TwitterServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TwitterService_ServiceDesc is the grpc.ServiceDesc for TwitterService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var TwitterService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindUserByScreenName",
 			Handler:    _TwitterService_FindUserByScreenName_Handler,
+		},
+		{
+			MethodName: "CreateUser",
+			Handler:    _TwitterService_CreateUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

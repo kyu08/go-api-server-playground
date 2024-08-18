@@ -18,6 +18,24 @@ func NewUserRepository() *UserRepository {
 	return &UserRepository{}
 }
 
+func (UserRepository) Create(ctx context.Context, db *sql.DB, u *user.User) error {
+	queries := database.New(db)
+
+	_, err := queries.CreateUser(ctx, database.CreateUserParams{
+		ID:         u.ID.String(),
+		ScreenName: u.ScreenName.String(),
+		UserName:   u.UserName.String(),
+		Bio:        u.Bio.String(),
+		IsPrivate:  u.IsPrivate,
+		CreatedAt:  u.CreatedAt,
+	})
+	if err != nil {
+		return fmt.Errorf("queries.CreateUser: %w", err)
+	}
+
+	return nil
+}
+
 func (UserRepository) FindByScreenName(ctx context.Context, db *sql.DB, screenName string) (*user.User, error) {
 	queries := database.New(db)
 
@@ -30,12 +48,5 @@ func (UserRepository) FindByScreenName(ctx context.Context, db *sql.DB, screenNa
 		return nil, fmt.Errorf("queries.FindUserByScreenName: %w", err)
 	}
 
-	return &user.User{
-		ID:         u.ID,
-		ScreenName: user.ScreenName(u.ScreenName),
-		UserName:   u.UserName,
-		Bio:        u.Bio,
-		IsPrivate:  u.IsPrivate,
-		CreatedAt:  u.CreatedAt,
-	}, nil
+	return u.ToUser(), nil
 }

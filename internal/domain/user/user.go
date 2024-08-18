@@ -1,13 +1,54 @@
 package user
 
-import "time"
+import (
+	"time"
 
+	"github.com/kyu08/go-api-server-playground/internal/domain/id"
+)
+
+// TODO: Userモデルの各フィールドを値オブジェクトとして定義する
+// TODO: validateメソッド、UTをかく
+// TODO: CQRS的に実装した方がよさそうか検討してみる。課題はREADではvalidationが必要ないのにコードの構造上それが強制されそうで可読性が落ちたり無駄な計算が発生してしまう。READには必要ないフィールドだけどvalidationのために取得する、というようなことも起きてしまいそう。（これは無駄に感じる）
 type User struct {
-	// TODO: それぞれ値オブジェクトをつくる？
-	ID         string
+	ID         id.ID
 	ScreenName ScreenName
-	UserName   string
-	Bio        string
+	UserName   UserName
+	Bio        Bio
 	IsPrivate  bool
 	CreatedAt  time.Time
+}
+
+func New(screenName, userName, bio string) (*User, error) {
+	s, err := NewUserScreenName(screenName)
+	if err != nil {
+		return nil, err
+	}
+
+	u, err := NewUserUserName(userName)
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := NewUserBio(bio)
+	if err != nil {
+		return nil, err
+	}
+
+	user := &User{
+		ID:         id.New(),
+		ScreenName: s,
+		UserName:   u,
+		Bio:        b,
+		IsPrivate:  false,
+		CreatedAt:  time.Now(),
+	}
+	if err := user.validate(); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (u *User) validate() error {
+	panic("unimplemented")
 }

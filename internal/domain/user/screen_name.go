@@ -19,6 +19,7 @@ func NewUserScreenName(source string) (ScreenName, error) {
 	return s, nil
 }
 
+// TODO: UT
 func (s ScreenName) validate() error {
 	if len(s) == 0 {
 		return ErrScreenNameEmpty
@@ -30,4 +31,8 @@ func (s ScreenName) validate() error {
 	}
 
 	return nil
+}
+
+func (s ScreenName) String() string {
+	return string(s)
 }
