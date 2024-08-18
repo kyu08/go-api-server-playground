@@ -1,7 +1,10 @@
 package user
 
-import "context"
+import (
+	"context"
+	"database/sql"
+)
 
-type UserRepository interface { // TODO: 定義側にinterfaceを定義するのはgo-wayではないな〜。どうするか検討する。
-	FindUserByScreenName(ctx context.Context, screenName string) (*User, error)
+type Repository interface {
+	FindByScreenName(ctx context.Context, db *sql.DB, screenName string) (*User, error)
 }

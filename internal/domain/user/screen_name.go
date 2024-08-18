@@ -2,15 +2,15 @@ package user
 
 import "errors"
 
-type screenName string
+type ScreenName string
 
 var (
 	ErrScreenNameEmpty             = errors.New("screen_name is empty")
 	ErrScreenNameMoreThanMaxLength = errors.New("screen_name is more than max length")
 )
 
-func NewUserScreenName(source string) (screenName, error) {
-	s := screenName(source)
+func NewUserScreenName(source string) (ScreenName, error) {
+	s := ScreenName(source)
 
 	if err := s.validate(); err != nil {
 		return "", err
@@ -19,7 +19,7 @@ func NewUserScreenName(source string) (screenName, error) {
 	return s, nil
 }
 
-func (s screenName) validate() error {
+func (s ScreenName) validate() error {
 	if len(s) == 0 {
 		return ErrScreenNameEmpty
 	}
