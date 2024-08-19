@@ -16,7 +16,7 @@ steps:
       && current.res.status == 0
       && current.res.headers["content-type"][0] == "application/grpc"
 
-  - desc: screen_nameとして空文字指定するとエラーが返る
+  - desc: screen_nameとして空文字を指定するとエラーが返る
     greq:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":""}
