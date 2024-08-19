@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/kyu08/go-api-server-playground/database"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
@@ -20,9 +21,10 @@ func (s *TwitterServer) FindUserByScreenName(
 		return nil, fmt.Errorf("user.NewUserScreenName: %w", err)
 	}
 
-	u, err := s.userRepository.FindByScreenName(ctx, s.db, string(screenName))
+	queries := database.New(s.db)
+	u, err := s.userRepository.FindByScreenName(ctx, queries, screenName)
 	if err != nil {
-		return nil, fmt.Errorf("queries.FindUserByScreenName: %w", err)
+		return nil, fmt.Errorf("s.userRepository.FindByScreenName: %w", err)
 	}
 
 	return &api.FindUserByScreenNameResponse{

@@ -29,6 +29,7 @@ linters:
     - varnamelen # 過度に感じたので無効化
     - godox # PRを跨いでTODOコメントを消化することがあるので無効化
     - godot # Comment should end in a period (godot)と怒られるが、日本語とは合わないので無効化
+    - wsl # 意味の単位ごとで改行を入れた方が読みやすいケースがあるため無効化
 
 linters-settings:
   revive:

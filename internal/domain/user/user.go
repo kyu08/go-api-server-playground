@@ -49,6 +49,19 @@ func New(screenName, userName, bio string) (*User, error) {
 	return user, nil
 }
 
+// TODO: UT
 func (u *User) validate() error {
-	panic("unimplemented")
+	if err := u.ScreenName.validate(); err != nil {
+		return err
+	}
+
+	if err := u.UserName.validate(); err != nil {
+		return err
+	}
+
+	if err := u.Bio.validate(); err != nil {
+		return err
+	}
+
+	return nil
 }

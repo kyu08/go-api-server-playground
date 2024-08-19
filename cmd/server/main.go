@@ -9,9 +9,9 @@ import (
 	"os/signal"
 
 	"github.com/kyu08/go-api-server-playground/database"
+	"github.com/kyu08/go-api-server-playground/database/repository"
 	"github.com/kyu08/go-api-server-playground/internal/config"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
-	"github.com/kyu08/go-api-server-playground/internal/repository"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
