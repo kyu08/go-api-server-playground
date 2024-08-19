@@ -19,9 +19,15 @@ func NewUserRepository() *UserRepository {
 }
 
 func (UserRepository) Create(ctx context.Context, db *sql.DB, u *user.User) error {
-	queries := database.New(db)
+	tx, err := db.BeginTx(ctx, nil)
+	defer tx.Commit()
+	queries := database.New(tx)
 
-	_, err := queries.CreateUser(ctx, database.CreateUserParams{
+	// TODO: これを参考にトランザクションの処理をいい感じにかく(そしてそれをdatabaseパッケージに移動する)
+	// TODO: すでに同名のscreenNameのuserが存在しないことを確認する
+	// TODO: ↑の処理は誰がやるべきなんだ... domainService的な存在が必要かも？
+	// TODO: screenNameのユニーク制約をDBにかける
+	_, err = queries.CreateUser(ctx, database.CreateUserParams{
 		ID:         u.ID.String(),
 		ScreenName: u.ScreenName.String(),
 		UserName:   u.UserName.String(),

@@ -9,13 +9,10 @@ import (
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
 
-func (s *TwitterServer) CreateUser(
-	ctx context.Context,
-	req *api.CreateUserRequest,
-) (*api.CreateUserResponse, error) {
+func (s *TwitterServer) CreateUser(ctx context.Context, req *api.CreateUserRequest) (*api.CreateUserResponse, error) {
 	log.Printf("Received: %v", "CreateUser") // TODO: インターセプター側でログ出力するようにする
 
-	user, err := user.New(req.ScreenName, req.UserName, req.Bio)
+	user, err := user.New(req.GetScreenName(), req.GetUserName(), req.GetBio())
 	if err != nil {
 		return nil, fmt.Errorf("user.NewUser: %w", err)
 	}

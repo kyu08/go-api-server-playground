@@ -1,0 +1,45 @@
+desc: CreateUser
+runners:
+  greq: grpc://server:8080
+steps:
+  - desc: 存在するscreen_nameを指定するとユーザー情報が取得できる
+    greq:
+      # TODO: これ書き換える
+      twitter.TwitterService/CreateUser:
+        message: {"screen_name":"s_name"}
+    test: |
+      compare(current.res.message, {
+        id: "00000000-0000-0000-0000-000000000000",
+        screen_name: "s_name",
+        user_name: "name",
+        bio: "bio"
+      })
+      && current.res.status == 0
+      && current.res.headers["content-type"][0] == "application/grpc"
+
+  # - desc: screen_nameとして空文字指定するとエラーが返る
+  #   greq:
+  #     twitter.TwitterService/CreateUser:
+  #       message: {"screen_name":""}
+  #   test: |
+  #     compare(current.res.message, "user.NewUserScreenName: screen_name is empty")
+  #     && current.res.status == 2
+  #     && current.res.trailers["content-type"][0] == "application/grpc"
+  #
+  # - desc: screen_nameとして21文字以上の文字列を指定するとエラーが返る
+  #   greq:
+  #     twitter.TwitterService/CreateUser:
+  #       message: {"screen_name":"012345678901234567890"}
+  #   test: |
+  #     compare(current.res.message, "user.NewUserScreenName: screen_name is more than max length")
+  #     && current.res.status == 2
+  #     && current.res.trailers["content-type"][0] == "application/grpc"
+  #
+  # - desc: 存在しないscreen_nameを指定するとエラーが返る
+  #   greq:
+  #     twitter.TwitterService/CreateUser:
+  #       message: {"screen_name":"ghost"}
+  #   test: |
+  #     compare(current.res.message, "queries.CreateUser: user not found")
+  #     && current.res.status == 2
+  #     && current.res.trailers["content-type"][0] == "application/grpc"
