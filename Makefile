@@ -61,7 +61,7 @@ health-check:
 
 .PHONY: format-sql
 format-sql:
-	sqlfluff format database; sqlfluff fix --FIX-EVEN-UNPARSABLE database; sqlfluff lint database
+	sqlfluff format internal/database; sqlfluff fix --FIX-EVEN-UNPARSABLE internal/database; sqlfluff lint internal/database
 
 # =========================================
 # コンテナ関連
