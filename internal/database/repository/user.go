@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 
@@ -41,8 +40,8 @@ func (UserRepository) FindByScreenName(
 ) (*user.User, error) {
 	u, err := queries.FindUserByScreenName(ctx, string(screenName))
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrFindUserByScreenNameUserNotFound // TODO: repository層のエラーに変換する
+		if database.IsNotFound(err) {
+			return nil, database.NewNotFoundError("user")
 		}
 
 		return nil, fmt.Errorf("queries.FindUserByScreenName: %w", err)

@@ -7,7 +7,6 @@ import (
 	"log"
 
 	"github.com/kyu08/go-api-server-playground/internal/database"
-	"github.com/kyu08/go-api-server-playground/internal/database/repository"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
@@ -25,7 +24,7 @@ func (s *TwitterServer) CreateUser(ctx context.Context, req *api.CreateUserReque
 	if err := database.WithTransaction(ctx, s.db, func(queries *database.Queries) error {
 		if u, err := s.userRepository.FindByScreenName(ctx, queries, newUser.ScreenName); u != nil {
 			return ErrCreateUserScreenNameAlreadyUsed
-		} else if err != nil && !errors.Is(err, repository.ErrFindUserByScreenNameUserNotFound) {
+		} else if err != nil && !database.IsNotFoundError(err, "user") {
 			return fmt.Errorf("s.userRepository.FindByScreenName: %w", err) // TODO: 重複チェックは誰がやるべきなんだ... domainService的な存在が必要かも？
 		}
 
