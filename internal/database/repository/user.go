@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/kyu08/go-api-server-playground/database"
+	"github.com/kyu08/go-api-server-playground/internal/database"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 )
 
@@ -17,8 +17,6 @@ type UserRepository struct{}
 func NewUserRepository() *UserRepository {
 	return &UserRepository{}
 }
-
-// TODO: internalディレクトリに移動する
 
 func (r UserRepository) Create(ctx context.Context, queries *database.Queries, u *user.User) error {
 	p := database.CreateUserParams{

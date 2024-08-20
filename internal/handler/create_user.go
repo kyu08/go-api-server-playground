@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/kyu08/go-api-server-playground/database"
-	"github.com/kyu08/go-api-server-playground/database/repository"
+	"github.com/kyu08/go-api-server-playground/internal/database"
+	"github.com/kyu08/go-api-server-playground/internal/database/repository"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
