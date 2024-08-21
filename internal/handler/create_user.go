@@ -22,10 +22,15 @@ func (s *TwitterServer) CreateUser(ctx context.Context, req *api.CreateUserReque
 	}
 
 	if err := database.WithTransaction(ctx, s.db, func(queries *database.Queries) error {
-		if u, err := s.userRepository.FindByScreenName(ctx, queries, newUser.ScreenName); u != nil {
+		userService := user.UserService{
+			UserRepository: queries,
+		}
+		isUnique, err := userService.IsUniqueScreenName(ctx, newUser.ScreenName)
+		if err != nil {
+			return fmt.Errorf("userService.IsUniqueScreenName: %w", err)
+		}
+		if !isUnique {
 			return ErrCreateUserScreenNameAlreadyUsed
-		} else if err != nil && !database.IsNotFoundError(err, "user") {
-			return fmt.Errorf("s.userRepository.FindByScreenName: %w", err) // TODO: 重複チェックは誰がやるべきなんだ... domainService的な存在が必要かも？
 		}
 
 		if err := s.userRepository.Create(ctx, queries, newUser); err != nil {
