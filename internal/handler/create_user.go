@@ -13,6 +13,9 @@ import (
 
 var ErrCreateUserScreenNameAlreadyUsed = errors.New("the screen name specified is already used")
 
+// TODO: usecase層に分離する
+// TODO: usecase層がscreenNameのユニークチェックを行うパターンとdomain serviceがそれを行うパターンの両方を実装してみる
+
 func (s *TwitterServer) CreateUser(ctx context.Context, req *api.CreateUserRequest) (*api.CreateUserResponse, error) {
 	log.Printf("Received: %v", "CreateUser") // TODO: インターセプター側でログ出力するようにする
 
@@ -22,7 +25,9 @@ func (s *TwitterServer) CreateUser(ctx context.Context, req *api.CreateUserReque
 	}
 
 	if err := database.WithTransaction(ctx, s.db, func(queries *database.Queries) error {
-		userService := user.UserService{
+		// TODO:そもそもuserService.Create()を呼び出すだけでいいにしたくない？
+		// けどそうするとだいぶserviceの責務が増えるかも？
+		userService := user.UserService{ // TODO: 別の場所で初期化 or TwitterServerのメソッドとして提供すべき?
 			UserRepository: queries,
 		}
 		isUnique, err := userService.IsUniqueScreenName(ctx, newUser.ScreenName)

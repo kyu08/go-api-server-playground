@@ -8,6 +8,7 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 )
 
+// TODO: renameしたい。そのために自動生成されたコードをprivateにすると綺麗になるかも
 func (q *Queries) FindUserByScreenName_(ctx context.Context, screenName string) (*user.User, error) {
 	u, err := q.FindUserByScreenName(ctx, screenName)
 	if err != nil {
