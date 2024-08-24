@@ -28,4 +28,4 @@ message CreateUserRequest {
   string user_name = 2;
   string bio = 3;
 }
-message CreateUserResponse {}
+message CreateUserResponse { string id = 1; }
