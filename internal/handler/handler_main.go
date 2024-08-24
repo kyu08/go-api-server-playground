@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/kyu08/go-api-server-playground/internal/config"
 	"github.com/kyu08/go-api-server-playground/internal/database"
@@ -20,12 +21,12 @@ type TwitterServer struct {
 func NewTwitterServer() (*TwitterServer, error) {
 	config, err := config.New(context.Background())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("config.New: %w", err)
 	}
 
 	db, err := database.NewDBConnection(config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("database.NewDBConnection: %w", err)
 	}
 
 	userRepository := repository.NewUserRepository()

@@ -7,7 +7,9 @@ import (
 )
 
 // TODO: validateメソッド、UTをかく
-// TODO: CQRS的に実装した方がよさそうか検討してみる。課題はREADではvalidationが必要ないのにコードの構造上それが強制されそうで可読性が落ちたり無駄な計算が発生してしまう。READには必要ないフィールドだけどvalidationのために取得する、というようなことも起きてしまいそう。（これは無駄に感じる）
+// TODO: CQRS的に実装した方がよさそうか検討してみる。課題はREADではvalidationが必要ないのに
+// コードの構造上それが強制されそうで可読性が落ちたり無駄な計算が発生してしまう。
+// READには必要ないフィールドだけどvalidationのために取得する、というようなことも起きてしまいそう。（これは無駄に感じる）
 type User struct {
 	ID         id.ID
 	ScreenName ScreenName
