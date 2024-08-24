@@ -31,6 +31,7 @@ linters:
     - godot # Comment should end in a period (godot)と怒られるが、日本語とは合わないので無効化
     - wsl # 意味の単位ごとで改行を入れた方が読みやすいケースがあるため無効化
     - testpackage # テスト用のパッケージを切らない方が自由に少ない記述量でテストが書けて嬉しいので無効化
+    - gochecknoglobals # ヘルパー関数の名前空間を区切りたい時などにグローバル変数を使いたいので無効化(それ以外のコード品質が落ちるような用途では使わないので特に問題ないはず)
 
 linters-settings:
   revive:
