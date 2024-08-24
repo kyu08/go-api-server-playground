@@ -11,7 +11,11 @@ import (
 
 // 複数のusecaseから呼ばれうる関数はこのファイルのように[entity_name.go]のような形式のファイルに置く
 
-func isUniqueScreenName(
+type userHelper_ struct{}
+
+var userHelper userHelper_
+
+func (userHelper_) isUniqueScreenName(
 	ctx context.Context,
 	userRepository *repository.UserRepository,
 	queries *database.Queries,

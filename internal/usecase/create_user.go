@@ -44,9 +44,9 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 	}
 
 	if err := database.WithTransaction(ctx, u.db, func(queries *database.Queries) error {
-		isUnique, err := isUniqueScreenName(ctx, u.userRepository, queries, newUser.ScreenName)
+		isUnique, err := userHelper.isUniqueScreenName(ctx, u.userRepository, queries, newUser.ScreenName)
 		if err != nil {
-			return fmt.Errorf("isUniqueScreenName: %w", err)
+			return fmt.Errorf("userHelper.isUniqueScreenName: %w", err)
 		}
 		if !isUnique {
 			return ErrCreateUserScreenNameAlreadyUsed
