@@ -17,6 +17,7 @@ func main() {
 	// TODO: ログ、エラーハンドリング(アプリケーションのエラーから判断してステータスコードをいい感じにする)のインターセプタを追加する
 	//nolint:lll //URLなので仕方なし
 	// see: https://zenn.dev/jinn/articles/d3b177eafbc457#%E5%8D%98%E4%B8%80%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%82%BB%E3%83%97%E3%82%BF%E3%83%BC%E3%82%92%E8%BF%BD%E5%8A%A0%E3%81%99%E3%82%8B%E5%A0%B4%E5%90%88
+	// TODO: アプリケーションのpanicをcatchしてinternal server errorを返すようなインターセプタを追加する
 
 	server := grpc.NewServer()
 	twitterServer, err := handler.NewTwitterServer()
@@ -27,13 +28,6 @@ func main() {
 	api.RegisterTwitterServiceServer(server, twitterServer)
 	reflection.Register(server)
 
-	defer func() {
-		if err := recover(); err != nil {
-			log.Printf("panic: %v", err)
-		}
-	}()
-
-	// TODO: アプリケーションのpanicをcatchする
 	go func() {
 		const (
 			// NOTE: docker composeで起動する際にhostを指定してしまうとうまく接続できないので空文字にしている。
