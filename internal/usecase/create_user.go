@@ -61,7 +61,6 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 		return nil, fmt.Errorf("database.WithTransaction: %w", err)
 	}
 
-	fmt.Printf("newUser.ID.String(): %v\n", newUser.ID.String())
 	return &CreateUserOutput{
 		ID: newUser.ID,
 	}, nil
