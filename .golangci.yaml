@@ -30,6 +30,7 @@ linters:
     - godox # PRを跨いでTODOコメントを消化することがあるので無効化
     - godot # Comment should end in a period (godot)と怒られるが、日本語とは合わないので無効化
     - wsl # 意味の単位ごとで改行を入れた方が読みやすいケースがあるため無効化
+    - testpackage # テスト用のパッケージを切らない方が自由に少ない記述量でテストが書けて嬉しいので無効化
 
 linters-settings:
   revive:
@@ -42,3 +43,8 @@ linters-settings:
     case:
       rules:
         json: snake
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - err113 # テスト時はその場でエラーを作成して比較したりしたいので無効化

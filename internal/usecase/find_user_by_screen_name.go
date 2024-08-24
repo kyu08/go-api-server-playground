@@ -46,7 +46,7 @@ func (u FindUserByScreenNameUsecase) Run(
 	queries := database.New(u.db)
 	user, err := u.userRepository.FindByScreenName(ctx, queries, screenName)
 	if err != nil {
-		return nil, fmt.Errorf("s.userRepository.FindByScreenName: %w", err)
+		return nil, fmt.Errorf("u.userRepository.FindByScreenName: %w", err)
 	}
 
 	return &FindUserByScreenNameOutput{

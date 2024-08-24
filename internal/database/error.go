@@ -5,12 +5,17 @@ import (
 	"errors"
 )
 
-// TODO:add UT
-func IsNotFoundError(err error, entity string) bool {
-	return errors.Is(err, NotFoundError{Entity: entity})
+func IsNotFoundError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	target_ := new(NotFoundError)
+
+	return errors.As(err, target_)
 }
 
-func IsNotFound(err error) bool {
+func IsNotFoundFromDB(err error) bool {
 	return errors.Is(err, sql.ErrNoRows)
 }
 
@@ -24,14 +29,4 @@ func NewNotFoundError(entity string) NotFoundError {
 
 func (e NotFoundError) Error() string {
 	return e.Entity + " not found"
-}
-
-func (e NotFoundError) Is(err error, target error) bool {
-	var err_ *NotFoundError
-	var target_ *NotFoundError
-	if errors.As(err, err_) && errors.As(target, target_) {
-		return err_.Entity == e.Entity
-	}
-
-	return false
 }

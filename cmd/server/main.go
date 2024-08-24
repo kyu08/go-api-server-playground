@@ -25,8 +25,13 @@ func main() {
 	}
 
 	api.RegisterTwitterServiceServer(server, twitterServer)
-
 	reflection.Register(server)
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Printf("panic: %v", err)
+		}
+	}()
 
 	// TODO: アプリケーションのpanicをcatchする
 	go func() {

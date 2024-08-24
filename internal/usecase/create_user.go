@@ -38,27 +38,22 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 		return nil, fmt.Errorf("input.validate: %w", err)
 	}
 
-	newUser, err := user.New(input.ScreenName, input.ScreenName, input.Bio)
+	newUser, err := user.New(input.ScreenName, input.UserName, input.Bio)
 	if err != nil {
 		return nil, fmt.Errorf("user.NewUser: %w", err)
 	}
 
 	if err := database.WithTransaction(ctx, u.db, func(queries *database.Queries) error {
-		// TODO:そもそもuserService.Create()を呼び出すだけでいいにしたくない？
-		// けどそうするとだいぶserviceの責務が増えるかも？
-		userService := user.UserService{ // TODO: 別の場所で初期化 or TwitterServerのメソッドとして提供すべき?
-			UserRepository: queries,
-		}
-		isUnique, err := userService.IsUniqueScreenName(ctx, newUser.ScreenName)
+		isUnique, err := isUniqueScreenName(ctx, u.userRepository, queries, newUser.ScreenName)
 		if err != nil {
-			return fmt.Errorf("userService.IsUniqueScreenName: %w", err)
+			return fmt.Errorf("isUniqueScreenName: %w", err)
 		}
 		if !isUnique {
 			return ErrCreateUserScreenNameAlreadyUsed
 		}
 
 		if err := u.userRepository.Create(ctx, queries, newUser); err != nil {
-			return fmt.Errorf("s.userRepository.Create: %w", err)
+			return fmt.Errorf("u.userRepository.Create: %w", err)
 		}
 
 		return nil
@@ -66,6 +61,7 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 		return nil, fmt.Errorf("database.WithTransaction: %w", err)
 	}
 
+	fmt.Printf("newUser.ID.String(): %v\n", newUser.ID.String())
 	return &CreateUserOutput{
 		ID: newUser.ID,
 	}, nil

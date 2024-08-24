@@ -40,7 +40,7 @@ func (UserRepository) FindByScreenName(
 ) (*user.User, error) {
 	u, err := queries.FindUserByScreenName(ctx, string(screenName))
 	if err != nil {
-		if database.IsNotFound(err) {
+		if database.IsNotFoundFromDB(err) {
 			return nil, database.NewNotFoundError("user")
 		}
 
