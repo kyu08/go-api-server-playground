@@ -23,7 +23,7 @@ func TestNewUserBio(t *testing.T) {
 		"invalidな引数を指定するとエラーと空文字が返る": {
 			in:         "",
 			want:       "",
-			wantErrMsg: lo.ToPtr("bio is empty"),
+			wantErrMsg: lo.ToPtr("bio is required"),
 		},
 	}
 	for name, tt := range tests {

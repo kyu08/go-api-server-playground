@@ -60,7 +60,7 @@ func TestNewUserScreenName(t *testing.T) {
 		"invalidな引数を指定するとエラーと空文字が返る": {
 			in:         "",
 			want:       "",
-			wantErrMsg: lo.ToPtr("screen_name is empty"),
+			wantErrMsg: lo.ToPtr("screen_name is required"),
 		},
 	}
 	for name, tt := range tests {
