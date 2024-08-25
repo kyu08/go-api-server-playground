@@ -5,7 +5,6 @@ import "errors"
 type ScreenName string
 
 var (
-	// TODO: 現状ではなくどうしたらいいかが伝わりやすいメッセージにする（screen_name should not be emptyみたいな）
 	ErrScreenNameRequired = errors.New("screen_name is required")
 	ErrScreenNameTooLong  = errors.New("screen_name is too long")
 )
