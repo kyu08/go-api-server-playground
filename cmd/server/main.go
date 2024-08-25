@@ -1,42 +1,33 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 
-	"github.com/kyu08/go-api-server-playground/database"
-	"github.com/kyu08/go-api-server-playground/internal/config"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
-	"github.com/kyu08/go-api-server-playground/internal/repository"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 func main() {
-	config, err := config.New(context.Background())
-	if err != nil {
-		panic(err)
-	}
-
-	db, err := database.NewDBConnection(config)
-	if err != nil {
-		panic(err)
-	}
-
 	// TODO: ログ、エラーハンドリング(アプリケーションのエラーから判断してステータスコードをいい感じにする)のインターセプタを追加する
 	//nolint:lll //URLなので仕方なし
 	// see: https://zenn.dev/jinn/articles/d3b177eafbc457#%E5%8D%98%E4%B8%80%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%82%BB%E3%83%97%E3%82%BF%E3%83%BC%E3%82%92%E8%BF%BD%E5%8A%A0%E3%81%99%E3%82%8B%E5%A0%B4%E5%90%88
-	server := grpc.NewServer()
-	api.RegisterTwitterServiceServer(server, handler.NewTwitterServer(db, repository.NewUserRepository()))
+	// TODO: アプリケーションのpanicをcatchしてinternal server errorを返すようなインターセプタを追加する
 
+	server := grpc.NewServer()
+	twitterServer, err := handler.NewTwitterServer()
+	if err != nil {
+		panic(err)
+	}
+
+	api.RegisterTwitterServiceServer(server, twitterServer)
 	reflection.Register(server)
 
-	// TODO: アプリケーションのpanicをcatchする
 	go func() {
 		const (
 			// NOTE: docker composeで起動する際にhostを指定してしまうとうまく接続できないので空文字にしている。

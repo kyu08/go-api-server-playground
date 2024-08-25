@@ -1,7 +1,6 @@
 # =========================================
 # 開発環境構築
 # =========================================
-.PHONY: dev-tools
 dev-tools:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
@@ -16,74 +15,65 @@ dev-tools:
 # =========================================
 # 自動生成系
 # =========================================
-.PHONY: gen-proto
 gen-proto: 
 	cd api && protoc --go_out=../pkg/api --go_opt=paths=source_relative \
 	--go-grpc_out=../pkg/api --go-grpc_opt=paths=source_relative \
 	*.proto
 
-.PHONY: gen-sqlc
 gen-sqlc: 
 	sqlc generate
 
-.PHONY: gen-all
 gen-all: gen-proto gen-sqlc
 
 # =========================================
 # アプリケーションの起動、デバッグなど
 # =========================================
-.PHONY: test
 test: 
 	go test -v ./... | cgt
 
-.PHONY: test-e2e-with-refresh # goコードの変更後に実行したいケース
+# すべてのコンテナをビルドしなおしてからE2Eを実行
 test-e2e-with-refresh: container-up test-e2e
 
-.PHONY: test-e2e
+# serverコンテナだけビルドしなおしてからE2Eを実行
+test-e2e-with-refresh-server: 
+	docker compose build server && docker compose start server && make test-e2e
+
 test-e2e: 
 	docker compose run e2e
 
-.PHONY: lint
 lint: 
 	golangci-lint run -c ./.golangci.yaml --fix --allow-parallel-runners --tests ./...
 
-.PHONY: build
 build:
 	go build ./...
 
-.PHONY: handler-list
 handler-list:
 	grpcurl -plaintext localhost:8080 list twitter.TwitterService
 
-.PHONY: health-check
 health-check:
 	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
 
-.PHONY: format-sql
 format-sql:
-	sqlfluff format database; sqlfluff fix --FIX-EVEN-UNPARSABLE database; sqlfluff lint database
+	sqlfluff format internal/database; sqlfluff fix --FIX-EVEN-UNPARSABLE internal/database; sqlfluff lint internal/database
 
 # =========================================
 # コンテナ関連
 # =========================================
-.PHONY: container-up
 container-up:
 	docker compose up -d --build --renew-anon-volumes --force-recreate --remove-orphans
 
-.PHONY: mysql-cli
 mysql-cli:
 	docker compose run mysql-cli
 
-.PHONY: db-log # とはいえDocker Desktopでみた方がわかりやすそうではある
 db-log:
 	docker logs --tail 50 --follow --timestamps
 
-.PHONY: container-stop
 container-stop:
 	docker compose stop
 
-.PHONY: container-restart
 container-restart:
 	make container-stop
 	docker container prune && docker volume rm $(docker volume ls -q)
 	make container-up
+
+.PHONY: dev-tools gen-proto gen-sqlc gen-all test test-e2e-with-refresh test-e2e-with-refresh-server test-e2e lint build handler-list health-check format-sql container-up mysql-cli db-log container-stop container-restart

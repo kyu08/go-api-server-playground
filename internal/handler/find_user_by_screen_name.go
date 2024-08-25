@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/usecase"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
 
@@ -15,20 +15,16 @@ func (s *TwitterServer) FindUserByScreenName(
 ) (*api.FindUserByScreenNameResponse, error) {
 	log.Printf("Received: %v", "FindUserByScreenName") // TODO: インターセプター側でログ出力するようにする
 
-	screenName, err := user.NewUserScreenName(req.GetScreenName())
+	input := usecase.NewFindUserByScreenNameInput(req.GetScreenName())
+	output, err := s.FindUserByScreenNameUsecase.Run(ctx, input)
 	if err != nil {
-		return nil, fmt.Errorf("user.NewUserScreenName: %w", err)
-	}
-
-	u, err := s.userRepository.FindByScreenName(ctx, s.db, string(screenName))
-	if err != nil {
-		return nil, fmt.Errorf("queries.FindUserByScreenName: %w", err)
+		return nil, fmt.Errorf("uc.Run: %w", err)
 	}
 
 	return &api.FindUserByScreenNameResponse{
-		Id:         u.ID,
-		ScreenName: string(u.ScreenName),
-		UserName:   u.UserName,
-		Bio:        u.Bio,
+		Id:         output.ID.String(),
+		ScreenName: output.ScreenName.String(),
+		UserName:   output.UserName.String(),
+		Bio:        output.Bio.String(),
 	}, nil
 }

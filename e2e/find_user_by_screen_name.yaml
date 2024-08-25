@@ -1,27 +1,36 @@
 desc: FindUserByScreenName
 runners:
   greq: grpc://server:8080
+  db: mysql://user:password@mysql:3306/db
 steps:
+  - desc: シードデータの投入
+    db:
+      query: |-
+        insert into user (
+          id, screen_name, user_name, bio, is_private, created_at
+        ) values (
+          'c52e019c-fd3c-4e9f-acf0-74261e500a85', 'find_user', 'name', 'bio', false, '2020-01-01 00:00:00'
+        );
   - desc: 存在するscreen_nameを指定するとユーザー情報が取得できる
     greq:
       twitter.TwitterService/FindUserByScreenName:
-        message: {"screen_name":"s_name"}
+        message: {"screen_name":"find_user"}
     test: |
       compare(current.res.message, {
-        id: "00000000-0000-0000-0000-000000000000",
-        screen_name: "s_name",
+        id: "c52e019c-fd3c-4e9f-acf0-74261e500a85",
+        screen_name: "find_user",
         user_name: "name",
         bio: "bio"
       })
       && current.res.status == 0
       && current.res.headers["content-type"][0] == "application/grpc"
 
-  - desc: screen_nameとして空文字指定するとエラーが返る
+  - desc: screen_nameとして空文字を指定するとエラーが返る
     greq:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":""}
     test: |
-      compare(current.res.message, "user.NewUserScreenName: screen_name is empty")
+      compare(current.res.message, "uc.Run: input.validate: screen name is required")
       && current.res.status == 2
       && current.res.trailers["content-type"][0] == "application/grpc"
 
@@ -30,7 +39,7 @@ steps:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":"012345678901234567890"}
     test: |
-      compare(current.res.message, "user.NewUserScreenName: screen_name is more than max length")
+      compare(current.res.message, "uc.Run: user.NewUserScreenName: screen_name is too long")
       && current.res.status == 2
       && current.res.trailers["content-type"][0] == "application/grpc"
 
@@ -39,6 +48,6 @@ steps:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":"ghost"}
     test: |
-      compare(current.res.message, "queries.FindUserByScreenName: user not found")
+      compare(current.res.message, "uc.Run: u.userRepository.FindByScreenName: user not found")
       && current.res.status == 2
       && current.res.trailers["content-type"][0] == "application/grpc"
