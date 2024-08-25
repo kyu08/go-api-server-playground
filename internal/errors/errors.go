@@ -1,7 +1,7 @@
 package errors
 
 import (
-	stdErrors "errors"
+	stderrors "errors"
 
 	goerrors "github.com/go-errors/errors"
 )
@@ -52,7 +52,7 @@ func (e TwitterError) isPreconditionError() bool {
 
 func IsPreconditionError(err error) bool {
 	var terror *TwitterError
-	if stdErrors.As(err, &terror) {
+	if stderrors.As(err, &terror) {
 		return terror.isPreconditionError()
 	}
 	return false
