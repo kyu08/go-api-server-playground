@@ -28,7 +28,6 @@ func TestNewUserBio(t *testing.T) {
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 			got, err := NewUserBio(tt.in)
 
@@ -70,7 +69,6 @@ func TestBio_validate(t *testing.T) {
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 			err := tt.in.validate()
 			if tt.wantErrMsg != nil {
