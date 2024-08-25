@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
 	"os"
 	"os/signal"
@@ -20,8 +20,9 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
-		loggerInterceptor(),
+		loggerInterceptor(logger),
 		grpc_recovery.UnaryServerInterceptor(),
 	))
 	twitterServer, err := handler.NewTwitterServer()
@@ -40,7 +41,7 @@ func main() {
 			port = 8080
 		)
 
-		log.Printf("start gRPC server on port %d", port)
+		logger.Info(fmt.Sprintf("start gRPC server on port %d", port))
 
 		listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, port))
 		if err != nil {
@@ -55,23 +56,23 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	log.Println("stopping gRPC server...")
+	logger.Info("stopping gRPC server...")
 	server.GracefulStop() // NOTE: 受け付けているリクエストを捌き切ってからサーバーを停止するために必要
 }
 
-func loggerInterceptor() grpc.UnaryServerInterceptor {
+func loggerInterceptor(logger *slog.Logger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		log.Printf("[start]: %s(%s)", strings.Split(info.FullMethod, "/")[2], req)
-		defer log.Printf("[end]:   %s(%s)", strings.Split(info.FullMethod, "/")[2], req)
+		methodName := strings.Split(info.FullMethod, "/")[2]
+
+		logger.Info("start", slog.String("method", methodName), slog.Any("request", req))
+		defer logger.Info("end", slog.String("method", methodName), slog.Any("request", req))
 
 		resp, err := handler(ctx, req)
 		if err != nil {
+			logger.Error("error", "method", methodName, "error", errors.GetStackTrace(err))
 			if !errors.IsPreconditionError(err) {
-				// TODO: ここでスタックトレースをログ出力する
-				log.Printf("[error]: %s(internal: %s)", strings.Split(info.FullMethod, "/")[2], err)
 				return resp, status.Error(codes.Internal, "internal server error")
 			}
-			log.Printf("[error]: %s(%s)", strings.Split(info.FullMethod, "/")[2], err)
 			return resp, status.Error(codes.InvalidArgument, err.Error())
 		}
 
