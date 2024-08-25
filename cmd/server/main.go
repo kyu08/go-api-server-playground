@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"strings"
 
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
@@ -19,9 +20,10 @@ import (
 )
 
 func main() {
-	// TODO: アプリケーションのpanicをcatchしてinternal server errorを返すようなインターセプタを追加する
-
-	server := grpc.NewServer(grpc.UnaryInterceptor(loggerInterceptor()))
+	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
+		loggerInterceptor(),
+		grpc_recovery.UnaryServerInterceptor(),
+	))
 	twitterServer, err := handler.NewTwitterServer()
 	if err != nil {
 		panic(err)
