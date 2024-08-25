@@ -12,6 +12,10 @@ services:
       - DB_NAME=db
     networks:
       - backend-network
+    develop:
+      watch:
+        - action: rebuild
+          path: .
     depends_on:
       mysql:
           condition: service_healthy

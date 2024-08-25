@@ -59,6 +59,9 @@ format-sql:
 # =========================================
 # コンテナ関連
 # =========================================
+container-watch: # serverコンテナの変更を検知する度にビルドする
+	docker compose watch
+
 container-up:
 	docker compose up -d --build --renew-anon-volumes --force-recreate --remove-orphans
 
