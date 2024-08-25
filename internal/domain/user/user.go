@@ -6,7 +6,6 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/domain/id"
 )
 
-// TODO: validateメソッド、UTをかく
 type User struct {
 	ID         id.ID
 	ScreenName ScreenName
@@ -47,19 +46,7 @@ func New(screenName, userName, bio string) (*User, error) {
 	return user, nil
 }
 
-// TODO: UT
 func (u *User) validate() error {
-	if err := u.ScreenName.validate(); err != nil {
-		return err
-	}
-
-	if err := u.UserName.validate(); err != nil {
-		return err
-	}
-
-	if err := u.Bio.validate(); err != nil {
-		return err
-	}
-
+	// NOTE: 値オブジェクトのバリデーションでは収まらないエンティティとしてベット必要なバリデーションが生まれたらここに書く想定
 	return nil
 }

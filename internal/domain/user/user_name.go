@@ -5,8 +5,8 @@ import "errors"
 type UserName string
 
 var (
-	ErrUserNameEmpty             = errors.New("user_name is empty")
-	ErrUserNameMoreThanMaxLength = errors.New("user_name is more than max length")
+	ErrUserNameRequired = errors.New("user_name is required")
+	ErrUserNameTooLong  = errors.New("user_name is too long")
 )
 
 func NewUserUserName(source string) (UserName, error) {
@@ -19,15 +19,14 @@ func NewUserUserName(source string) (UserName, error) {
 	return s, nil
 }
 
-// TODO: UT
 func (s UserName) validate() error {
 	if len(s) == 0 {
-		return ErrUserNameEmpty
+		return ErrUserNameRequired
 	}
 
 	const userNameMaxLength = 20
 	if userNameMaxLength < len(s) {
-		return ErrUserNameMoreThanMaxLength
+		return ErrUserNameTooLong
 	}
 
 	return nil

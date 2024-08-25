@@ -5,8 +5,9 @@ import "errors"
 type ScreenName string
 
 var (
-	ErrScreenNameEmpty             = errors.New("screen_name is empty")
-	ErrScreenNameMoreThanMaxLength = errors.New("screen_name is more than max length")
+	// TODO: 現状ではなくどうしたらいいかが伝わりやすいメッセージにする（screen_name should not be emptyみたいな）
+	ErrScreenNameRequired = errors.New("screen_name is required")
+	ErrScreenNameTooLong  = errors.New("screen_name is too long")
 )
 
 func NewUserScreenName(source string) (ScreenName, error) {
@@ -19,15 +20,14 @@ func NewUserScreenName(source string) (ScreenName, error) {
 	return s, nil
 }
 
-// TODO: UT
 func (s ScreenName) validate() error {
 	if len(s) == 0 {
-		return ErrScreenNameEmpty
+		return ErrScreenNameRequired
 	}
 
 	const screenNameMaxLength = 20
 	if screenNameMaxLength < len(s) {
-		return ErrScreenNameMoreThanMaxLength
+		return ErrScreenNameTooLong
 	}
 
 	return nil

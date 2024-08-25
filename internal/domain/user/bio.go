@@ -5,8 +5,8 @@ import "errors"
 type Bio string
 
 var (
-	ErrBioEmpty             = errors.New("bio is empty")
-	ErrBioMoreThanMaxLength = errors.New("bio is more than max length")
+	ErrBioRequired = errors.New("bio is required")
+	ErrBioTooLong  = errors.New("bio is too long")
 )
 
 func NewUserBio(source string) (Bio, error) {
@@ -19,15 +19,14 @@ func NewUserBio(source string) (Bio, error) {
 	return s, nil
 }
 
-// TODO: UT
 func (s Bio) validate() error {
 	if len(s) == 0 {
-		return ErrBioEmpty
+		return ErrBioRequired
 	}
 
 	const bioMaxLength = 160
 	if bioMaxLength < len(s) {
-		return ErrBioMoreThanMaxLength
+		return ErrBioTooLong
 	}
 
 	return nil
