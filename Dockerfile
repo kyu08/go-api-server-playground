@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
-COPY . ./
+COPY . ./ # モジュールキャッシュを効かせるために必要
 RUN go build -o /app/server cmd/server/main.go
 
 # セキュリティ的にはshellが含まれていないgcr.io/distroless/static-debian12などが良いが、デバッグの容易性のためにalpineを選択した。
