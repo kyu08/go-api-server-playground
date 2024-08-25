@@ -19,8 +19,6 @@ const (
 	Internal ErrorType = iota
 	// Precondition は引数が不正なエラー。リクエストの引数が不正な場合に使用する。(バリデーションに違反する引数や存在しないユーザーへのアクションなど)
 	Precondition
-
-	InternalErrorMessage = "internal server error"
 )
 
 func (e TwitterError) Error() string {

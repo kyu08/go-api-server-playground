@@ -19,7 +19,6 @@ import (
 )
 
 func main() {
-	// TODO: エラーハンドリング(アプリケーションのエラーから判断してステータスコードをいい感じにする)のインターセプタを追加する
 	// TODO: アプリケーションのpanicをcatchしてinternal server errorを返すようなインターセプタを追加する
 
 	server := grpc.NewServer(grpc.UnaryInterceptor(loggerInterceptor()))
