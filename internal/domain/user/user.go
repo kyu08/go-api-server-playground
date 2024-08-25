@@ -47,6 +47,6 @@ func New(screenName, userName, bio string) (*User, error) {
 }
 
 func (u *User) validate() error {
-	// NOTE: 値オブジェクトのバリデーションでは収まらないエンティティとしてベット必要なバリデーションが生まれたらここに書く想定
+	// NOTE: 値オブジェクトのバリデーションでは収まらないエンティティとして別途必要なバリデーションが生まれたらここに書く想定
 	return nil
 }
