@@ -3,13 +3,12 @@ package usecase
 import (
 	"context"
 	"database/sql"
-	"errors"
-	"fmt"
 
 	"github.com/kyu08/go-api-server-playground/internal/database"
 	"github.com/kyu08/go-api-server-playground/internal/database/repository"
 	"github.com/kyu08/go-api-server-playground/internal/domain/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/errors"
 )
 
 type (
@@ -28,25 +27,25 @@ type (
 	}
 )
 
-var ErrFindUserByScreenNameScreenNameRequired = errors.New("screen name is required")
+var ErrFindUserByScreenNameScreenNameRequired = errors.NewPreconditionError("screen name is required")
 
 func (u FindUserByScreenNameUsecase) Run(
 	ctx context.Context,
 	input *FindUserByScreenNameInput,
 ) (*FindUserByScreenNameOutput, error) {
 	if err := input.validate(); err != nil {
-		return nil, fmt.Errorf("input.validate: %w", err)
+		return nil, errors.WithStack(err)
 	}
 
 	screenName, err := user.NewUserScreenName(input.ScreenName)
 	if err != nil {
-		return nil, fmt.Errorf("user.NewUserScreenName: %w", err)
+		return nil, errors.WithStack(err)
 	}
 
 	queries := database.New(u.db)
 	user, err := u.userRepository.FindByScreenName(ctx, queries, screenName)
 	if err != nil {
-		return nil, fmt.Errorf("u.userRepository.FindByScreenName: %w", err)
+		return nil, errors.WithStack(err)
 	}
 
 	return &FindUserByScreenNameOutput{
@@ -75,7 +74,7 @@ func NewFindUserByScreenNameInput(screenName string) *FindUserByScreenNameInput 
 
 func (i FindUserByScreenNameInput) validate() error {
 	if i.ScreenName == "" {
-		return ErrFindUserByScreenNameScreenNameRequired
+		return errors.WithStack(ErrFindUserByScreenNameScreenNameRequired)
 	}
 
 	return nil

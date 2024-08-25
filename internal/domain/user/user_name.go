@@ -1,12 +1,12 @@
 package user
 
-import "errors"
+import "github.com/kyu08/go-api-server-playground/internal/errors"
 
 type UserName string
 
 var (
-	ErrUserNameRequired = errors.New("user_name is required")
-	ErrUserNameTooLong  = errors.New("user_name is too long")
+	ErrUserNameRequired = errors.NewPreconditionError("user_name is required")
+	ErrUserNameTooLong  = errors.NewPreconditionError("user_name is too long")
 )
 
 func NewUserUserName(source string) (UserName, error) {
@@ -21,12 +21,12 @@ func NewUserUserName(source string) (UserName, error) {
 
 func (s UserName) validate() error {
 	if len(s) == 0 {
-		return ErrUserNameRequired
+		return errors.WithStack(ErrUserNameRequired)
 	}
 
 	const userNameMaxLength = 20
 	if userNameMaxLength < len(s) {
-		return ErrUserNameTooLong
+		return errors.WithStack(ErrUserNameTooLong)
 	}
 
 	return nil

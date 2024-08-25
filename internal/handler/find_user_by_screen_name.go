@@ -2,8 +2,8 @@ package handler
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/kyu08/go-api-server-playground/internal/errors"
 	"github.com/kyu08/go-api-server-playground/internal/usecase"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
@@ -15,7 +15,7 @@ func (s *TwitterServer) FindUserByScreenName(
 	input := usecase.NewFindUserByScreenNameInput(req.GetScreenName())
 	output, err := s.FindUserByScreenNameUsecase.Run(ctx, input)
 	if err != nil {
-		return nil, fmt.Errorf("uc.Run: %w", err)
+		return nil, errors.WithStack(err)
 	}
 
 	return &api.FindUserByScreenNameResponse{

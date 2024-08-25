@@ -27,7 +27,7 @@ steps:
       twitter.TwitterService/CreateUser:
         message: {"screen_name":""}
     test: |
-      compare(current.res.message, "uc.Run: input.validate: screen name is required")
+      compare(current.res.message, "screen name is required")
       && current.res.status == 2
       && current.res.trailers["content-type"][0] == "application/grpc"
 
@@ -44,6 +44,6 @@ steps:
       twitter.TwitterService/CreateUser:
         message: {"screen_name":"create_user_test", "user_name":"user_name", "bio":"bio"}
     test: |
-      compare(current.res.message, "uc.Run: database.WithTransaction: fn: the screen name specified is already used")
+      compare(current.res.message, "the screen name specified is already used")
       && current.res.status == 2
       && current.res.trailers["content-type"][0] == "application/grpc"

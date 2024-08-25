@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"strings"
 
+	"github.com/kyu08/go-api-server-playground/internal/errors"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 	"google.golang.org/grpc"
@@ -58,10 +59,17 @@ func main() {
 func loggerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		log.Printf("[start]: %s(%s)", strings.Split(info.FullMethod, "/")[2], req)
+		defer log.Printf("[end]:   %s(%s)", strings.Split(info.FullMethod, "/")[2], req)
+
 		resp, err := handler(ctx, req)
-		// TODO: エラーが返ってきた場合はログに出力する。
-		// TODO: サーバー内部のエラーだった場合はそのまま返さずにUNKNOWNに変換して返す。
-		log.Printf("[end]:   %s(%s)", strings.Split(info.FullMethod, "/")[2], req)
+		if err != nil {
+			if !errors.IsPreconditionError(err) {
+				log.Printf("[error]: %s(internal: %s)", strings.Split(info.FullMethod, "/")[2], err)
+				return resp, errors.NewInternalError()
+			}
+			log.Printf("[error]: %s(%s)", strings.Split(info.FullMethod, "/")[2], err)
+		}
+
 		return resp, err
 	}
 }

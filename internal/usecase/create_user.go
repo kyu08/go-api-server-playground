@@ -3,13 +3,12 @@ package usecase
 import (
 	"context"
 	"database/sql"
-	"errors"
-	"fmt"
 
 	"github.com/kyu08/go-api-server-playground/internal/database"
 	"github.com/kyu08/go-api-server-playground/internal/database/repository"
 	"github.com/kyu08/go-api-server-playground/internal/domain/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/errors"
 )
 
 type (
@@ -28,37 +27,37 @@ type (
 )
 
 var (
-	ErrCreateUserScreenNameRequired    = errors.New("screen name is required")
-	ErrCreateUserUserNameRequired      = errors.New("user name is required")
-	ErrCreateUserScreenNameAlreadyUsed = errors.New("the screen name specified is already used")
+	ErrCreateUserScreenNameRequired    = errors.NewPreconditionError("screen name is required")
+	ErrCreateUserUserNameRequired      = errors.NewPreconditionError("user name is required")
+	ErrCreateUserScreenNameAlreadyUsed = errors.NewPreconditionError("the screen name specified is already used")
 )
 
 func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*CreateUserOutput, error) {
 	if err := input.validate(); err != nil {
-		return nil, fmt.Errorf("input.validate: %w", err)
+		return nil, errors.WithStack(err)
 	}
 
 	newUser, err := user.New(input.ScreenName, input.UserName, input.Bio)
 	if err != nil {
-		return nil, fmt.Errorf("user.NewUser: %w", err)
+		return nil, errors.WithStack(err)
 	}
 
 	if err := database.WithTransaction(ctx, u.db, func(queries *database.Queries) error {
 		isUnique, err := userHelper.isUniqueScreenName(ctx, u.userRepository, queries, newUser.ScreenName)
 		if err != nil {
-			return fmt.Errorf("userHelper.isUniqueScreenName: %w", err)
+			return errors.WithStack(err)
 		}
 		if !isUnique {
-			return ErrCreateUserScreenNameAlreadyUsed
+			return errors.WithStack(ErrCreateUserScreenNameAlreadyUsed)
 		}
 
 		if err := u.userRepository.Create(ctx, queries, newUser); err != nil {
-			return fmt.Errorf("u.userRepository.Create: %w", err)
+			return errors.WithStack(err)
 		}
 
 		return nil
 	}); err != nil {
-		return nil, fmt.Errorf("database.WithTransaction: %w", err)
+		return nil, errors.WithStack(err)
 	}
 
 	return &CreateUserOutput{
@@ -83,10 +82,10 @@ func NewCreateUserInput(screenName, userName, bio string) *CreateUserInput {
 
 func (i CreateUserInput) validate() error {
 	if i.ScreenName == "" {
-		return ErrCreateUserScreenNameRequired
+		return errors.WithStack(ErrCreateUserScreenNameRequired)
 	}
 	if i.UserName == "" {
-		return ErrCreateUserUserNameRequired
+		return errors.WithStack(ErrCreateUserUserNameRequired)
 	}
 
 	return nil

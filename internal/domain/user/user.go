@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/kyu08/go-api-server-playground/internal/domain/id"
+	"github.com/kyu08/go-api-server-playground/internal/errors"
 )
 
 type User struct {
@@ -18,17 +19,17 @@ type User struct {
 func New(screenName, userName, bio string) (*User, error) {
 	s, err := NewUserScreenName(screenName)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	u, err := NewUserUserName(userName)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	b, err := NewUserBio(bio)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	user := &User{
@@ -40,7 +41,7 @@ func New(screenName, userName, bio string) (*User, error) {
 		CreatedAt:  time.Now(),
 	}
 	if err := user.validate(); err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	return user, nil

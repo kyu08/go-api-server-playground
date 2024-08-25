@@ -2,14 +2,13 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"github.com/kyu08/go-api-server-playground/internal/database"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/errors"
 )
 
-var ErrFindUserByScreenNameUserNotFound = errors.New("user not found")
+var ErrFindUserByScreenNameUserNotFound = errors.NewPreconditionError("user not found")
 
 type UserRepository struct{}
 
@@ -27,7 +26,7 @@ func (r UserRepository) Create(ctx context.Context, queries *database.Queries, u
 		CreatedAt:  u.CreatedAt,
 	}
 	if _, err := queries.CreateUser(ctx, p); err != nil {
-		return fmt.Errorf("queries.CreateUser: %w", err)
+		return errors.WithStack(err)
 	}
 
 	return nil
@@ -41,10 +40,10 @@ func (UserRepository) FindByScreenName(
 	u, err := queries.FindUserByScreenName(ctx, string(screenName))
 	if err != nil {
 		if database.IsNotFoundFromDB(err) {
-			return nil, database.NewNotFoundError("user")
+			return nil, errors.WithStack(ErrFindUserByScreenNameUserNotFound)
 		}
 
-		return nil, fmt.Errorf("queries.FindUserByScreenName: %w", err)
+		return nil, errors.WithStack(err)
 	}
 
 	return u.ToUser(), nil

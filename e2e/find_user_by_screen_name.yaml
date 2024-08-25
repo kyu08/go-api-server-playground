@@ -30,7 +30,7 @@ steps:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":""}
     test: |
-      compare(current.res.message, "uc.Run: input.validate: screen name is required")
+      compare(current.res.message, "screen name is required")
       && current.res.status == 2
       && current.res.trailers["content-type"][0] == "application/grpc"
 
@@ -39,7 +39,7 @@ steps:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":"012345678901234567890"}
     test: |
-      compare(current.res.message, "uc.Run: user.NewUserScreenName: screen_name is too long")
+      compare(current.res.message, "screen_name is too long")
       && current.res.status == 2
       && current.res.trailers["content-type"][0] == "application/grpc"
 
@@ -48,6 +48,6 @@ steps:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":"ghost"}
     test: |
-      compare(current.res.message, "uc.Run: u.userRepository.FindByScreenName: user not found")
+      compare(current.res.message, "user not found")
       && current.res.status == 2
       && current.res.trailers["content-type"][0] == "application/grpc"

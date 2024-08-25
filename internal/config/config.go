@@ -2,8 +2,8 @@ package config
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/kyu08/go-api-server-playground/internal/errors"
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -17,7 +17,7 @@ type Config struct {
 func New(ctx context.Context) (*Config, error) {
 	var conf Config
 	if err := envconfig.Process(ctx, &conf); err != nil {
-		return nil, fmt.Errorf("failed to load env vars: %w", err)
+		return nil, errors.WithStack(err)
 	}
 
 	return &Config{
