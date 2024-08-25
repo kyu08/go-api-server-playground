@@ -40,6 +40,8 @@ linters-settings:
       # ライブラリではないのでPublic関数のコメントチェックを無効化
       - name: exported
         disabled: true
+  lll:
+    line-length: 140
 
   tagliatelle:
     case:

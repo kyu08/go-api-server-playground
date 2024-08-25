@@ -1,25 +1,27 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 
+	"github.com/kyu08/go-api-server-playground/internal/errors"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 func main() {
-	// TODO: ログ、エラーハンドリング(アプリケーションのエラーから判断してステータスコードをいい感じにする)のインターセプタを追加する
-	//nolint:lll //URLなので仕方なし
-	// see: https://zenn.dev/jinn/articles/d3b177eafbc457#%E5%8D%98%E4%B8%80%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%82%BB%E3%83%97%E3%82%BF%E3%83%BC%E3%82%92%E8%BF%BD%E5%8A%A0%E3%81%99%E3%82%8B%E5%A0%B4%E5%90%88
 	// TODO: アプリケーションのpanicをcatchしてinternal server errorを返すようなインターセプタを追加する
 
-	server := grpc.NewServer()
+	server := grpc.NewServer(grpc.UnaryInterceptor(loggerInterceptor()))
 	twitterServer, err := handler.NewTwitterServer()
 	if err != nil {
 		panic(err)
@@ -53,4 +55,24 @@ func main() {
 	<-quit
 	log.Println("stopping gRPC server...")
 	server.GracefulStop() // NOTE: 受け付けているリクエストを捌き切ってからサーバーを停止するために必要
+}
+
+func loggerInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		log.Printf("[start]: %s(%s)", strings.Split(info.FullMethod, "/")[2], req)
+		defer log.Printf("[end]:   %s(%s)", strings.Split(info.FullMethod, "/")[2], req)
+
+		resp, err := handler(ctx, req)
+		if err != nil {
+			if !errors.IsPreconditionError(err) {
+				// TODO: ここでスタックトレースをログ出力する
+				log.Printf("[error]: %s(internal: %s)", strings.Split(info.FullMethod, "/")[2], err)
+				return resp, status.Error(codes.Internal, "internal server error")
+			}
+			log.Printf("[error]: %s(%s)", strings.Split(info.FullMethod, "/")[2], err)
+			return resp, status.Error(codes.InvalidArgument, err.Error())
+		}
+
+		return resp, err
+	}
 }

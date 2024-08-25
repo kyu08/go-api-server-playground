@@ -30,8 +30,8 @@ steps:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":""}
     test: |
-      compare(current.res.message, "uc.Run: input.validate: screen name is required")
-      && current.res.status == 2
+      compare(current.res.message, "screen name is required")
+      && current.res.status == 3
       && current.res.trailers["content-type"][0] == "application/grpc"
 
   - desc: screen_nameとして21文字以上の文字列を指定するとエラーが返る
@@ -39,8 +39,8 @@ steps:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":"012345678901234567890"}
     test: |
-      compare(current.res.message, "uc.Run: user.NewUserScreenName: screen_name is too long")
-      && current.res.status == 2
+      compare(current.res.message, "screen_name is too long")
+      && current.res.status == 3
       && current.res.trailers["content-type"][0] == "application/grpc"
 
   - desc: 存在しないscreen_nameを指定するとエラーが返る
@@ -48,6 +48,6 @@ steps:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":"ghost"}
     test: |
-      compare(current.res.message, "uc.Run: u.userRepository.FindByScreenName: user not found")
-      && current.res.status == 2
+      compare(current.res.message, "user not found")
+      && current.res.status == 3
       && current.res.trailers["content-type"][0] == "application/grpc"

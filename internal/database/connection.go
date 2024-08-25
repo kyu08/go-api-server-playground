@@ -2,17 +2,17 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/kyu08/go-api-server-playground/internal/config"
+	"github.com/kyu08/go-api-server-playground/internal/errors"
 )
 
 func NewDBConnection(config *config.Config) (*sql.DB, error) {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
-		panic(err)
+		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
 	//nolint:exhaustruct,exhaustivestruct // 必要なフィールドだけ初期化したい
@@ -33,7 +33,7 @@ func NewDBConnection(config *config.Config) (*sql.DB, error) {
 
 	db, err := sql.Open("mysql", mysqlConf.FormatDSN())
 	if err != nil {
-		return nil, fmt.Errorf("sql.Open: %w", err)
+		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
 	return db, nil
