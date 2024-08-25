@@ -39,7 +39,7 @@ steps:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":"012345678901234567890"}
     test: |
-      compare(current.res.message, "uc.Run: user.NewUserScreenName: screen_name is more than max length")
+      compare(current.res.message, "uc.Run: user.NewUserScreenName: screen_name is too long")
       && current.res.status == 2
       && current.res.trailers["content-type"][0] == "application/grpc"
 
