@@ -17,7 +17,7 @@ type Config struct {
 func New(ctx context.Context) (*Config, error) {
 	var conf Config
 	if err := envconfig.Process(ctx, &conf); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
 	return &Config{

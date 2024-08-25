@@ -26,7 +26,8 @@ func (r UserRepository) Create(ctx context.Context, queries *database.Queries, u
 		CreatedAt:  u.CreatedAt,
 	}
 	if _, err := queries.CreateUser(ctx, p); err != nil {
-		return errors.WithStack(err)
+		// FIXME: 正確にはID, ScreenNameの重複エラーが返ってくる場合もあり、それらの場合はPreconditionErrorにすべきだがサボってInternalにしている
+		return errors.WithStack(errors.NewInternalError(err))
 	}
 
 	return nil
@@ -43,7 +44,7 @@ func (UserRepository) FindByScreenName(
 			return nil, errors.WithStack(ErrFindUserByScreenNameUserNotFound)
 		}
 
-		return nil, errors.WithStack(err)
+		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
 	return u.ToUser(), nil

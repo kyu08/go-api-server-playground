@@ -12,7 +12,7 @@ import (
 func NewDBConnection(config *config.Config) (*sql.DB, error) {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
 	//nolint:exhaustruct,exhaustivestruct // 必要なフィールドだけ初期化したい
@@ -33,7 +33,7 @@ func NewDBConnection(config *config.Config) (*sql.DB, error) {
 
 	db, err := sql.Open("mysql", mysqlConf.FormatDSN())
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
 	return db, nil

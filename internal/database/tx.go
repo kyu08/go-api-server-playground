@@ -10,7 +10,7 @@ import (
 func WithTransaction(ctx context.Context, db *sql.DB, fn func(q *Queries) error) error {
 	tx, err := db.BeginTx(ctx, nil) // TODO: トランザクション分離レベルをどうするか検討する
 	if err != nil {
-		return errors.WithStack(err)
+		return errors.WithStack(errors.NewInternalError(err))
 	}
 
 	defer func() { _ = tx.Rollback }() // コミットされた場合はRollbackされないのでdeferで問題ない
@@ -20,7 +20,7 @@ func WithTransaction(ctx context.Context, db *sql.DB, fn func(q *Queries) error)
 	}
 
 	if err := tx.Commit(); err != nil {
-		return errors.WithStack(err)
+		return errors.WithStack(errors.NewInternalError(err))
 	}
 
 	return nil

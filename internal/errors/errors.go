@@ -6,7 +6,6 @@ import (
 	goerrors "github.com/go-errors/errors"
 )
 
-// ErrorType
 type (
 	ErrorType    int
 	TwitterError struct {
@@ -16,18 +15,23 @@ type (
 )
 
 const (
-	InternalErrorMessage = "internal server error"
-
-	// Unknown は不明なエラー。誤ってゼロ値で初期化された場合はこのエラーになるため基本的には出現しないはず。
-	Unknown ErrorType = iota
 	// Internal は内部エラー。DBとの接続が切れた場合などが発生した場合に使用する。
-	Internal
+	Internal ErrorType = iota
 	// Precondition は引数が不正なエラー。リクエストの引数が不正な場合に使用する。(バリデーションに違反する引数や存在しないユーザーへのアクションなど)
 	Precondition
+
+	InternalErrorMessage = "internal server error"
 )
 
 func (e TwitterError) Error() string {
 	return e.Message
+}
+
+func NewInternalError(err error) error {
+	return &TwitterError{
+		Type:    Internal,
+		Message: err.Error(),
+	}
 }
 
 func NewPreconditionError(message string) error {
@@ -41,7 +45,7 @@ func (e TwitterError) isPreconditionError() bool {
 	switch e.Type {
 	case Precondition:
 		return true
-	case Internal, Unknown:
+	case Internal:
 		return false
 	default:
 		return false
