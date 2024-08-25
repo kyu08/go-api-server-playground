@@ -14,7 +14,6 @@ func (s *TwitterServer) CreateUser(ctx context.Context, req *api.CreateUserReque
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-
 	return &api.CreateUserResponse{
 		Id: output.ID.String(),
 	}, nil
