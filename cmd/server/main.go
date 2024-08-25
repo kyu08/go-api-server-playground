@@ -64,6 +64,7 @@ func loggerInterceptor() grpc.UnaryServerInterceptor {
 		resp, err := handler(ctx, req)
 		if err != nil {
 			if !errors.IsPreconditionError(err) {
+				// TODO: ここでスタックトレースをログ出力する
 				log.Printf("[error]: %s(internal: %s)", strings.Split(info.FullMethod, "/")[2], err)
 				return resp, errors.NewInternalError()
 			}
