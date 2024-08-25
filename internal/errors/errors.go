@@ -7,33 +7,27 @@ import (
 )
 
 // ErrorType
-type ErrorType int
+type (
+	ErrorType    int
+	TwitterError struct {
+		Type    ErrorType
+		Message string
+	}
+)
 
 const (
+	InternalErrorMessage = "internal server error"
+
 	// Unknown は不明なエラー。誤ってゼロ値で初期化された場合はこのエラーになるため基本的には出現しないはず。
 	Unknown ErrorType = iota
 	// Internal は内部エラー。DBとの接続が切れた場合などが発生した場合に使用する。
 	Internal
 	// Precondition は引数が不正なエラー。リクエストの引数が不正な場合に使用する。(バリデーションに違反する引数や存在しないユーザーへのアクションなど)
 	Precondition
-
-	InternalErrorMessage = "internal server error"
 )
-
-type TwitterError struct {
-	Type    ErrorType
-	Message string
-}
 
 func (e TwitterError) Error() string {
 	return e.Message
-}
-
-func NewInternalError() error {
-	return &TwitterError{
-		Type:    Internal,
-		Message: InternalErrorMessage,
-	}
 }
 
 func NewPreconditionError(message string) error {

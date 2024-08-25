@@ -28,7 +28,7 @@ steps:
         message: {"screen_name":""}
     test: |
       compare(current.res.message, "screen name is required")
-      && current.res.status == 2
+      && current.res.status == 3
       && current.res.trailers["content-type"][0] == "application/grpc"
 
   - desc: シードデータの投入
@@ -45,5 +45,5 @@ steps:
         message: {"screen_name":"create_user_test", "user_name":"user_name", "bio":"bio"}
     test: |
       compare(current.res.message, "the screen name specified is already used")
-      && current.res.status == 2
+      && current.res.status == 3
       && current.res.trailers["content-type"][0] == "application/grpc"

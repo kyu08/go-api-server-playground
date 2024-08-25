@@ -13,7 +13,9 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/handler"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 func main() {
@@ -66,9 +68,10 @@ func loggerInterceptor() grpc.UnaryServerInterceptor {
 			if !errors.IsPreconditionError(err) {
 				// TODO: ここでスタックトレースをログ出力する
 				log.Printf("[error]: %s(internal: %s)", strings.Split(info.FullMethod, "/")[2], err)
-				return resp, errors.NewInternalError()
+				return resp, status.Error(codes.Internal, "internal server error")
 			}
 			log.Printf("[error]: %s(%s)", strings.Split(info.FullMethod, "/")[2], err)
+			return resp, status.Error(codes.InvalidArgument, err.Error())
 		}
 
 		return resp, err
