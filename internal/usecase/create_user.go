@@ -7,6 +7,7 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/database"
 	"github.com/kyu08/go-api-server-playground/internal/database/repository"
 	"github.com/kyu08/go-api-server-playground/internal/domain/id"
+	"github.com/kyu08/go-api-server-playground/internal/domain/service"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
 )
@@ -15,6 +16,7 @@ type (
 	CreateUserUsecase struct {
 		db             *sql.DB
 		userRepository *repository.UserRepository
+		userService    *service.UserService
 	}
 	CreateUserInput struct {
 		ScreenName string
@@ -43,19 +45,10 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 	}
 
 	if err := database.WithTransaction(ctx, u.db, func(queries *database.Queries) error {
-		isUnique, err := userHelper.isUniqueScreenName(ctx, u.userRepository, queries, newUser.ScreenName)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		if !isUnique {
-			return errors.WithStack(ErrCreateUserScreenNameAlreadyUsed)
-		}
-
-		if err := u.userRepository.Create(ctx, queries, newUser); err != nil {
-			return errors.WithStack(err)
-		}
-
-		return nil
+		// NOTE: UserService内でTransactionを使うために必要なので注意
+		u.userRepository.SetQueries(queries)
+		userService := service.NewUserService(u.userRepository)
+		return userService.CreateUser(ctx, newUser)
 	}); err != nil {
 		return nil, errors.WithStack(err)
 	}

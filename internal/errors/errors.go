@@ -16,10 +16,12 @@ type (
 )
 
 const (
-	// Internal は内部エラー。DBとの接続が切れた場合などが発生した場合に使用する。
-	Internal ErrorType = iota
-	// Precondition は引数が不正なエラー。リクエストの引数が不正な場合に使用する。(バリデーションに違反する引数や存在しないユーザーへのアクションなど)
-	Precondition
+	// internal は内部エラー。DBとの接続が切れた場合などクライアント側が対処できないエラーを表す。エラー内容はクライアントには通知せず、ログにのみ出力する。
+	internal ErrorType = iota
+	// precondition は引数が不正なエラー。リクエストの引数が不正な場合に使用する。(バリデーションに違反する引数や存在しないユーザーへのアクションなど)
+	precondition
+	// notFound はリソースが見つからないエラー。リソースが存在しない場合に使用する。
+	notFound
 )
 
 func (e TwitterError) Error() string {
@@ -31,30 +33,37 @@ func (e TwitterError) Error() string {
 
 func NewInternalError(err error) error {
 	return &TwitterError{
-		Type:    Internal,
+		Type:    internal,
 		Message: err.Error(),
 	}
 }
 
 func NewPreconditionError(message string) error {
 	return &TwitterError{
-		Type:    Precondition,
+		Type:    precondition,
 		Message: message,
+	}
+}
+
+func NewNotFoundError(entity string) error {
+	return &TwitterError{
+		Type:    notFound,
+		Message: entity,
 	}
 }
 
 func (e TwitterError) isPreconditionError() bool {
 	switch e.Type {
-	case Precondition:
+	case precondition:
 		return true
-	case Internal:
+	case internal, notFound:
 		return false
 	default:
 		return false
 	}
 }
 
-func IsPreconditionError(err error) bool {
+func IsPrecondition(err error) bool {
 	var terror *TwitterError
 	if stderrors.As(err, &terror) {
 		return terror.isPreconditionError()
@@ -73,4 +82,12 @@ func GetStackTrace(err error) string {
 	}
 
 	return err.Error()
+}
+
+func IsNotFound(err error) bool {
+	var terror *TwitterError
+	if stderrors.As(err, &terror) {
+		return terror.Type == notFound
+	}
+	return false
 }

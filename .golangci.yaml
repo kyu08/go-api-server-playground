@@ -33,6 +33,7 @@ linters:
     - testpackage # テスト用のパッケージを切らない方が自由に少ない記述量でテストが書けて嬉しいので無効化
     - gochecknoglobals # ヘルパー関数の名前空間を区切りたい時などにグローバル変数を使いたいので無効化(それ以外のコード品質が落ちるような用途では使わないので特に問題ないはず)
     - nlreturn # 特に可読性向上に繋がらないので無効化
+    - nilnil # DBにクエリした結果がNotFoundだった場合nil,nilを返したいので無効化
 
 linters-settings:
   revive:
