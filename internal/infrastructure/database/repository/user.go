@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 )
 
 type UserRepository struct {
