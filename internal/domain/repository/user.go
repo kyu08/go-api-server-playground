@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 )
 
 type UserRepository interface {

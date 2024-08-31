@@ -6,9 +6,9 @@ import (
 
 	"github.com/kyu08/go-api-server-playground/internal/database"
 	"github.com/kyu08/go-api-server-playground/internal/database/repository"
+	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 	"github.com/kyu08/go-api-server-playground/internal/domain/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/service"
-	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
 )
 
@@ -16,7 +16,6 @@ type (
 	CreateUserUsecase struct {
 		db             *sql.DB
 		userRepository *repository.UserRepository
-		userService    *service.UserService
 	}
 	CreateUserInput struct {
 		ScreenName string
