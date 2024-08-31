@@ -1,8 +1,8 @@
 package database
 
 import (
-	"github.com/kyu08/go-api-server-playground/internal/domain/id"
-	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
+	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 )
 
 func (u *User) ToUser() *user.User {

@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/kyu08/go-api-server-playground/internal/database"
-	"github.com/kyu08/go-api-server-playground/internal/database/repository"
-	"github.com/kyu08/go-api-server-playground/internal/domain/id"
-	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
+	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
 )
 
 type (
@@ -27,7 +27,10 @@ type (
 	}
 )
 
-var ErrFindUserByScreenNameScreenNameRequired = errors.NewPreconditionError("screen name is required")
+var (
+	ErrFindUserByScreenNameScreenNameRequired = errors.NewPreconditionError("screen name is required")
+	ErrFindUserByScreenNameUserNotFound       = errors.NewPreconditionError("user not found")
+)
 
 func (u FindUserByScreenNameUsecase) Run(
 	ctx context.Context,
@@ -42,9 +45,12 @@ func (u FindUserByScreenNameUsecase) Run(
 		return nil, errors.WithStack(err)
 	}
 
-	queries := database.New(u.db)
-	user, err := u.userRepository.FindByScreenName(ctx, queries, screenName)
+	u.userRepository.SetQueries(database.New(u.db))
+	user, err := u.userRepository.FindByScreenName(ctx, screenName)
 	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, errors.WithStack(ErrFindUserByScreenNameUserNotFound)
+		}
 		return nil, errors.WithStack(err)
 	}
 

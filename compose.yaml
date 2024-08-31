@@ -23,7 +23,7 @@ services:
   mysql:
     build:
       context: .
-      dockerfile: ./internal/database/docker_init/Dockerfile
+      dockerfile: ./internal/infrastructure/database/docker_init/Dockerfile
     ports:
       - "3306:3306"
     environment:

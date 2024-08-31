@@ -21,4 +21,4 @@ jobs:
       - name: Install SQLFluff
         run: pip install sqlfluff==3.1.0
       - name: Lint sql
-        run: make format-sql
+        run: make lint-sql
