@@ -40,7 +40,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 }
 
 const findUserByScreenName = `-- name: FindUserByScreenName :one
-select id, screen_name, user_name, bio, is_private, created_at from user
+select id, screen_name, user_name, bio, is_private, created_at from user use index (user_screen_name)
 where screen_name = ? limit 1
 `
 

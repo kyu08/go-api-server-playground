@@ -6,5 +6,5 @@ insert into user (
 );
 
 -- name: FindUserByScreenName :one
-select * from user
+select * from user use index (user_screen_name)
 where screen_name = ? limit 1;

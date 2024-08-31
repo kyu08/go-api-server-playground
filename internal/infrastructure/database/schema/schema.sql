@@ -6,3 +6,5 @@ create table user (
   is_private boolean not null,
   created_at timestamp not null
 );
+
+create index user_screen_name on user (screen_name);
