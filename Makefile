@@ -16,8 +16,8 @@ dev-tools:
 # 自動生成系
 # =========================================
 gen-proto: 
-	cd api && protoc --go_out=../pkg/api --go_opt=paths=source_relative \
-	--go-grpc_out=../pkg/api --go-grpc_opt=paths=source_relative \
+	cd pkg && protoc --go_out=./api --go_opt=paths=source_relative \
+	--go-grpc_out=./api --go-grpc_opt=paths=source_relative \
 	*.proto
 
 gen-sqlc: 
@@ -54,7 +54,7 @@ health-check:
 	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
 
 format-sql:
-	sqlfluff format internal/database; sqlfluff fix --FIX-EVEN-UNPARSABLE internal/database; sqlfluff lint internal/database
+	sqlfluff format internal/infrastructure/database; sqlfluff fix --FIX-EVEN-UNPARSABLE internal/infrastructure/database; sqlfluff lint internal/infrastructure/database
 
 # =========================================
 # コンテナ関連

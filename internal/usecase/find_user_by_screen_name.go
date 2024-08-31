@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/kyu08/go-api-server-playground/internal/database"
-	"github.com/kyu08/go-api-server-playground/internal/database/repository"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
 )
 
 type (
