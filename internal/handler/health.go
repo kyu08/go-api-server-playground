@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"context"
+	"net/http"
 
-	"github.com/kyu08/go-api-server-playground/pkg/api"
+	"github.com/gin-gonic/gin"
 )
 
-func (s *TwitterServer) Health(ctx context.Context, _ *api.HealthRequest) (*api.HealthResponse, error) {
-	return &api.HealthResponse{Message: "twitter"}, nil
+func Health(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }

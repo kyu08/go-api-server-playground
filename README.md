@@ -1,12 +1,8 @@
-# go-api-server-playground
-[kyu08](https://github.com/kyu08)がGoの素振りをするためのリポジトリです。
-
 # 実装内容や使用技術など
 
-| 題材                           | Twitter風のAPIサーバー                                     |
-| :---                           | :---                                                       |
 | 言語                           | Go 1.23                                                    |
-| 通信方式                       | gRPC                                                       |
+| :---                           | :---                                                       |
+| 通信方式                       | REST                                                       |
 | DB                             | MySQL 8.4                                                  |
 | CI                             | GitHub Actions                                             |
 | 依存関係更新                   | dependabot                                                 |
@@ -18,20 +14,16 @@
 
 # 各種手順
 
-## エンドポイント更新時の手順
-1. `api/twitter.proto`を更新
-1. `make gen-proto`
-
 ## DDL更新時の手順
-1. `./sql/schema/schema.sql`を更新
+1. `./infrastructure/database/schema/schema.sql`を更新
 1. `make gen-sqlc`
 
 ## DML更新時の手順
-1. `./sql/query/query.sql`を更新
+1. `./infrastructure/database/query/query.sql`を更新
 1. `make gen-sqlc`
 
-## ローカルでの起動手順
-1. `make container-up`でコンテナを起動する
+## E2Eテストの実行手順
+1. `make test-e2e-with-refresh`でコンテナを起動しE2Eテストを実行
 
 ## ローカルでの開発手順
 1. `make dev-tools`で必要なツールをインストール
