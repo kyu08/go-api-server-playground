@@ -41,7 +41,7 @@ test-e2e-with-refresh-server:
 test-e2e: 
 	docker compose run e2e
 
-lint: 
+lint-go:
 	golangci-lint run -c ./.golangci.yaml --fix --allow-parallel-runners --tests ./...
 
 build:
@@ -53,7 +53,7 @@ handler-list:
 health-check:
 	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
 
-format-sql:
+lint-sql:
 	sqlfluff format internal/infrastructure/database; sqlfluff fix --FIX-EVEN-UNPARSABLE internal/infrastructure/database; sqlfluff lint internal/infrastructure/database
 
 # =========================================
@@ -79,4 +79,4 @@ container-restart:
 	docker container prune && docker volume rm $(docker volume ls -q)
 	make container-up
 
-.PHONY: dev-tools gen-proto gen-sqlc gen-all test test-e2e-with-refresh test-e2e-with-refresh-server test-e2e lint build handler-list health-check format-sql container-up mysql-cli db-log container-stop container-restart
+.PHONY: dev-tools gen-proto gen-sqlc gen-all test test-e2e-with-refresh test-e2e-with-refresh-server test-e2e lint-go build handler-list health-check lint-sql container-up mysql-cli db-log container-stop container-restart
