@@ -8,7 +8,7 @@ import (
 )
 
 func WithTransaction(ctx context.Context, db *sql.DB, fn func(q *Queries) error) error {
-	tx, err := db.BeginTx(ctx, nil) // TODO: トランザクション分離レベルをどうするか検討する
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return errors.WithStack(errors.NewInternalError(err))
 	}
