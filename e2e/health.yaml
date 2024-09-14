@@ -3,9 +3,9 @@ runners:
   greq: grpc://server:8080 # docker composeで立てたserverに対してリクエストを送りたいのでlocalhostではなくservice名を指定している
 steps:
   - greq:
-      twitter.TwitterService/Health:
+      market.MarketService/Health:
         message: {}
     test: |
-      compare(current.res.message, {"message":"twitter"})
+      compare(current.res.message, {"message":"market"})
       && current.res.status == 0
       && current.res.headers["content-type"][0] == "application/grpc"

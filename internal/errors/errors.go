@@ -8,8 +8,8 @@ import (
 )
 
 type (
-	ErrorType    int
-	TwitterError struct {
+	ErrorType   int
+	MarketError struct {
 		Type    ErrorType
 		Message string
 	}
@@ -24,7 +24,7 @@ const (
 	notFound
 )
 
-func (e TwitterError) Error() string {
+func (e MarketError) Error() string {
 	if !e.isPreconditionError() {
 		return "Internal Error: " + e.Message
 	}
@@ -32,27 +32,27 @@ func (e TwitterError) Error() string {
 }
 
 func NewInternalError(err error) error {
-	return &TwitterError{
+	return &MarketError{
 		Type:    internal,
 		Message: err.Error(),
 	}
 }
 
 func NewPreconditionError(message string) error {
-	return &TwitterError{
+	return &MarketError{
 		Type:    precondition,
 		Message: message,
 	}
 }
 
 func NewNotFoundError(entity string) error {
-	return &TwitterError{
+	return &MarketError{
 		Type:    notFound,
 		Message: entity,
 	}
 }
 
-func (e TwitterError) isPreconditionError() bool {
+func (e MarketError) isPreconditionError() bool {
 	switch e.Type {
 	case precondition:
 		return true
@@ -64,7 +64,7 @@ func (e TwitterError) isPreconditionError() bool {
 }
 
 func IsPrecondition(err error) bool {
-	var terror *TwitterError
+	var terror *MarketError
 	if stderrors.As(err, &terror) {
 		return terror.isPreconditionError()
 	}
@@ -85,7 +85,7 @@ func GetStackTrace(err error) string {
 }
 
 func IsNotFound(err error) bool {
-	var terror *TwitterError
+	var terror *MarketError
 	if stderrors.As(err, &terror) {
 		return terror.Type == notFound
 	}

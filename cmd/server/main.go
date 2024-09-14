@@ -21,17 +21,17 @@ import (
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
+	gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
 		loggerInterceptor(logger),
 		grpc_recovery.UnaryServerInterceptor(),
 	))
-	twitterServer, err := handler.NewTwitterServer()
+	marketServer, err := handler.NewMarketServer()
 	if err != nil {
 		panic(err)
 	}
 
-	api.RegisterTwitterServiceServer(server, twitterServer)
-	reflection.Register(server)
+	api.RegisterMarketServiceServer(gRPCServer, marketServer)
+	reflection.Register(gRPCServer)
 
 	go func() {
 		const (
@@ -48,7 +48,7 @@ func main() {
 			panic(err)
 		}
 
-		if err := server.Serve(listener); err != nil {
+		if err := gRPCServer.Serve(listener); err != nil {
 			panic(err)
 		}
 	}()
@@ -57,7 +57,7 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	logger.Info("stopping gRPC server...")
-	server.GracefulStop() // NOTE: 受け付けているリクエストを捌き切ってからサーバーを停止するために必要
+	gRPCServer.GracefulStop() // NOTE: 受け付けているリクエストを捌き切ってからサーバーを停止するために必要
 }
 
 func loggerInterceptor(logger *slog.Logger) grpc.UnaryServerInterceptor {

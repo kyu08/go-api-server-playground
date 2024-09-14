@@ -47,12 +47,6 @@ lint-go:
 build:
 	go build ./...
 
-handler-list:
-	grpcurl -plaintext localhost:8080 list twitter.TwitterService
-
-health-check:
-	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
-
 lint-sql:
 	sqlfluff format internal/infrastructure/database; sqlfluff fix --FIX-EVEN-UNPARSABLE internal/infrastructure/database; sqlfluff lint internal/infrastructure/database
 

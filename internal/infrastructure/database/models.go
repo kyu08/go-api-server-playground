@@ -4,15 +4,6 @@
 
 package database
 
-import (
-	"time"
-)
-
 type User struct {
-	ID         string
-	ScreenName string
-	UserName   string
-	Bio        string
-	IsPrivate  bool
-	CreatedAt  time.Time
+	ID string
 }

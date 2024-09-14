@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option go_package = "pkg/api";
+
+package market;
+
+service MarketService { rpc Health(HealthRequest) returns (HealthResponse); }
+
+message HealthRequest {}
+message HealthResponse { string message = 1; }
