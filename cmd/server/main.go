@@ -69,7 +69,7 @@ func loggerInterceptor(logger *slog.Logger) grpc.UnaryServerInterceptor {
 
 		resp, err := handler(ctx, req)
 		if err != nil {
-			logger.Error("error", "method", methodName, "error", errors.GetStackTrace(err))
+			logger.Error(err.Error(), "method", methodName, "error", errors.GetStackTrace(err))
 			if !errors.IsPrecondition(err) {
 				return resp, status.Error(codes.Internal, "internal server error")
 			}
