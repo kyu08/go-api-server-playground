@@ -22,6 +22,7 @@ import (
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
+		conversionErrorInterceptor(),
 		loggerInterceptor(logger),
 		grpc_recovery.UnaryServerInterceptor(),
 	))
@@ -69,7 +70,21 @@ func loggerInterceptor(logger *slog.Logger) grpc.UnaryServerInterceptor {
 
 		resp, err := handler(ctx, req)
 		if err != nil {
-			logger.Error(err.Error(), "method", methodName, "error", errors.GetStackTrace(err))
+			if !errors.IsPrecondition(err) {
+				logger.Error(err.Error(), "method", methodName, "error", errors.GetStackTrace(err))
+			} else {
+				logger.Warn(err.Error(), "method", methodName, "error", errors.GetStackTrace(err))
+			}
+		}
+
+		return resp, err
+	}
+}
+
+func conversionErrorInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		resp, err := handler(ctx, req)
+		if err != nil {
 			if !errors.IsPrecondition(err) {
 				return resp, status.Error(codes.Internal, "internal server error")
 			}
