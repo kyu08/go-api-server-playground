@@ -6,10 +6,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_USER=user
-      - DB_PASSWD=password
-      - DB_ADDR=mysql:3306
-      - DB_NAME=db
+      - SPANNER_PROJECT=test-project
+      - SPANNER_INSTANCE=test-instance
+      - SPANNER_DATABASE=test-database
+      - SPANNER_EMULATOR_HOST=spanner:9010
     networks:
       - backend-network
     develop:
@@ -17,40 +17,43 @@ services:
         - action: rebuild
           path: .
     depends_on:
-      mysql:
-          condition: service_healthy
+      spanner-init:
+        condition: service_completed_successfully
 
-  mysql:
-    build:
-      context: .
-      dockerfile: ./internal/infrastructure/database/docker_init/Dockerfile
+  spanner:
+    image: gcr.io/cloud-spanner-emulator/emulator:1.5.28
     ports:
-      - "3306:3306"
-    environment:
-        MYSQL_ROOT_PASSWORD: mysql
-        MYSQL_DATABASE: db
-        MYSQL_USER: user
-        MYSQL_PASSWORD: password
-    restart: always
+      - "9010:9010"
+      - "9020:9020"
     networks:
       - backend-network
     healthcheck:
-      test: mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD
+      test: ["CMD", "curl", "-f", "http://localhost:9020/"]
       interval: 1s
-      retries: 20
-      timeout: 20s
+      retries: 30
+      timeout: 10s
 
-  mysql-cli:
-    image: mysql:8.4
+  spanner-init:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:slim
+    volumes:
+      - ./internal/infrastructure/database/schema:/schema
+      - ./scripts:/scripts
+    environment:
+      - SPANNER_EMULATOR_HOST=spanner:9010
     networks:
       - backend-network
-    command: mysql -hmysql -uuser -ppassword db --default-character-set=utf8
+    depends_on:
+      spanner:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "/scripts/init-spanner.sh"]
 
   e2e:
     image: ghcr.io/k1low/runn:v0.116.3
     volumes:
       - ./e2e:/e2e
-    depends_on: 
+    environment:
+      - SPANNER_EMULATOR_HOST=spanner:9010
+    depends_on:
       - server
     networks:
       - backend-network
