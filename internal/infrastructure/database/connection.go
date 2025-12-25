@@ -2,17 +2,41 @@ package database
 
 import (
 	"context"
+	_ "embed"
+	"strings"
 
 	"cloud.google.com/go/spanner"
-	"github.com/kyu08/go-api-server-playground/internal/config"
+	"github.com/apstndb/spanemuboost"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
 )
 
-func NewSpannerClient(ctx context.Context, config *config.Config) (*spanner.Client, error) {
-	client, err := spanner.NewClient(ctx, config.DatabaseName())
+//go:embed schema/schema.sql
+var schemaDDL string
+
+// NewEmulatorWithClient starts a Spanner emulator and returns a client connected to it.
+// The returned teardown function should be called when the client is no longer needed.
+func NewEmulatorWithClient(ctx context.Context) (*spanner.Client, func(), error) {
+	ddls := parseDDLs(schemaDDL)
+
+	_, clients, teardown, err := spanemuboost.NewEmulatorWithClients(ctx,
+		spanemuboost.WithSetupDDLs(ddls),
+	)
 	if err != nil {
-		return nil, errors.WithStack(errors.NewInternalError(err))
+		return nil, nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
-	return client, nil
+	return clients.Client, teardown, nil
+}
+
+// parseDDLs splits a DDL string into individual statements.
+func parseDDLs(ddl string) []string {
+	statements := strings.Split(ddl, ";")
+	var result []string
+	for _, stmt := range statements {
+		stmt = strings.TrimSpace(stmt)
+		if stmt != "" {
+			result = append(result, stmt)
+		}
+	}
+	return result
 }

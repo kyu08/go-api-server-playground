@@ -1,6 +1,6 @@
 desc: FindUserByScreenName
 runners:
-  greq: grpc://server:8080
+  greq: grpc://host.docker.internal:8080
 steps:
   - desc: テスト用ユーザーを作成
     greq:

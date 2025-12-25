@@ -3,7 +3,7 @@
 # MySQLのようなDELETE文は不要
 desc: テスト環境の初期化
 runners:
-  greq: grpc://server:8080
+  greq: grpc://host.docker.internal:8080
 steps:
   - desc: サーバーの起動確認
     greq:

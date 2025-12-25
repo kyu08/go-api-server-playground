@@ -1,6 +1,6 @@
 desc: CreateUser
 runners:
-  greq: grpc://server:8080
+  greq: grpc://host.docker.internal:8080
 steps:
   - desc: ユーザーが作成できる
     greq:

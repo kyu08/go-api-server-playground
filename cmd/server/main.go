@@ -26,10 +26,11 @@ func main() {
 		loggerInterceptor(logger),
 		grpc_recovery.UnaryServerInterceptor(),
 	))
-	twitterServer, err := handler.NewTwitterServer()
+	twitterServer, teardown, err := handler.NewTwitterServer()
 	if err != nil {
 		panic(err)
 	}
+	defer teardown()
 
 	api.RegisterTwitterServiceServer(server, twitterServer)
 	reflection.Register(server)

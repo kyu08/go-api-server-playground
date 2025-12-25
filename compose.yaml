@@ -1,65 +1,9 @@
 services:
-  server:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - SPANNER_PROJECT=test-project
-      - SPANNER_INSTANCE=test-instance
-      - SPANNER_DATABASE=test-database
-      - SPANNER_EMULATOR_HOST=spanner:9010
-    networks:
-      - backend-network
-    develop:
-      watch:
-        - action: rebuild
-          path: .
-    depends_on:
-      spanner-init:
-        condition: service_completed_successfully
-
-  spanner:
-    image: gcr.io/cloud-spanner-emulator/emulator:1.5.28
-    ports:
-      - "9010:9010"
-      - "9020:9020"
-    networks:
-      - backend-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9020/"]
-      interval: 1s
-      retries: 30
-      timeout: 10s
-
-  spanner-init:
-    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:slim
-    volumes:
-      - ./internal/infrastructure/database/schema:/schema
-      - ./scripts:/scripts
-    environment:
-      - SPANNER_EMULATOR_HOST=spanner:9010
-    networks:
-      - backend-network
-    depends_on:
-      spanner:
-        condition: service_healthy
-    entrypoint: ["/bin/bash", "/scripts/init-spanner.sh"]
-
   e2e:
     image: ghcr.io/k1low/runn:v0.116.3
     volumes:
       - ./e2e:/e2e
-    environment:
-      - SPANNER_EMULATOR_HOST=spanner:9010
-    depends_on:
-      - server
-    networks:
-      - backend-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     # MEMO: 詳細な出力がみたい場合は`--debug`を追加する
     command: run --grpc-no-tls --verbose e2e/**/*.yaml
-
-networks:
-  backend-network:
-    driver: bridge

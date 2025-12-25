@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 
-	"github.com/kyu08/go-api-server-playground/internal/config"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
@@ -18,17 +17,14 @@ type TwitterServer struct {
 	FindUserByScreenNameUsecase *usecase.FindUserByScreenNameUsecase
 }
 
-func NewTwitterServer() (*TwitterServer, error) {
+func NewTwitterServer() (*TwitterServer, func(), error) {
 	ctx := context.Background()
 
-	cfg, err := config.New(ctx)
+	// NOTE: このプロジェクトはあくまでアプリケーションアーキテクチャ検証用のプロジェクトなのでローカルでしか起動しない。
+	// そのためエミュレーターに接続する前提で実装している。
+	client, teardown, err := database.NewEmulatorWithClient(ctx)
 	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	client, err := database.NewSpannerClient(ctx, cfg)
-	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, nil, errors.WithStack(err)
 	}
 
 	userRepository := repository.NewUserRepository()
@@ -37,5 +33,5 @@ func NewTwitterServer() (*TwitterServer, error) {
 		UnimplementedTwitterServiceServer: api.UnimplementedTwitterServiceServer{},
 		CreateUserUsecase:                 usecase.NewCreateUserUsecase(client, userRepository),
 		FindUserByScreenNameUsecase:       usecase.NewFindUserByScreenNameUsecase(client, userRepository),
-	}, nil
+	}, teardown, nil
 }

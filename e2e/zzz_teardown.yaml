@@ -3,7 +3,7 @@
 # 明示的なデータ削除は不要
 desc: テスト環境のクリーンアップ
 runners:
-  greq: grpc://server:8080
+  greq: grpc://host.docker.internal:8080
 steps:
   - desc: 最終ヘルスチェック
     greq:
