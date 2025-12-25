@@ -12,6 +12,10 @@ func WithTransaction(ctx context.Context, client *spanner.Client, fn func(txn *s
 		return fn(txn)
 	})
 	if err != nil {
+		// PreconditionErrorやNotFoundErrorの場合は元のエラーをそのまま返す
+		if errors.IsPrecondition(err) || errors.IsNotFound(err) {
+			return err
+		}
 		return errors.WithStack(errors.NewInternalError(err))
 	}
 

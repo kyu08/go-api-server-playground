@@ -9,15 +9,13 @@ steps:
     test: |
       len(current.res.message.id) == 36
       && current.res.status == 0
-    bind:
-      created_user_id: current.res.message.id
 
   - desc: 存在するscreen_nameを指定するとユーザー情報が取得できる
     greq:
       twitter.TwitterService/FindUserByScreenName:
         message: {"screen_name":"find_user"}
     test: |
-      current.res.message.id == vars.created_user_id
+      current.res.message.id == steps[0].res.message.id
       && current.res.message.screen_name == "find_user"
       && current.res.message.user_name == "name"
       && current.res.message.bio == "bio"
