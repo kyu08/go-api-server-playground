@@ -3,7 +3,7 @@ WORKDIR /app
 
 # モジュールキャッシュを効かせるために必要
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod tidy
 COPY . ./ 
 RUN go build -o /app/server cmd/server/main.go
 
