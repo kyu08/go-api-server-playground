@@ -2,8 +2,8 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 
+	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 	"github.com/kyu08/go-api-server-playground/internal/domain/service"
@@ -14,7 +14,7 @@ import (
 
 type (
 	CreateUserUsecase struct {
-		db             *sql.DB
+		client         *spanner.Client
 		userRepository *repository.UserRepository
 	}
 	CreateUserInput struct {
@@ -43,9 +43,9 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 		return nil, errors.WithStack(err)
 	}
 
-	if err := database.WithTransaction(ctx, u.db, func(queries *database.Queries) error {
+	if err := database.WithTransaction(ctx, u.client, func(txn *spanner.ReadWriteTransaction) error {
 		// NOTE: UserService内でTransactionを使うために必要なので注意
-		u.userRepository.SetQueries(queries)
+		u.userRepository.SetTransaction(txn)
 		userService := service.NewUserService(u.userRepository)
 		return userService.CreateUser(ctx, newUser)
 	}); err != nil {
@@ -57,9 +57,9 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 	}, nil
 }
 
-func NewCreateUserUsecase(db *sql.DB, userRepository *repository.UserRepository) *CreateUserUsecase {
+func NewCreateUserUsecase(client *spanner.Client, userRepository *repository.UserRepository) *CreateUserUsecase {
 	return &CreateUserUsecase{
-		db:             db,
+		client:         client,
 		userRepository: userRepository,
 	}
 }

@@ -19,12 +19,14 @@ type TwitterServer struct {
 }
 
 func NewTwitterServer() (*TwitterServer, error) {
-	config, err := config.New(context.Background())
+	ctx := context.Background()
+
+	cfg, err := config.New(ctx)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	db, err := database.NewDBConnection(config)
+	client, err := database.NewSpannerClient(ctx, cfg)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -33,7 +35,7 @@ func NewTwitterServer() (*TwitterServer, error) {
 
 	return &TwitterServer{
 		UnimplementedTwitterServiceServer: api.UnimplementedTwitterServiceServer{},
-		CreateUserUsecase:                 usecase.NewCreateUserUsecase(db, userRepository),
-		FindUserByScreenNameUsecase:       usecase.NewFindUserByScreenNameUsecase(db, userRepository),
+		CreateUserUsecase:                 usecase.NewCreateUserUsecase(client, userRepository),
+		FindUserByScreenNameUsecase:       usecase.NewFindUserByScreenNameUsecase(client, userRepository),
 	}, nil
 }

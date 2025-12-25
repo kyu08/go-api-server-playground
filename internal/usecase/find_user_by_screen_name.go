@@ -2,8 +2,8 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 
+	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
@@ -13,7 +13,7 @@ import (
 
 type (
 	FindUserByScreenNameUsecase struct {
-		db             *sql.DB
+		client         *spanner.Client
 		userRepository *repository.UserRepository
 	}
 	FindUserByScreenNameInput struct {
@@ -45,9 +45,15 @@ func (u FindUserByScreenNameUsecase) Run(
 		return nil, errors.WithStack(err)
 	}
 
-	u.userRepository.SetQueries(database.New(u.db))
-	user, err := u.userRepository.FindByScreenName(ctx, screenName)
-	if err != nil {
+	var foundUser *user.User
+
+	// Use ReadWriteTransaction to query (read-only operations also work within RW transaction)
+	if err := database.WithTransaction(ctx, u.client, func(txn *spanner.ReadWriteTransaction) error {
+		u.userRepository.SetTransaction(txn)
+		var findErr error
+		foundUser, findErr = u.userRepository.FindByScreenName(ctx, screenName)
+		return findErr
+	}); err != nil {
 		if errors.IsNotFound(err) {
 			return nil, errors.WithStack(ErrFindUserByScreenNameUserNotFound)
 		}
@@ -55,19 +61,19 @@ func (u FindUserByScreenNameUsecase) Run(
 	}
 
 	return &FindUserByScreenNameOutput{
-		ID:         user.ID,
-		ScreenName: user.ScreenName,
-		UserName:   user.UserName,
-		Bio:        user.Bio,
+		ID:         foundUser.ID,
+		ScreenName: foundUser.ScreenName,
+		UserName:   foundUser.UserName,
+		Bio:        foundUser.Bio,
 	}, nil
 }
 
 func NewFindUserByScreenNameUsecase(
-	db *sql.DB,
+	client *spanner.Client,
 	userRepository *repository.UserRepository,
 ) *FindUserByScreenNameUsecase {
 	return &FindUserByScreenNameUsecase{
-		db:             db,
+		client:         client,
 		userRepository: userRepository,
 	}
 }
