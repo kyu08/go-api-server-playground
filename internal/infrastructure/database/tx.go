@@ -2,24 +2,16 @@ package database
 
 import (
 	"context"
-	"database/sql"
 
+	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
 )
 
-func WithTransaction(ctx context.Context, db *sql.DB, fn func(q *Queries) error) error {
-	tx, err := db.BeginTx(ctx, nil)
+func WithTransaction(ctx context.Context, client *spanner.Client, fn func(txn *spanner.ReadWriteTransaction) error) error {
+	_, err := client.ReadWriteTransaction(ctx, func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
+		return fn(txn)
+	})
 	if err != nil {
-		return errors.WithStack(errors.NewInternalError(err))
-	}
-
-	defer func() { _ = tx.Rollback }() // コミットされた場合はRollbackされないのでdeferで問題ない
-
-	if err := fn(New(tx)); err != nil {
-		return errors.WithStack(err)
-	}
-
-	if err := tx.Commit(); err != nil {
 		return errors.WithStack(errors.NewInternalError(err))
 	}
 

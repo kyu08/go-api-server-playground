@@ -8,10 +8,10 @@ import (
 )
 
 type Config struct {
-	DBUser   string `env:"DB_USER, required"`
-	DBPasswd string `env:"DB_PASSWD, required"`
-	DBAddr   string `env:"DB_ADDR, required"`
-	DBName   string `env:"DB_NAME, required"`
+	SpannerProject  string `env:"SPANNER_PROJECT, required"`
+	SpannerInstance string `env:"SPANNER_INSTANCE, required"`
+	SpannerDatabase string `env:"SPANNER_DATABASE, required"`
+	SpannerEmulator string `env:"SPANNER_EMULATOR_HOST, default="`
 }
 
 func New(ctx context.Context) (*Config, error) {
@@ -20,10 +20,9 @@ func New(ctx context.Context) (*Config, error) {
 		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
-	return &Config{
-		DBUser:   conf.DBUser,
-		DBPasswd: conf.DBPasswd,
-		DBAddr:   conf.DBAddr,
-		DBName:   conf.DBName,
-	}, nil
+	return &conf, nil
+}
+
+func (c *Config) DatabaseName() string {
+	return "projects/" + c.SpannerProject + "/instances/" + c.SpannerInstance + "/databases/" + c.SpannerDatabase
 }
