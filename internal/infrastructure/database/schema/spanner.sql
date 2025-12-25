@@ -4,7 +4,7 @@ CREATE TABLE User (
   UserName STRING(20) NOT NULL,
   Bio STRING(160) NOT NULL,
   IsPrivate BOOL NOT NULL,
-  CreatedAt TIMESTAMP NOT NULL,
+  CreatedAt TIMESTAMP NOT NULL
 ) PRIMARY KEY (ID);
 
 CREATE UNIQUE INDEX UserByScreenName ON User (ScreenName);
