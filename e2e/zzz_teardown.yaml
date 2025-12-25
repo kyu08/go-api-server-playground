@@ -1,8 +1,13 @@
 # NOTE: 最後に実行したいためprefixを付与している
-desc: シードデータの削除
+# Spanner Emulatorはテスト実行ごとにデータベースが初期化されるため、
+# 明示的なデータ削除は不要
+desc: テスト環境のクリーンアップ
 runners:
-  db: mysql://user:password@mysql:3306/db
+  greq: grpc://server:8080
 steps:
-  - db:
-      query: |-
-        DELETE FROM user;
+  - desc: 最終ヘルスチェック
+    greq:
+      twitter.TwitterService/Health:
+        message: {}
+    test: |
+      current.res.status == 0

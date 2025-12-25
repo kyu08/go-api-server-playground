@@ -1,5 +1,13 @@
 # NOTE: 最初に実行したいためprefixを付与している
-desc: DBの初期化
+# Spanner Emulatorはテスト実行ごとにデータベースが初期化されるため、
+# MySQLのようなDELETE文は不要
+desc: テスト環境の初期化
+runners:
+  greq: grpc://server:8080
 steps:
-  - include:
-      path: zzz_teardown.yaml
+  - desc: サーバーの起動確認
+    greq:
+      twitter.TwitterService/Health:
+        message: {}
+    test: |
+      current.res.status == 0
