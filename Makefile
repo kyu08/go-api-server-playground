@@ -7,6 +7,7 @@ dev-tools:
 	go install github.com/izumin5210/cgt@latest
 	go install go.mercari.io/yo@latest
 	go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
+	go install gotest.tools/gotestsum@latest
 	echo "--------------------------------------------------"
 	echo "⚠️protoc, golangci-lintは別途installしてください。"
 	echo "--------------------------------------------------"
@@ -37,6 +38,9 @@ run:
 
 test:
 	go test -v ./... | cgt
+
+test-gotestsum:
+	gotestsum -- -v ./...
 
 lint-go:
 	golangci-lint run -c ./.golangci.yaml --fix --allow-parallel-runners --tests ./...
