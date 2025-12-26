@@ -18,5 +18,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Install grpcurl
+        run: |
+          curl -sSL https://github.com/fullstorydev/grpcurl/releases/download/v1.9.1/grpcurl_1.9.1_linux_x86_64.tar.gz | tar xz
+          sudo mv grpcurl /usr/local/bin/
       - name: Run the server and E2E tests
         run: make test-e2e
