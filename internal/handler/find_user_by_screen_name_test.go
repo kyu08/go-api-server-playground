@@ -39,9 +39,9 @@ func TestFindUserByScreenName(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Equal(t, createResp.Id, resp.Id)
-		require.Equal(t, screenName, resp.ScreenName)
-		require.Equal(t, bio, resp.Bio)
+		require.Equal(t, createResp.GetId(), resp.GetId())
+		require.Equal(t, screenName, resp.GetScreenName())
+		require.Equal(t, bio, resp.GetBio())
 	})
 
 	t.Run("存在しないユーザーはエラー", func(t *testing.T) {

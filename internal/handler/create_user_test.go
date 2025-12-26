@@ -32,7 +32,7 @@ func TestCreateUser(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Len(t, resp.Id, 36) // UUID形式
+		require.Len(t, resp.GetId(), 36) // UUID形式
 
 		// 作成したユーザーを取得して確認
 		findResp, err := client.FindUserByScreenName(ctx, &api.FindUserByScreenNameRequest{
@@ -40,9 +40,9 @@ func TestCreateUser(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Equal(t, screenName, findResp.ScreenName)
-		require.Equal(t, userName, findResp.UserName)
-		require.Equal(t, bio, findResp.Bio)
+		require.Equal(t, screenName, findResp.GetScreenName())
+		require.Equal(t, userName, findResp.GetUserName())
+		require.Equal(t, bio, findResp.GetBio())
 	})
 
 	t.Run("screen_nameが空の場合エラー", func(t *testing.T) {

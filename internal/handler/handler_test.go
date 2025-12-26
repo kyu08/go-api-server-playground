@@ -42,9 +42,8 @@ func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
 		}
 	}()
 
-	conn, err := grpc.DialContext(
-		ctx,
-		"bufnet",
+	conn, err := grpc.NewClient(
+		"passthrough:///bufnet",
 		grpc.WithContextDialer(func(ctx context.Context, _ string) (net.Conn, error) {
 			return lis.DialContext(ctx)
 		}),
@@ -55,7 +54,8 @@ func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
 	}
 
 	cleanup := func() {
-		conn.Close()
+		_ = conn.Close()
+
 		server.Stop()
 		dbTeardown()
 	}

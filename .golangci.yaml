@@ -32,6 +32,7 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - wastedassign
+    - ireturn # interfaceを返したいこともあるので無効化(このlinterを有効化して、必要な場面で都度nolintをするだけのメリットを感じなかった。)
 
   exclusions:
     presets:
@@ -44,6 +45,10 @@ linters:
           - dupl # テストコードでは特に重複が起きやすいが意図して愚直に書いていることがほとんどなので無効化
           - funlen # テストコードでは関数の長さが長くなっても特に問題ないため無効化
           - exhaustruct # cmpopts.IgnoreFieldsに指定するときなど面倒になりそうだったので無効化
+      - path: internal/handler/.*_test\.go
+        linters:
+          - tparallel # DBを使うテストでは並列実行を避けたい場合があるため無効化
+          - paralleltest # 同上
 
   settings:
     revive:

@@ -18,5 +18,5 @@ func TestHealth(t *testing.T) {
 	resp, err := client.Health(context.Background(), &api.HealthRequest{})
 
 	require.NoError(t, err)
-	require.Equal(t, "twitter", resp.Message)
+	require.Equal(t, "twitter", resp.GetMessage())
 }
