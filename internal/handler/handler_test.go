@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/kyu08/go-api-server-playground/internal/grpcutil"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 )
 
@@ -18,16 +19,20 @@ const bufSize = 1024 * 1024
 func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
 	t.Helper()
 
+	ctx := context.Background()
+
+	client, dbTeardown, err := database.NewEmulatorWithClient(ctx)
+	if err != nil {
+		t.Fatalf("failed to create Spanner client: %v", err)
+	}
+
 	lis := bufconn.Listen(bufSize)
 	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
 		grpcutil.ConversionError(),
 		grpcutil.LoggerForTest(t),
 	))
 
-	twitterServer, teardown, err := NewTwitterServer()
-	if err != nil {
-		t.Fatalf("failed to create TwitterServer: %v", err)
-	}
+	twitterServer := NewTwitterServer(client)
 
 	api.RegisterTwitterServiceServer(server, twitterServer)
 
@@ -38,7 +43,7 @@ func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
 	}()
 
 	conn, err := grpc.DialContext(
-		context.Background(),
+		ctx,
 		"bufnet",
 		grpc.WithContextDialer(func(ctx context.Context, _ string) (net.Conn, error) {
 			return lis.DialContext(ctx)
@@ -52,7 +57,7 @@ func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
 	cleanup := func() {
 		conn.Close()
 		server.Stop()
-		teardown()
+		dbTeardown()
 	}
 
 	return api.NewTwitterServiceClient(conn), cleanup
