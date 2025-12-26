@@ -7,7 +7,6 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
 )
 
@@ -48,7 +47,7 @@ func (u FindUserByScreenNameUsecase) Run(
 	var foundUser *user.User
 
 	// Use ReadWriteTransaction to query (read-only operations also work within RW transaction)
-	if err := database.WithTransaction(ctx, u.client, func(txn *spanner.ReadWriteTransaction) error {
+	if _, err = u.client.ReadWriteTransaction(ctx, func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
 		u.userRepository.SetTransaction(txn)
 		var findErr error
 		foundUser, findErr = u.userRepository.FindByScreenName(ctx, screenName)
@@ -57,7 +56,10 @@ func (u FindUserByScreenNameUsecase) Run(
 		if errors.IsNotFound(err) {
 			return nil, errors.WithStack(ErrFindUserByScreenNameUserNotFound)
 		}
-		return nil, errors.WithStack(err)
+		if errors.IsPrecondition(err) {
+			return nil, err
+		}
+		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
 	return &FindUserByScreenNameOutput{

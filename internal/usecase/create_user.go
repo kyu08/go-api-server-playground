@@ -8,7 +8,6 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 	"github.com/kyu08/go-api-server-playground/internal/domain/service"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
 )
 
@@ -43,13 +42,16 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 		return nil, errors.WithStack(err)
 	}
 
-	if err := database.WithTransaction(ctx, u.client, func(txn *spanner.ReadWriteTransaction) error {
+	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
 		// NOTE: UserService内でTransactionを使うために必要なので注意
 		u.userRepository.SetTransaction(txn)
 		userService := service.NewUserService(u.userRepository)
 		return userService.CreateUser(ctx, newUser)
 	}); err != nil {
-		return nil, errors.WithStack(err)
+		if errors.IsPrecondition(err) || errors.IsNotFound(err) {
+			return nil, err
+		}
+		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
 	return &CreateUserOutput{
