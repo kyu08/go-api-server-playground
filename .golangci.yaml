@@ -1,30 +1,19 @@
 # see: https://golangci-lint.run/usage/configuration/
+version: "2"
+
 run:
   concurrency: 4
   timeout: 10m
-  go: 1.22
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
 
 linters:
   # see: https://zenn.dev/sanpo_shiho/books/61bc1e1a30bf27/viewer/642fe9
-  enable-all: true
+  default: all
   disable:
-    # deprecated
-    - deadcode
-    - golint
-    - ifshort
-    - interfacer
-    - maligned
-    - nosnakecase
-    - rowserrcheck
-    - scopelint
-    - structcheck
-    - sqlclosecheck
-    - varcheck
-    - wastedassign
-    - execinquery
-    - gomnd
-    - depguard
-
     # deprecatedではないが思想が合わないので無効化しているlinterたち
     - varnamelen # 過度に感じたので無効化
     - godox # PRを跨いでTODOコメントを消化することがあるので無効化
@@ -33,26 +22,46 @@ linters:
     - testpackage # テスト用のパッケージを切らない方が自由に少ない記述量でテストが書けて嬉しいので無効化
     - gochecknoglobals # ヘルパー関数の名前空間を区切りたい時などにグローバル変数を使いたいので無効化(それ以外のコード品質が落ちるような用途では使わないので特に問題ないはず)
     - nlreturn # 特に可読性向上に繋がらないので無効化
-    - nilnil # DBにクエリした結果がNotFoundだった場合nil,nilを返したいので無効化
+    # - nilnil # DBにクエリした結果がNotFoundだった場合nil,nilを返したいので無効化
+    - depguard
+    - funcorder # 関数の順序を強制しない
+    - godoclint # godocの形式チェックを無効化（TODOコメントなどで警告が出るため）
+    - gosmopolitan # 日本語を含むstring literalで警告が出るため無効化
+    - noctx # net.Listenなどでコンテキストを強制しない
+    - noinlineerr # インラインエラーハンドリングを許可
+    - rowserrcheck
+    - sqlclosecheck
+    - wastedassign
 
-linters-settings:
-  revive:
+  exclusions:
+    presets:
+      - std-error-handling
+      - common-false-positives
     rules:
-      # ライブラリではないのでPublic関数のコメントチェックを無効化
-      - name: exported
-        disabled: true
-  lll:
-    line-length: 140
+      - path: _test\.go
+        linters:
+          - err113 # テスト時はその場でエラーを作成して比較したりしたいので無効化
+          - dupl # テストコードでは特に重複が起きやすいが意図して愚直に書いていることがほとんどなので無効化
+          - funlen # テストコードでは関数の長さが長くなっても特に問題ないため無効化
+          - exhaustruct # cmpopts.IgnoreFieldsに指定するときなど面倒になりそうだったので無効化
 
-  tagliatelle:
-    case:
+  settings:
+    revive:
       rules:
-        json: snake
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - err113 # テスト時はその場でエラーを作成して比較したりしたいので無効化
-        - dupl # テストコードでは特に重複が起きやすいが意図して愚直に書いていることがほとんどなので無効化
-        - funlen # テストコードでは関数の長さが長くなっても特に問題ないため無効化
-        - exhaustruct # cmpopts.IgnoreFieldsに指定するときなど面倒になりそうだったので無効化
+        # ライブラリではないのでPublic関数のコメントチェックを無効化
+        - name: exported
+          disabled: true
+    lll:
+      line-length: 140
+    tagliatelle:
+      case:
+        rules:
+          json: snake
+    wrapcheck:
+      # wrapcheckはエラーをラップせずにそのまま返すことを検知するlinter
+      # 自リポジトリ内のパッケージからのエラーは発生場所でラップするため、ここでは無視する
+      # 標準ライブラリやサードパーティからのエラーはラップして返すべきなのでチェック対象とする
+      ignore-package-globs:
+        - github.com/kyu08/go-api-server-playground/*
+    nilnil:
+      only-two: false # 3つ以上のnilリターンを検出する

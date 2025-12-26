@@ -12,11 +12,13 @@ import (
 
 func TestNew(t *testing.T) {
 	t.Parallel()
+
 	type args struct {
 		screenName string
 		userName   string
 		bio        string
 	}
+
 	tests := map[string]struct {
 		in         args
 		want       *User
@@ -69,6 +71,7 @@ func TestNew(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			got, err := New(tt.in.screenName, tt.in.userName, tt.in.bio)
 
 			if tt.wantErrMsg != nil {

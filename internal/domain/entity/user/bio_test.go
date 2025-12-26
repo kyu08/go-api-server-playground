@@ -10,6 +10,7 @@ import (
 
 func TestNewUserBio(t *testing.T) {
 	t.Parallel()
+
 	tests := map[string]struct {
 		in         string
 		want       Bio
@@ -29,6 +30,7 @@ func TestNewUserBio(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			got, err := NewUserBio(tt.in)
 
 			if tt.wantErrMsg != nil {
@@ -37,6 +39,7 @@ func TestNewUserBio(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
+
 			if got != tt.want {
 				t.Errorf("got: %v, want: %v", got, tt.want)
 			}
@@ -46,6 +49,7 @@ func TestNewUserBio(t *testing.T) {
 
 func TestBio_validate(t *testing.T) {
 	t.Parallel()
+
 	tests := map[string]struct {
 		in         Bio
 		wantErrMsg *string
@@ -70,6 +74,7 @@ func TestBio_validate(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			err := tt.in.validate()
 			if tt.wantErrMsg != nil {
 				require.Error(t, err)

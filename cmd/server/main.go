@@ -26,6 +26,7 @@ func main() {
 		loggerInterceptor(logger),
 		grpc_recovery.UnaryServerInterceptor(),
 	))
+
 	twitterServer, teardown, err := handler.NewTwitterServer()
 	if err != nil {
 		panic(err)
@@ -63,7 +64,7 @@ func main() {
 }
 
 func loggerInterceptor(logger *slog.Logger) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		methodName := strings.Split(info.FullMethod, "/")[2]
 
 		logger.Info("start", slog.String("method", methodName), slog.Any("request", req))
@@ -83,12 +84,13 @@ func loggerInterceptor(logger *slog.Logger) grpc.UnaryServerInterceptor {
 }
 
 func conversionErrorInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		resp, err := handler(ctx, req)
 		if err != nil {
 			if !errors.IsPrecondition(err) {
 				return resp, status.Error(codes.Internal, "internal server error")
 			}
+
 			return resp, status.Error(codes.InvalidArgument, err.Error())
 		}
 

@@ -55,9 +55,11 @@ func (u FindUserByScreenNameUsecase) Run(
 		if errors.IsNotFound(err) {
 			return nil, errors.WithStack(ErrFindUserByScreenNameUserNotFound)
 		}
+
 		if errors.IsPrecondition(err) {
-			return nil, err
+			return nil, errors.WithStack(err)
 		}
+
 		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 

@@ -35,10 +35,12 @@ func (r UserRepository) Create(ctx context.Context, tx *spanner.ReadWriteTransac
 	return nil
 }
 
-func (r UserRepository) FindByScreenName(ctx context.Context, tx *spanner.ReadWriteTransaction, screenName user.ScreenName) (*user.User, error) {
+func (r UserRepository) FindByScreenName(
+	ctx context.Context, tx *spanner.ReadWriteTransaction, screenName user.ScreenName,
+) (*user.User, error) {
 	stmt := spanner.Statement{
 		SQL: `SELECT ID, ScreenName, UserName, Bio, IsPrivate, CreatedAt FROM User WHERE ScreenName = @screenName LIMIT 1`,
-		Params: map[string]interface{}{
+		Params: map[string]any{
 			"screenName": string(screenName),
 		},
 	}
@@ -51,6 +53,7 @@ func (r UserRepository) FindByScreenName(ctx context.Context, tx *spanner.ReadWr
 		if database.IsNotFoundFromDB(err) {
 			return nil, errors.WithStack(errors.NewNotFoundError("user"))
 		}
+
 		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
@@ -62,10 +65,12 @@ func (r UserRepository) FindByScreenName(ctx context.Context, tx *spanner.ReadWr
 	return u.ToUser(), nil
 }
 
-func (r UserRepository) ExistsByScreenName(ctx context.Context, tx *spanner.ReadWriteTransaction, screenName user.ScreenName) (bool, error) {
+func (r UserRepository) ExistsByScreenName(
+	ctx context.Context, tx *spanner.ReadWriteTransaction, screenName user.ScreenName,
+) (bool, error) {
 	stmt := spanner.Statement{
 		SQL: `SELECT 1 FROM User WHERE ScreenName = @screenName LIMIT 1`,
-		Params: map[string]interface{}{
+		Params: map[string]any{
 			"screenName": string(screenName),
 		},
 	}
@@ -78,6 +83,7 @@ func (r UserRepository) ExistsByScreenName(ctx context.Context, tx *spanner.Read
 		if database.IsNotFoundFromDB(err) {
 			return false, nil
 		}
+
 		return false, errors.WithStack(errors.NewInternalError(err))
 	}
 

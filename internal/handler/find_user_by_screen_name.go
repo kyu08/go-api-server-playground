@@ -13,6 +13,7 @@ func (s *TwitterServer) FindUserByScreenName(
 	req *api.FindUserByScreenNameRequest,
 ) (*api.FindUserByScreenNameResponse, error) {
 	input := usecase.NewFindUserByScreenNameInput(req.GetScreenName())
+
 	output, err := s.FindUserByScreenNameUsecase.Run(ctx, input)
 	if err != nil {
 		return nil, errors.WithStack(err)

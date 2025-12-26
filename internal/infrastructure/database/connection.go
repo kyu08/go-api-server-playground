@@ -31,12 +31,15 @@ func NewEmulatorWithClient(ctx context.Context) (*spanner.Client, func(), error)
 // parseDDLs splits a DDL string into individual statements.
 func parseDDLs(ddl string) []string {
 	statements := strings.Split(ddl, ";")
+
 	var result []string
+
 	for _, stmt := range statements {
 		stmt = strings.TrimSpace(stmt)
 		if stmt != "" {
 			result = append(result, stmt)
 		}
 	}
+
 	return result
 }

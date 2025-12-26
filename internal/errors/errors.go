@@ -28,6 +28,7 @@ func (e TwitterError) Error() string {
 	if !e.isPreconditionError() {
 		return "Internal Error: " + e.Message
 	}
+
 	return e.Message
 }
 
@@ -68,6 +69,7 @@ func IsPrecondition(err error) bool {
 	if stderrors.As(err, &terror) {
 		return terror.isPreconditionError()
 	}
+
 	return false
 }
 
@@ -89,5 +91,6 @@ func IsNotFound(err error) bool {
 	if stderrors.As(err, &terror) {
 		return terror.Type == notFound
 	}
+
 	return false
 }

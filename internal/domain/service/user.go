@@ -27,6 +27,7 @@ func (s UserService) CreateUser(ctx context.Context, tx *spanner.ReadWriteTransa
 	if err != nil {
 		return errors.WithStack(err)
 	}
+
 	if isExisting {
 		return errors.WithStack(ErrCreateUserScreenNameAlreadyUsed)
 	}
@@ -45,11 +46,13 @@ func (s UserService) IsExistingScreenName(ctx context.Context, tx *spanner.ReadW
 		if errors.IsNotFound(err) {
 			return false, nil
 		}
+
 		return false, errors.WithStack(err)
 	}
 
 	if user != nil {
 		return true, nil
 	}
+
 	return false, nil
 }

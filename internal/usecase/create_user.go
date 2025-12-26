@@ -47,8 +47,9 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 		return userService.CreateUser(ctx, tx, newUser)
 	}); err != nil {
 		if errors.IsPrecondition(err) || errors.IsNotFound(err) {
-			return nil, err
+			return nil, errors.WithStack(err)
 		}
+
 		return nil, errors.WithStack(errors.NewInternalError(err))
 	}
 
@@ -76,6 +77,7 @@ func (i CreateUserInput) validate() error {
 	if i.ScreenName == "" {
 		return errors.WithStack(ErrCreateUserScreenNameRequired)
 	}
+
 	if i.UserName == "" {
 		return errors.WithStack(ErrCreateUserUserNameRequired)
 	}
