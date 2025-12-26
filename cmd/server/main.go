@@ -1,29 +1,25 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"net"
 	"os"
 	"os/signal"
-	"strings"
 
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
+	"github.com/kyu08/go-api-server-playground/internal/grpcutil"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/status"
 )
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
-		conversionErrorInterceptor(),
-		loggerInterceptor(logger),
+		grpcutil.ConversionError(),
+		grpcutil.Logger(logger),
 		grpc_recovery.UnaryServerInterceptor(),
 	))
 
@@ -61,42 +57,4 @@ func main() {
 	<-quit
 	logger.Info("stopping gRPC server...")
 	server.GracefulStop() // NOTE: 受け付けているリクエストを捌き切ってからサーバーを停止するために必要
-}
-
-func loggerInterceptor(logger *slog.Logger) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		methodName := strings.Split(info.FullMethod, "/")[2]
-
-		logger.Info("start", slog.String("method", methodName), slog.Any("request", req))
-		defer logger.Info("end", slog.String("method", methodName), slog.Any("request", req))
-
-		resp, err := handler(ctx, req)
-		if err != nil {
-			if !errors.IsPrecondition(err) {
-				logger.Error(err.Error(), "method", methodName, "error", errors.GetStackTrace(err))
-			} else {
-				logger.Warn(err.Error(), "method", methodName, "error", errors.GetStackTrace(err))
-			}
-		}
-
-		return resp, err
-	}
-}
-
-func conversionErrorInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		resp, err := handler(ctx, req)
-		if err != nil {
-			if errors.IsPrecondition(err) {
-				return resp, status.Error(codes.InvalidArgument, err.Error())
-			}
-			if errors.IsNotFound(err) {
-				return resp, status.Error(codes.NotFound, err.Error())
-			}
-			return resp, status.Error(codes.Internal, "internal server error")
-
-		}
-
-		return resp, err
-	}
 }
