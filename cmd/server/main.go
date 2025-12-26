@@ -87,11 +87,14 @@ func conversionErrorInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		resp, err := handler(ctx, req)
 		if err != nil {
-			if !errors.IsPrecondition(err) {
-				return resp, status.Error(codes.Internal, "internal server error")
+			if errors.IsPrecondition(err) {
+				return resp, status.Error(codes.InvalidArgument, err.Error())
 			}
+			if errors.IsNotFound(err) {
+				return resp, status.Error(codes.NotFound, err.Error())
+			}
+			return resp, status.Error(codes.Internal, "internal server error")
 
-			return resp, status.Error(codes.InvalidArgument, err.Error())
 		}
 
 		return resp, err

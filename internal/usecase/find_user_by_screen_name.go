@@ -28,7 +28,7 @@ type (
 
 var (
 	ErrFindUserByScreenNameScreenNameRequired = errors.NewPreconditionError("screen name is required")
-	ErrFindUserByScreenNameUserNotFound       = errors.NewPreconditionError("user not found")
+	ErrFindUserByScreenNameUserNotFound       = errors.NewNotFoundError("user not found")
 )
 
 func (u FindUserByScreenNameUsecase) Run(
@@ -47,7 +47,7 @@ func (u FindUserByScreenNameUsecase) Run(
 	var foundUser *user.User
 
 	// Use ReadWriteTransaction to query (read-only operations also work within RW transaction)
-	if _, err = u.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
+	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
 		var findErr error
 		foundUser, findErr = u.userRepository.FindByScreenName(ctx, tx, screenName)
 		return findErr
