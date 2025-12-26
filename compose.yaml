@@ -1,9 +1,0 @@
-services:
-  e2e:
-    image: ghcr.io/k1low/runn:v0.116.3
-    volumes:
-      - ./e2e:/e2e
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    # MEMO: 詳細な出力がみたい場合は`--debug`を追加する
-    command: run --grpc-no-tls --verbose e2e/**/*.yaml
