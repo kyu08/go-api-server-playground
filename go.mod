@@ -1,6 +1,6 @@
 module github.com/kyu08/go-api-server-playground
 
-go 1.24.0
+go 1.25.4
 
 require (
 	cloud.google.com/go/spanner v1.73.0
