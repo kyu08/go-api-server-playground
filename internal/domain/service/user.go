@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 	"github.com/kyu08/go-api-server-playground/internal/domain/repository"
 	"github.com/kyu08/go-api-server-playground/internal/errors"
@@ -21,8 +22,8 @@ func NewUserService(userRepository repository.UserRepository) *UserService {
 }
 
 // TODO: add UT
-func (s UserService) CreateUser(ctx context.Context, user *user.User) error {
-	isExisting, err := s.IsExistingScreenName(ctx, user.ScreenName)
+func (s UserService) CreateUser(ctx context.Context, tx *spanner.ReadWriteTransaction, user *user.User) error {
+	isExisting, err := s.IsExistingScreenName(ctx, tx, user.ScreenName)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -30,7 +31,7 @@ func (s UserService) CreateUser(ctx context.Context, user *user.User) error {
 		return errors.WithStack(ErrCreateUserScreenNameAlreadyUsed)
 	}
 
-	if err := s.userRepository.Create(ctx, user); err != nil {
+	if err := s.userRepository.Create(ctx, tx, user); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -38,8 +39,8 @@ func (s UserService) CreateUser(ctx context.Context, user *user.User) error {
 }
 
 // TODO: add UT
-func (s UserService) IsExistingScreenName(ctx context.Context, screenName user.ScreenName) (bool, error) {
-	user, err := s.userRepository.FindByScreenName(ctx, screenName)
+func (s UserService) IsExistingScreenName(ctx context.Context, tx *spanner.ReadWriteTransaction, screenName user.ScreenName) (bool, error) {
+	user, err := s.userRepository.FindByScreenName(ctx, tx, screenName)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return false, nil

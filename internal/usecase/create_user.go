@@ -42,11 +42,9 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 		return nil, errors.WithStack(err)
 	}
 
-	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
-		// NOTE: UserService内でTransactionを使うために必要なので注意
-		u.userRepository.SetTransaction(txn)
+	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
 		userService := service.NewUserService(u.userRepository)
-		return userService.CreateUser(ctx, newUser)
+		return userService.CreateUser(ctx, tx, newUser)
 	}); err != nil {
 		if errors.IsPrecondition(err) || errors.IsNotFound(err) {
 			return nil, err
