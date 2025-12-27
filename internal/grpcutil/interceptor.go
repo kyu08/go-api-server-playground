@@ -9,18 +9,18 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/kyu08/go-api-server-playground/internal/errors"
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 )
 
 func ConversionError() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		resp, err := handler(ctx, req)
 		if err != nil {
-			if errors.IsNotFound(err) {
+			if apperrors.IsNotFound(err) {
 				return resp, status.Error(codes.NotFound, err.Error())
 			}
 
-			if errors.IsPrecondition(err) {
+			if apperrors.IsPrecondition(err) {
 				return resp, status.Error(codes.InvalidArgument, err.Error())
 			}
 
@@ -40,10 +40,10 @@ func Logger(logger *slog.Logger) grpc.UnaryServerInterceptor {
 
 		resp, err := handler(ctx, req)
 		if err != nil {
-			if !errors.IsPrecondition(err) {
-				logger.Error(err.Error(), "method", methodName, "error", errors.GetStackTrace(err))
+			if !apperrors.IsPrecondition(err) {
+				logger.Error(err.Error(), "method", methodName, "error", apperrors.GetStackTrace(err))
 			} else {
-				logger.Warn(err.Error(), "method", methodName, "error", errors.GetStackTrace(err))
+				logger.Warn(err.Error(), "method", methodName, "error", apperrors.GetStackTrace(err))
 			}
 		}
 
@@ -64,7 +64,7 @@ func LoggerForTest(t TestLogger) grpc.UnaryServerInterceptor {
 
 		resp, err := handler(ctx, req)
 		if err != nil {
-			t.Logf("[gRPC] error: %s, error: %v, stack: %s", methodName, err, errors.GetStackTrace(err))
+			t.Logf("[gRPC] error: %s, error: %v, stack: %s", methodName, err, apperrors.GetStackTrace(err))
 		} else {
 			t.Logf("[gRPC] end: %s, response: %+v", methodName, resp)
 		}

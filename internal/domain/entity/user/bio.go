@@ -1,12 +1,12 @@
 package user
 
-import "github.com/kyu08/go-api-server-playground/internal/errors"
+import "github.com/kyu08/go-api-server-playground/internal/apperrors"
 
 type Bio string
 
 var (
-	ErrBioRequired = errors.NewPreconditionError("bio is required")
-	ErrBioTooLong  = errors.NewPreconditionError("bio is too long")
+	ErrBioRequired = apperrors.NewPreconditionError("bio is required")
+	ErrBioTooLong  = apperrors.NewPreconditionError("bio is too long")
 )
 
 func NewUserBio(source string) (Bio, error) {
@@ -21,12 +21,12 @@ func NewUserBio(source string) (Bio, error) {
 
 func (s Bio) validate() error {
 	if len(s) == 0 {
-		return errors.WithStack(ErrBioRequired)
+		return apperrors.WithStack(ErrBioRequired)
 	}
 
 	const bioMaxLength = 160
 	if bioMaxLength < len(s) {
-		return errors.WithStack(ErrBioTooLong)
+		return apperrors.WithStack(ErrBioTooLong)
 	}
 
 	return nil

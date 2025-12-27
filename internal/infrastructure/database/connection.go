@@ -7,7 +7,7 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"github.com/apstndb/spanemuboost"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 )
 
 //go:embed schema/schema.sql
@@ -22,7 +22,7 @@ func NewEmulatorWithClient(ctx context.Context) (*spanner.Client, func(), error)
 		spanemuboost.WithSetupDDLs(ddls),
 	)
 	if err != nil {
-		return nil, nil, errors.WithStack(errors.NewInternalError(err))
+		return nil, nil, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
 	return clients.Client, teardown, nil

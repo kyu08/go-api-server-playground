@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"cloud.google.com/go/spanner"
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
 )
 
 type User struct {
@@ -32,7 +32,7 @@ func (u *User) ToUser() *user.User {
 func UserFromRow(row *spanner.Row) (*User, error) {
 	var u User
 	if err := row.Columns(&u.ID, &u.ScreenName, &u.UserName, &u.Bio, &u.IsPrivate, &u.CreatedAt); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, apperrors.WithStack(err)
 	}
 
 	return &u, nil

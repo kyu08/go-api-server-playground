@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"cloud.google.com/go/spanner"
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 )
 
@@ -25,11 +25,11 @@ func (r UserRepository) Create(ctx context.Context, tx *spanner.ReadWriteTransac
 		CreatedAt:  u.CreatedAt,
 	})
 	if err != nil {
-		return errors.WithStack(errors.NewInternalError(err))
+		return apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
 	if err := tx.BufferWrite([]*spanner.Mutation{m}); err != nil {
-		return errors.WithStack(errors.NewInternalError(err))
+		return apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
 	return nil
@@ -51,15 +51,15 @@ func (r UserRepository) FindByScreenName(
 	row, err := iter.Next()
 	if err != nil {
 		if database.IsNotFoundFromDB(err) {
-			return nil, errors.WithStack(errors.NewNotFoundError("user"))
+			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
 		}
 
-		return nil, errors.WithStack(errors.NewInternalError(err))
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
 	u, err := database.UserFromRow(row)
 	if err != nil {
-		return nil, errors.WithStack(errors.NewInternalError(err))
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
 	return u.ToUser(), nil
@@ -84,7 +84,7 @@ func (r UserRepository) ExistsByScreenName(
 			return false, nil
 		}
 
-		return false, errors.WithStack(errors.NewInternalError(err))
+		return false, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
 	return true, nil

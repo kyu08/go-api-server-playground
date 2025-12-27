@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"cloud.google.com/go/spanner"
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
 )
 
@@ -27,8 +27,8 @@ type (
 )
 
 var (
-	ErrFindUserByScreenNameScreenNameRequired = errors.NewPreconditionError("screen name is required")
-	ErrFindUserByScreenNameUserNotFound       = errors.NewNotFoundError("user not found")
+	ErrFindUserByScreenNameScreenNameRequired = apperrors.NewPreconditionError("screen name is required")
+	ErrFindUserByScreenNameUserNotFound       = apperrors.NewNotFoundError("user not found")
 )
 
 func (u FindUserByScreenNameUsecase) Run(
@@ -36,12 +36,12 @@ func (u FindUserByScreenNameUsecase) Run(
 	input *FindUserByScreenNameInput,
 ) (*FindUserByScreenNameOutput, error) {
 	if err := input.validate(); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, apperrors.WithStack(err)
 	}
 
 	screenName, err := user.NewUserScreenName(input.ScreenName)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, apperrors.WithStack(err)
 	}
 
 	var foundUser *user.User
@@ -52,15 +52,15 @@ func (u FindUserByScreenNameUsecase) Run(
 		foundUser, findErr = u.userRepository.FindByScreenName(ctx, tx, screenName)
 		return findErr
 	}); err != nil {
-		if errors.IsNotFound(err) {
-			return nil, errors.WithStack(ErrFindUserByScreenNameUserNotFound)
+		if apperrors.IsNotFound(err) {
+			return nil, apperrors.WithStack(ErrFindUserByScreenNameUserNotFound)
 		}
 
-		if errors.IsPrecondition(err) {
-			return nil, errors.WithStack(err)
+		if apperrors.IsPrecondition(err) {
+			return nil, apperrors.WithStack(err)
 		}
 
-		return nil, errors.WithStack(errors.NewInternalError(err))
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
 	return &FindUserByScreenNameOutput{
@@ -89,7 +89,7 @@ func NewFindUserByScreenNameInput(screenName string) *FindUserByScreenNameInput 
 
 func (i FindUserByScreenNameInput) validate() error {
 	if i.ScreenName == "" {
-		return errors.WithStack(ErrFindUserByScreenNameScreenNameRequired)
+		return apperrors.WithStack(ErrFindUserByScreenNameScreenNameRequired)
 	}
 
 	return nil
