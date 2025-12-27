@@ -36,12 +36,12 @@ func (u FindUserByScreenNameUsecase) Run(
 	input *FindUserByScreenNameInput,
 ) (*FindUserByScreenNameOutput, error) {
 	if err := input.validate(); err != nil {
-		return nil, apperrors.WithStack(err)
+		return nil, err
 	}
 
 	screenName, err := user.NewUserScreenName(input.ScreenName)
 	if err != nil {
-		return nil, apperrors.WithStack(err)
+		return nil, err
 	}
 
 	var foundUser *user.User
@@ -57,10 +57,10 @@ func (u FindUserByScreenNameUsecase) Run(
 		}
 
 		if apperrors.IsPrecondition(err) {
-			return nil, apperrors.WithStack(err)
+			return nil, err
 		}
 
-		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
+		return nil, apperrors.NewInternalError(err)
 	}
 
 	return &FindUserByScreenNameOutput{
