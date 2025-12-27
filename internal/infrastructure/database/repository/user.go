@@ -28,11 +28,7 @@ func (r UserRepository) Create(ctx context.Context, tx *spanner.ReadWriteTransac
 		return apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
-	if err := tx.BufferWrite([]*spanner.Mutation{m}); err != nil {
-		return apperrors.WithStack(apperrors.NewInternalError(err))
-	}
-
-	return nil
+	return r.apply(tx, []*spanner.Mutation{m})
 }
 
 func (r UserRepository) FindByScreenName(
@@ -83,4 +79,11 @@ func (r UserRepository) ExistsByScreenName(
 	}
 
 	return true, nil
+}
+
+func (UserRepository) apply(tx *spanner.ReadWriteTransaction, m []*spanner.Mutation) error {
+	if err := tx.BufferWrite(m); err != nil {
+		return apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+	return nil
 }

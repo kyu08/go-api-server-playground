@@ -33,6 +33,7 @@ linters:
     - sqlclosecheck
     - wastedassign
     - ireturn # interfaceを返したいこともあるので無効化(このlinterを有効化して、必要な場面で都度nolintをするだけのメリットを感じなかった。)
+    - wsl_v5 # あまり必要性を感じないため無効化
 
   exclusions:
     presets:
