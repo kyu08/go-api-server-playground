@@ -69,5 +69,3 @@ linters:
       # 標準ライブラリやサードパーティからのエラーはラップして返すべきなのでチェック対象とする
       ignore-package-globs:
         - github.com/kyu08/go-api-server-playground/*
-    nilnil:
-      only-two: false # 3つ以上のnilリターンを検出する
