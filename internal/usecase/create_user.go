@@ -34,23 +34,24 @@ var (
 
 func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*CreateUserOutput, error) {
 	if err := input.validate(); err != nil {
-		return nil, apperrors.WithStack(err)
+		return nil, err
 	}
 
 	newUser, err := user.New(input.ScreenName, input.UserName, input.Bio)
 	if err != nil {
-		return nil, apperrors.WithStack(err)
+		return nil, err
 	}
 
 	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
 		userService := service.NewUserService(u.userRepository)
 		return userService.CreateUser(ctx, tx, newUser)
 	}); err != nil {
+		// TODO: ここのエラー変換ロジックはいずれ共通化することになりそう。(どこの層の責務かもちょっと考えたほうがよさそう)
 		if apperrors.IsPrecondition(err) || apperrors.IsNotFound(err) {
-			return nil, apperrors.WithStack(err)
+			return nil, err
 		}
 
-		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
+		return nil, apperrors.NewInternalError(err)
 	}
 
 	return &CreateUserOutput{

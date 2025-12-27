@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -57,6 +58,34 @@ func TestCreateUser(t *testing.T) {
 		require.True(t, ok)
 		require.Equal(t, codes.InvalidArgument, st.Code())
 		require.Contains(t, st.Message(), "screen name is required")
+	})
+
+	t.Run("user_nameが空の場合エラー", func(t *testing.T) {
+		_, err := client.CreateUser(ctx, &api.CreateUserRequest{
+			ScreenName: "s",
+			UserName:   "",
+			Bio:        "bio",
+		})
+
+		require.Error(t, err)
+		st, ok := status.FromError(err)
+		require.True(t, ok)
+		require.Equal(t, codes.InvalidArgument, st.Code())
+		require.Contains(t, st.Message(), "user name is required")
+	})
+
+	t.Run("userのコンストラクタでエラーが変える場合は場合エラー", func(t *testing.T) {
+		_, err := client.CreateUser(ctx, &api.CreateUserRequest{
+			ScreenName: strings.Repeat("a", 21),
+			UserName:   "Test User",
+			Bio:        "bio",
+		})
+
+		require.Error(t, err)
+		st, ok := status.FromError(err)
+		require.True(t, ok)
+		require.Equal(t, codes.InvalidArgument, st.Code())
+		require.Contains(t, st.Message(), "screen_name is too long")
 	})
 
 	t.Run("すでに存在するscreen_nameの場合エラー", func(t *testing.T) {
