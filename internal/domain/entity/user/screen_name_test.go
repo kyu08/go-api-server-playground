@@ -10,6 +10,7 @@ import (
 
 func TestScreenName_validate(t *testing.T) {
 	t.Parallel()
+
 	tests := map[string]struct {
 		in         ScreenName
 		wantErrMsg *string
@@ -34,6 +35,7 @@ func TestScreenName_validate(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			err := tt.in.validate()
 			if tt.wantErrMsg != nil {
 				require.Error(t, err)
@@ -47,6 +49,7 @@ func TestScreenName_validate(t *testing.T) {
 
 func TestNewUserScreenName(t *testing.T) {
 	t.Parallel()
+
 	tests := map[string]struct {
 		in         string
 		want       ScreenName
@@ -66,6 +69,7 @@ func TestNewUserScreenName(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			got, err := NewUserScreenName(tt.in)
 
 			if tt.wantErrMsg != nil {
@@ -74,6 +78,7 @@ func TestNewUserScreenName(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
+
 			if got != tt.want {
 				t.Errorf("got: %v, want: %v", got, tt.want)
 			}

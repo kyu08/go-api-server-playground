@@ -1,5 +1,0 @@
-# NOTE: 最初に実行したいためprefixを付与している
-desc: DBの初期化
-steps:
-  - include:
-      path: zzz_teardown.yaml

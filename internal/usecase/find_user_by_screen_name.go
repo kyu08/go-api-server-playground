@@ -2,18 +2,17 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 
+	"cloud.google.com/go/spanner"
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
 )
 
 type (
 	FindUserByScreenNameUsecase struct {
-		db             *sql.DB
+		client         *spanner.Client
 		userRepository *repository.UserRepository
 	}
 	FindUserByScreenNameInput struct {
@@ -28,8 +27,8 @@ type (
 )
 
 var (
-	ErrFindUserByScreenNameScreenNameRequired = errors.NewPreconditionError("screen name is required")
-	ErrFindUserByScreenNameUserNotFound       = errors.NewPreconditionError("user not found")
+	ErrFindUserByScreenNameScreenNameRequired = apperrors.NewPreconditionError("screen name is required")
+	ErrFindUserByScreenNameUserNotFound       = apperrors.NewNotFoundError("user not found")
 )
 
 func (u FindUserByScreenNameUsecase) Run(
@@ -37,37 +36,47 @@ func (u FindUserByScreenNameUsecase) Run(
 	input *FindUserByScreenNameInput,
 ) (*FindUserByScreenNameOutput, error) {
 	if err := input.validate(); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	screenName, err := user.NewUserScreenName(input.ScreenName)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
-	u.userRepository.SetQueries(database.New(u.db))
-	user, err := u.userRepository.FindByScreenName(ctx, screenName)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return nil, errors.WithStack(ErrFindUserByScreenNameUserNotFound)
+	var foundUser *user.User
+
+	// Use ReadWriteTransaction to query (read-only operations also work within RW transaction)
+	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
+		var findErr error
+		foundUser, findErr = u.userRepository.FindByScreenName(ctx, tx, screenName)
+		return findErr
+	}); err != nil {
+		if apperrors.IsNotFound(err) {
+			return nil, apperrors.WithStack(ErrFindUserByScreenNameUserNotFound)
 		}
-		return nil, errors.WithStack(err)
+
+		if apperrors.IsPrecondition(err) {
+			return nil, apperrors.WithStack(err)
+		}
+
+		return nil, apperrors.NewInternalError(err)
 	}
 
 	return &FindUserByScreenNameOutput{
-		ID:         user.ID,
-		ScreenName: user.ScreenName,
-		UserName:   user.UserName,
-		Bio:        user.Bio,
+		ID:         foundUser.ID,
+		ScreenName: foundUser.ScreenName,
+		UserName:   foundUser.UserName,
+		Bio:        foundUser.Bio,
 	}, nil
 }
 
 func NewFindUserByScreenNameUsecase(
-	db *sql.DB,
+	client *spanner.Client,
 	userRepository *repository.UserRepository,
 ) *FindUserByScreenNameUsecase {
 	return &FindUserByScreenNameUsecase{
-		db:             db,
+		client:         client,
 		userRepository: userRepository,
 	}
 }
@@ -80,7 +89,7 @@ func NewFindUserByScreenNameInput(screenName string) *FindUserByScreenNameInput 
 
 func (i FindUserByScreenNameInput) validate() error {
 	if i.ScreenName == "" {
-		return errors.WithStack(ErrFindUserByScreenNameScreenNameRequired)
+		return apperrors.WithStack(ErrFindUserByScreenNameScreenNameRequired)
 	}
 
 	return nil

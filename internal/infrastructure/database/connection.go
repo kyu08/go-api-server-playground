@@ -1,47 +1,51 @@
 package database
 
 import (
-	"database/sql"
-	"time"
+	"context"
+	_ "embed"
+	"errors"
+	"strings"
 
-	"github.com/go-sql-driver/mysql"
-	"github.com/kyu08/go-api-server-playground/internal/config"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
+	"cloud.google.com/go/spanner"
+	"github.com/apstndb/spanemuboost"
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
+	tcspanner "github.com/testcontainers/testcontainers-go/modules/gcloud/spanner"
 )
 
-//nolint:mnd //ここではマジックナンバーの用途は見ればわかるので許容
-func NewDBConnection(config *config.Config) (*sql.DB, error) {
-	jst, err := time.LoadLocation("Asia/Tokyo")
+//go:embed schema/schema.sql
+var schemaDDL string
+var ErrSpannerEmulatorNotInitialized = errors.New("spanner emulator is not initialized")
+
+func GetSpannerClient(spannerEmulator *tcspanner.Container) (*spanner.Client, func(), error) {
+	if spannerEmulator == nil {
+		return nil, nil, apperrors.WithStack(apperrors.NewInternalError(ErrSpannerEmulatorNotInitialized))
+	}
+
+	clients, clientsTeardown, err := spanemuboost.NewClients(context.Background(), spannerEmulator,
+		spanemuboost.EnableDatabaseAutoConfigOnly(),
+		spanemuboost.WithRandomDatabaseID(),
+		spanemuboost.WithSetupDDLs(parseDDLs(schemaDDL)),
+		spanemuboost.WithSetupDMLs([]spanner.Statement{}), // 必要になったら外から受け取るなどする。
+	)
 	if err != nil {
-		return nil, errors.WithStack(errors.NewInternalError(err))
+		return nil, nil, apperrors.WithStack(err)
 	}
 
-	//nolint:exhaustruct,exhaustivestruct // 必要なフィールドだけ初期化したい
-	mysqlConf := mysql.Config{
-		User:             config.DBUser,
-		Passwd:           config.DBPasswd,
-		Addr:             config.DBAddr,
-		DBName:           config.DBName,
-		Net:              "tcp",
-		Collation:        "utf8mb4_general_ci",
-		Loc:              jst,
-		MaxAllowedPacket: 0,
-		ServerPubKey:     "",
-		TLSConfig:        "",
-		Logger:           nil,
-		ParseTime:        true,
+	return clients.Client, clientsTeardown, nil
+}
+
+// parseDDLs splits a DDL string into individual statements.
+func parseDDLs(ddl string) []string {
+	statements := strings.Split(ddl, ";")
+
+	var result []string
+
+	for _, stmt := range statements {
+		stmt = strings.TrimSpace(stmt)
+		if stmt != "" {
+			result = append(result, stmt)
+		}
 	}
 
-	db, err := sql.Open("mysql", mysqlConf.FormatDSN())
-	if err != nil {
-		return nil, errors.WithStack(errors.NewInternalError(err))
-	}
-
-	// NOTE: 下記は仮置きの数字。パフォーマンス要件に応じて調整する必要がある。
-	db.SetMaxOpenConns(100)                 // DBへの最大接続数
-	db.SetMaxIdleConns(50)                  // アイドル状態の最大コネクション数
-	db.SetConnMaxLifetime(10 * time.Minute) // コネクションの最大ライフタイム
-	db.SetConnMaxIdleTime(5 * time.Minute)  // コネクションの最大アイドル時間
-
-	return db, nil
+	return result
 }

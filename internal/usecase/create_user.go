@@ -2,19 +2,18 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 
+	"cloud.google.com/go/spanner"
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
 	"github.com/kyu08/go-api-server-playground/internal/domain/service"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
 )
 
 type (
 	CreateUserUsecase struct {
-		db             *sql.DB
+		client         *spanner.Client
 		userRepository *repository.UserRepository
 	}
 	CreateUserInput struct {
@@ -28,28 +27,31 @@ type (
 )
 
 var (
-	ErrCreateUserScreenNameRequired    = errors.NewPreconditionError("screen name is required")
-	ErrCreateUserUserNameRequired      = errors.NewPreconditionError("user name is required")
-	ErrCreateUserScreenNameAlreadyUsed = errors.NewPreconditionError("the screen name specified is already used")
+	ErrCreateUserScreenNameRequired    = apperrors.NewPreconditionError("screen name is required")
+	ErrCreateUserUserNameRequired      = apperrors.NewPreconditionError("user name is required")
+	ErrCreateUserScreenNameAlreadyUsed = apperrors.NewPreconditionError("the screen name specified is already used")
 )
 
 func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*CreateUserOutput, error) {
 	if err := input.validate(); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	newUser, err := user.New(input.ScreenName, input.UserName, input.Bio)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
-	if err := database.WithTransaction(ctx, u.db, func(queries *database.Queries) error {
-		// NOTE: UserService内でTransactionを使うために必要なので注意
-		u.userRepository.SetQueries(queries)
+	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
 		userService := service.NewUserService(u.userRepository)
-		return userService.CreateUser(ctx, newUser)
+		return userService.CreateUser(ctx, tx, newUser)
 	}); err != nil {
-		return nil, errors.WithStack(err)
+		// TODO: ここのエラー変換ロジックはいずれ共通化することになりそう。(どこの層の責務かもちょっと考えたほうがよさそう)
+		if apperrors.IsPrecondition(err) || apperrors.IsNotFound(err) {
+			return nil, apperrors.WithStack(err)
+		}
+
+		return nil, apperrors.NewInternalError(err)
 	}
 
 	return &CreateUserOutput{
@@ -57,9 +59,9 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 	}, nil
 }
 
-func NewCreateUserUsecase(db *sql.DB, userRepository *repository.UserRepository) *CreateUserUsecase {
+func NewCreateUserUsecase(client *spanner.Client, userRepository *repository.UserRepository) *CreateUserUsecase {
 	return &CreateUserUsecase{
-		db:             db,
+		client:         client,
 		userRepository: userRepository,
 	}
 }
@@ -74,10 +76,11 @@ func NewCreateUserInput(screenName, userName, bio string) *CreateUserInput {
 
 func (i CreateUserInput) validate() error {
 	if i.ScreenName == "" {
-		return errors.WithStack(ErrCreateUserScreenNameRequired)
+		return apperrors.WithStack(ErrCreateUserScreenNameRequired)
 	}
+
 	if i.UserName == "" {
-		return errors.WithStack(ErrCreateUserUserNameRequired)
+		return apperrors.WithStack(ErrCreateUserUserNameRequired)
 	}
 
 	return nil

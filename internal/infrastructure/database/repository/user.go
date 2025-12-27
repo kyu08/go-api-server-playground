@@ -3,52 +3,87 @@ package repository
 import (
 	"context"
 
+	"cloud.google.com/go/spanner"
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 )
 
-type UserRepository struct {
-	queries *database.Queries
-}
+type UserRepository struct{}
 
 func NewUserRepository() *UserRepository {
-	return &UserRepository{
-		queries: nil,
-	}
+	return &UserRepository{}
 }
 
-func (r *UserRepository) SetQueries(q *database.Queries) {
-	r.queries = q
-}
-
-func (r UserRepository) Create(ctx context.Context, u *user.User) error {
-	p := database.CreateUserParams{
+func (r UserRepository) Create(ctx context.Context, tx *spanner.ReadWriteTransaction, u *user.User) error {
+	m, err := spanner.InsertStruct("User", &database.User{
 		ID:         u.ID.String(),
 		ScreenName: u.ScreenName.String(),
 		UserName:   u.UserName.String(),
 		Bio:        u.Bio.String(),
 		IsPrivate:  u.IsPrivate,
 		CreatedAt:  u.CreatedAt,
-	}
-	if _, err := r.queries.CreateUser(ctx, p); err != nil {
-		// FIXME: 正確にはID, ScreenNameの重複エラーが返ってくる場合もあり、それらの場合はPreconditionErrorにすべきだがサボってInternalにしている
-		return errors.WithStack(errors.NewInternalError(err))
+	})
+	if err != nil {
+		return apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
-	return nil
+	return r.apply(tx, []*spanner.Mutation{m})
 }
 
-func (r UserRepository) FindByScreenName(ctx context.Context, screenName user.ScreenName,
+func (r UserRepository) FindByScreenName(
+	ctx context.Context, tx *spanner.ReadWriteTransaction, screenName user.ScreenName,
 ) (*user.User, error) {
-	u, err := r.queries.FindUserByScreenName(ctx, string(screenName))
+	s := spanner.NewStatement(`
+	SELECT ID, ScreenName, UserName, Bio, IsPrivate, CreatedAt FROM User WHERE ScreenName = @screenName LIMIT 1
+	`)
+	s.Params["screenName"] = string(screenName)
+
+	iter := tx.Query(ctx, s)
+	defer iter.Stop()
+
+	row, err := iter.Next()
 	if err != nil {
 		if database.IsNotFoundFromDB(err) {
-			return nil, errors.WithStack(errors.NewNotFoundError("user"))
+			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
 		}
 
-		return nil, errors.WithStack(errors.NewInternalError(err))
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+
+	u, err := database.UserFromRow(row)
+	if err != nil {
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
 	return u.ToUser(), nil
+}
+
+func (r UserRepository) ExistsByScreenName(
+	ctx context.Context, tx *spanner.ReadWriteTransaction, screenName user.ScreenName,
+) (bool, error) {
+	s := spanner.NewStatement(`
+	SELECT 1 FROM User WHERE ScreenName = @screenName LIMIT 1`)
+	s.Params["screenName"] = string(screenName)
+
+	iter := tx.Query(ctx, s)
+	defer iter.Stop()
+
+	_, err := iter.Next()
+	if err != nil {
+		if database.IsNotFoundFromDB(err) {
+			return false, nil
+		}
+
+		return false, apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+
+	return true, nil
+}
+
+func (UserRepository) apply(tx *spanner.ReadWriteTransaction, m []*spanner.Mutation) error {
+	if err := tx.BufferWrite(m); err != nil {
+		return apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+	return nil
 }

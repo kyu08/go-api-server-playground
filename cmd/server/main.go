@@ -3,33 +3,46 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"log/slog"
 	"net"
 	"os"
 	"os/signal"
-	"strings"
 
+	"github.com/apstndb/spanemuboost"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
+	"github.com/kyu08/go-api-server-playground/internal/grpcutil"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/status"
 )
 
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
-		conversionErrorInterceptor(),
-		loggerInterceptor(logger),
-		grpc_recovery.UnaryServerInterceptor(),
-	))
-	twitterServer, err := handler.NewTwitterServer()
+	// NOTE: このプロジェクトはあくまでアプリケーションアーキテクチャ検証用のプロジェクトなのでローカルでしか起動しない。
+	// そのためエミュレーターに接続する前提で実装している。
+	emulator, emulatorTeardown, err := spanemuboost.NewEmulator(context.Background(), spanemuboost.EnableInstanceAutoConfigOnly())
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	defer emulatorTeardown()
+
+	client, teardown, err := database.GetSpannerClient(emulator)
 	if err != nil {
 		panic(err)
 	}
+	defer teardown()
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
+		grpcutil.ConversionError(),
+		grpcutil.Logger(logger),
+		grpc_recovery.UnaryServerInterceptor(),
+	))
+
+	twitterServer := handler.NewTwitterServer(client)
 
 	api.RegisterTwitterServiceServer(server, twitterServer)
 	reflection.Register(server)
@@ -59,38 +72,4 @@ func main() {
 	<-quit
 	logger.Info("stopping gRPC server...")
 	server.GracefulStop() // NOTE: 受け付けているリクエストを捌き切ってからサーバーを停止するために必要
-}
-
-func loggerInterceptor(logger *slog.Logger) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		methodName := strings.Split(info.FullMethod, "/")[2]
-
-		logger.Info("start", slog.String("method", methodName), slog.Any("request", req))
-		defer logger.Info("end", slog.String("method", methodName), slog.Any("request", req))
-
-		resp, err := handler(ctx, req)
-		if err != nil {
-			if !errors.IsPrecondition(err) {
-				logger.Error(err.Error(), "method", methodName, "error", errors.GetStackTrace(err))
-			} else {
-				logger.Warn(err.Error(), "method", methodName, "error", errors.GetStackTrace(err))
-			}
-		}
-
-		return resp, err
-	}
-}
-
-func conversionErrorInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		resp, err := handler(ctx, req)
-		if err != nil {
-			if !errors.IsPrecondition(err) {
-				return resp, status.Error(codes.Internal, "internal server error")
-			}
-			return resp, status.Error(codes.InvalidArgument, err.Error())
-		}
-
-		return resp, err
-	}
 }

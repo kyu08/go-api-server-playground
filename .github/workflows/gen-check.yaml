@@ -19,20 +19,17 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23.0'
+          go-version: '1.25.4'
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
           version: "27.3"
-      - name: Install sqlc
-        uses: sqlc-dev/setup-sqlc@v4
-        with:
-          sqlc-version: '1.27.0'
       - name: Install dependencies
         run: |
           go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0 \
-          & go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1 \
-          & go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+          & go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+      - name: Tidy modules
+        run: go mod tidy
       - name: Generate code
         run: make gen-all
       - name: Check diff

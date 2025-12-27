@@ -1,7 +1,7 @@
-package errors
+package apperrors
 
 import (
-	stderrors "errors"
+	"errors"
 	"fmt"
 
 	goerrors "github.com/go-errors/errors"
@@ -28,6 +28,7 @@ func (e TwitterError) Error() string {
 	if !e.isPreconditionError() {
 		return "Internal Error: " + e.Message
 	}
+
 	return e.Message
 }
 
@@ -65,9 +66,10 @@ func (e TwitterError) isPreconditionError() bool {
 
 func IsPrecondition(err error) bool {
 	var terror *TwitterError
-	if stderrors.As(err, &terror) {
+	if errors.As(err, &terror) {
 		return terror.isPreconditionError()
 	}
+
 	return false
 }
 
@@ -77,7 +79,7 @@ func WithStack(err error) error {
 
 func GetStackTrace(err error) string {
 	var gerr *goerrors.Error
-	if stderrors.As(err, &gerr) {
+	if errors.As(err, &gerr) {
 		return fmt.Sprint(gerr.StackFrames())
 	}
 
@@ -86,8 +88,9 @@ func GetStackTrace(err error) string {
 
 func IsNotFound(err error) bool {
 	var terror *TwitterError
-	if stderrors.As(err, &terror) {
+	if errors.As(err, &terror) {
 		return terror.Type == notFound
 	}
+
 	return false
 }

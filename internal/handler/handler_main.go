@@ -1,11 +1,7 @@
 package handler
 
 import (
-	"context"
-
-	"github.com/kyu08/go-api-server-playground/internal/config"
-	"github.com/kyu08/go-api-server-playground/internal/errors"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
+	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
 	"github.com/kyu08/go-api-server-playground/internal/usecase"
 	"github.com/kyu08/go-api-server-playground/pkg/api"
@@ -18,22 +14,12 @@ type TwitterServer struct {
 	FindUserByScreenNameUsecase *usecase.FindUserByScreenNameUsecase
 }
 
-func NewTwitterServer() (*TwitterServer, error) {
-	config, err := config.New(context.Background())
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	db, err := database.NewDBConnection(config)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
+func NewTwitterServer(client *spanner.Client) *TwitterServer {
 	userRepository := repository.NewUserRepository()
 
 	return &TwitterServer{
 		UnimplementedTwitterServiceServer: api.UnimplementedTwitterServiceServer{},
-		CreateUserUsecase:                 usecase.NewCreateUserUsecase(db, userRepository),
-		FindUserByScreenNameUsecase:       usecase.NewFindUserByScreenNameUsecase(db, userRepository),
-	}, nil
+		CreateUserUsecase:                 usecase.NewCreateUserUsecase(client, userRepository),
+		FindUserByScreenNameUsecase:       usecase.NewFindUserByScreenNameUsecase(client, userRepository),
+	}
 }

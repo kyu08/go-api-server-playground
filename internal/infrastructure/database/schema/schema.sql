@@ -1,8 +1,10 @@
-create table user (
-  id varchar(36) not null primary key,
-  screen_name varchar(20) not null unique, -- @twitter の@以降の部分
-  user_name varchar(20) not null, -- `name`にしたかったがSQLのキーワードなので仕方なく`user_name`にしている
-  bio varchar(160) not null,
-  is_private boolean not null,
-  created_at timestamp not null
-);
+CREATE TABLE User (
+  ID STRING(36) NOT NULL,
+  ScreenName STRING(20) NOT NULL,
+  UserName STRING(20) NOT NULL,
+  Bio STRING(160) NOT NULL,
+  IsPrivate BOOL NOT NULL,
+  CreatedAt TIMESTAMP NOT NULL
+) PRIMARY KEY (ID);
+
+CREATE UNIQUE INDEX UserByScreenName ON User (ScreenName);
