@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"log/slog"
 	"net"
 	"os"
 	"os/signal"
 
+	"github.com/apstndb/spanemuboost"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/kyu08/go-api-server-playground/internal/grpcutil"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
@@ -18,17 +20,22 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-
 	// NOTE: このプロジェクトはあくまでアプリケーションアーキテクチャ検証用のプロジェクトなのでローカルでしか起動しない。
 	// そのためエミュレーターに接続する前提で実装している。
-	client, teardown, err := database.NewEmulatorWithClient(ctx)
+	emulator, emulatorTeardown, err := spanemuboost.NewEmulator(context.Background(), spanemuboost.EnableInstanceAutoConfigOnly())
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	defer emulatorTeardown()
+
+	client, teardown, err := database.GetSpannerClient(emulator)
 	if err != nil {
 		panic(err)
 	}
 	defer teardown()
 
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
 		grpcutil.ConversionError(),
 		grpcutil.Logger(logger),
