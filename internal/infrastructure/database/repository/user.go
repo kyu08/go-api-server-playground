@@ -38,14 +38,12 @@ func (r UserRepository) Create(ctx context.Context, tx *spanner.ReadWriteTransac
 func (r UserRepository) FindByScreenName(
 	ctx context.Context, tx *spanner.ReadWriteTransaction, screenName user.ScreenName,
 ) (*user.User, error) {
-	stmt := spanner.Statement{
-		SQL: `SELECT ID, ScreenName, UserName, Bio, IsPrivate, CreatedAt FROM User WHERE ScreenName = @screenName LIMIT 1`,
-		Params: map[string]any{
-			"screenName": string(screenName),
-		},
-	}
+	s := spanner.NewStatement(`
+	SELECT ID, ScreenName, UserName, Bio, IsPrivate, CreatedAt FROM User WHERE ScreenName = @screenName LIMIT 1
+	`)
+	s.Params["screenName"] = string(screenName)
 
-	iter := tx.Query(ctx, stmt)
+	iter := tx.Query(ctx, s)
 	defer iter.Stop()
 
 	row, err := iter.Next()
@@ -68,14 +66,11 @@ func (r UserRepository) FindByScreenName(
 func (r UserRepository) ExistsByScreenName(
 	ctx context.Context, tx *spanner.ReadWriteTransaction, screenName user.ScreenName,
 ) (bool, error) {
-	stmt := spanner.Statement{
-		SQL: `SELECT 1 FROM User WHERE ScreenName = @screenName LIMIT 1`,
-		Params: map[string]any{
-			"screenName": string(screenName),
-		},
-	}
+	s := spanner.NewStatement(`
+	SELECT 1 FROM User WHERE ScreenName = @screenName LIMIT 1`)
+	s.Params["screenName"] = string(screenName)
 
-	iter := tx.Query(ctx, stmt)
+	iter := tx.Query(ctx, s)
 	defer iter.Stop()
 
 	_, err := iter.Next()
