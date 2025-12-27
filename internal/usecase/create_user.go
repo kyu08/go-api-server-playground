@@ -48,7 +48,7 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 	}); err != nil {
 		// TODO: ここのエラー変換ロジックはいずれ共通化することになりそう。(どこの層の責務かもちょっと考えたほうがよさそう)
 		if apperrors.IsPrecondition(err) || apperrors.IsNotFound(err) {
-			return nil, err
+			return nil, apperrors.WithStack(err)
 		}
 
 		return nil, apperrors.NewInternalError(err)
