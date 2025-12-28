@@ -40,9 +40,9 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 		return nil, err
 	}
 
-	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
+	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, rwtx *spanner.ReadWriteTransaction) error {
 		userService := user.NewUserService(u.userRepository)
-		return userService.CreateUser(ctx, tx, newUser)
+		return userService.CreateUser(ctx, rwtx, newUser)
 	}); err != nil {
 		// TODO: ここのエラー変換ロジックはいずれ共通化することになりそう。(どこの層の責務かもちょっと考えたほうがよさそう)
 		if apperrors.IsPrecondition(err) || apperrors.IsNotFound(err) {

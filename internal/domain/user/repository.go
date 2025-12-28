@@ -7,6 +7,6 @@ import (
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, tx domain.ReadWriteDB, u *User) error
+	Create(ctx context.Context, rwtx domain.ReadWriteDB, u *User) error
 	FindByScreenName(ctx context.Context, rtx domain.ReadOnlyDB, screenName ScreenName) (*User, error)
 }
