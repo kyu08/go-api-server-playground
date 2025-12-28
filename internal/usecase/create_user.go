@@ -6,15 +6,13 @@ import (
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
-	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
-	"github.com/kyu08/go-api-server-playground/internal/domain/repository"
-	"github.com/kyu08/go-api-server-playground/internal/domain/service"
+	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 )
 
 type (
 	CreateUserUsecase struct {
 		client         *spanner.Client
-		userRepository repository.UserRepository
+		userRepository user.UserRepository
 	}
 	CreateUserInput struct {
 		ScreenName string
@@ -42,9 +40,9 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 		return nil, err
 	}
 
-	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
-		userService := service.NewUserService(u.userRepository)
-		return userService.CreateUser(ctx, tx, newUser)
+	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, rwtx *spanner.ReadWriteTransaction) error {
+		userService := user.NewUserService(u.userRepository)
+		return userService.CreateUser(ctx, rwtx, newUser)
 	}); err != nil {
 		// TODO: ここのエラー変換ロジックはいずれ共通化することになりそう。(どこの層の責務かもちょっと考えたほうがよさそう)
 		if apperrors.IsPrecondition(err) || apperrors.IsNotFound(err) {
@@ -59,7 +57,7 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 	}, nil
 }
 
-func NewCreateUserUsecase(client *spanner.Client, userRepository repository.UserRepository) *CreateUserUsecase {
+func NewCreateUserUsecase(client *spanner.Client, userRepository user.UserRepository) *CreateUserUsecase {
 	return &CreateUserUsecase{
 		client:         client,
 		userRepository: userRepository,

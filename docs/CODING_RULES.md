@@ -15,7 +15,7 @@ golangci-lintで`default: all`を採用し、必要に応じて個別のlinter�
     func someFunc() error {
         // ...
 
-        isExisting, err := s.IsExistingScreenName(ctx, tx, user.ScreenName)
+        isExisting, err := s.IsExistingScreenName(ctx, rtx, user.ScreenName)
         if err != nil {
             return apperrors.WithStack(err)
         }
