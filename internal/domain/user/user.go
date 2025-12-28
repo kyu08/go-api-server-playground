@@ -16,11 +16,11 @@ type User struct {
 }
 
 func New(screenName, userName, bio string) (*User, error) {
-	return NewWithID(id.New().String(), screenName, userName, bio)
+	return NewWithValues(id.New().String(), screenName, userName, bio, false, time.Now())
 }
 
-// NewWithID は主にDTOからエンティティを生成する際に使用されることを想定し、IDを外から受け取るようにしている。
-func NewWithID(idString string, screenName, userName, bio string) (*User, error) {
+// NewWithValues は主にDTOからエンティティを生成する際に使用されることを想定し、IDを外から受け取るようにしている。
+func NewWithValues(idString string, screenName, userName, bio string, isPrivate bool, createdAt time.Time) (*User, error) {
 	s, err := NewUserScreenName(screenName)
 	if err != nil {
 		return nil, err
@@ -41,8 +41,8 @@ func NewWithID(idString string, screenName, userName, bio string) (*User, error)
 		ScreenName: s,
 		UserName:   u,
 		Bio:        b,
-		IsPrivate:  false,
-		CreatedAt:  time.Now(),
+		IsPrivate:  isPrivate,
+		CreatedAt:  createdAt,
 	}
 	if err := user.validate(); err != nil {
 		return nil, err

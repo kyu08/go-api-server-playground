@@ -65,7 +65,7 @@ func (UserRepository) fromDomain(u *user.User) *User {
 }
 
 func (UserRepository) toDomain(dto *User) (*user.User, error) {
-	u, err := user.NewWithID(dto.ID, dto.ScreenName, dto.UserName, dto.Bio)
+	u, err := user.NewWithValues(dto.ID, dto.ScreenName, dto.UserName, dto.Bio, dto.IsPrivate, dto.CreatedAt)
 	if err != nil {
 		return nil, apperrors.WithStack(err)
 	}
