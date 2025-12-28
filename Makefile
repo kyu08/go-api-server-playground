@@ -20,13 +20,10 @@ gen-proto:
 	--go-grpc_out=./api --go-grpc_opt=paths=source_relative \
 	*.proto
 
-# NOTE: yoによるコード生成はSpanner EmulatorまたはSpannerインスタンスに接続して行う
-# サーバー起動中(spanemuboostがエミュレータを起動中)にgen-yo-localを使用
 gen-yo-local:
-	@echo "Generating code from Spanner Emulator schema..."
-	yo test-project test-instance test-database \
-		-o internal/infrastructure/database/yo \
-		-p yo
+	yo generate internal/infrastructure/database/schema/schema.sql --from-ddl \
+		-o internal/infrastructure/database/repository \
+		-p repository
 
 gen-all: gen-proto
 
