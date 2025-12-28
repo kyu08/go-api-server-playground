@@ -6,7 +6,7 @@ import (
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
-	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
+	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 )
 
 type User struct {

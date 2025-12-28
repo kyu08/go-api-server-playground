@@ -6,14 +6,13 @@ import (
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain"
-	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
-	"github.com/kyu08/go-api-server-playground/internal/domain/repository"
+	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 )
 
 type UserRepository struct{}
 
-func NewUserRepository() repository.UserRepository {
+func NewUserRepository() user.UserRepository {
 	return &UserRepository{}
 }
 

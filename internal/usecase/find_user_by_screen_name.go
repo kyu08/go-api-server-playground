@@ -6,14 +6,13 @@ import (
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
-	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
-	"github.com/kyu08/go-api-server-playground/internal/domain/repository"
+	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 )
 
 type (
 	FindUserByScreenNameUsecase struct {
 		client         *spanner.Client
-		userRepository repository.UserRepository
+		userRepository user.UserRepository
 	}
 	FindUserByScreenNameInput struct {
 		ScreenName string
@@ -68,7 +67,7 @@ func (u FindUserByScreenNameUsecase) Run(
 
 func NewFindUserByScreenNameUsecase(
 	client *spanner.Client,
-	userRepository repository.UserRepository,
+	userRepository user.UserRepository,
 ) *FindUserByScreenNameUsecase {
 	return &FindUserByScreenNameUsecase{
 		client:         client,
