@@ -23,6 +23,15 @@ golangci-lintで`default: all`を採用し、必要に応じて個別のlinter�
         // ...
     }
     ```
+- `NewInternalError`, `NewPreconditionError`, `NewNotFoundError`は内部で`WithStack`を呼ぶため、これらの関数を使う場合は`WithStack`でラップする必要はない。
+    ```go
+    // Good
+    return apperrors.NewInternalError(err)
+    return apperrors.NewNotFoundError("user")
+
+    // Bad（二重にWithStackが呼ばれてしまう）
+    return apperrors.WithStack(apperrors.NewInternalError(err))
+    ```
 
 ## コードフォーマット
 - gofumpt, goimportsを使用(golangci-lintを使ってCIで実行しているためCIが通れば問題ない)

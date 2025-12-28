@@ -25,10 +25,10 @@ func (r UserRepository) FindByScreenName(
 	u, err := FindUserByScreenName(ctx, rtx, screenName.String())
 	if err != nil {
 		if IsNotFound(err) {
-			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
+			return nil, apperrors.NewNotFoundError("user")
 		}
 
-		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
+		return nil, apperrors.NewInternalError(err)
 	}
 
 	return r.toDomain(u)
@@ -41,14 +41,14 @@ func (r UserRepository) ExistsByScreenName(
 		if IsNotFound(err) {
 			return false, nil
 		}
-		return false, apperrors.WithStack(apperrors.NewInternalError(err))
+		return false, apperrors.NewInternalError(err)
 	}
 	return true, nil
 }
 
 func (UserRepository) apply(rwtx domain.ReadWriteDB, m []*spanner.Mutation) error {
 	if err := rwtx.BufferWrite(m); err != nil {
-		return apperrors.WithStack(apperrors.NewInternalError(err))
+		return apperrors.NewInternalError(err)
 	}
 	return nil
 }

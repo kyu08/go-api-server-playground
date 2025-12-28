@@ -32,26 +32,25 @@ func (e TwitterError) Error() string {
 	return e.Message
 }
 
-// NewXxxErrorを呼び出すときは常にWithStackも呼び出したい気がしてきた。
 func NewInternalError(err error) error {
-	return &TwitterError{
+	return WithStack(&TwitterError{
 		Type:    internal,
 		Message: err.Error(),
-	}
+	})
 }
 
 func NewPreconditionError(message string) error {
-	return &TwitterError{
+	return WithStack(&TwitterError{
 		Type:    precondition,
 		Message: message,
-	}
+	})
 }
 
 func NewNotFoundError(entity string) error {
-	return &TwitterError{
+	return WithStack(&TwitterError{
 		Type:    notFound,
 		Message: entity,
-	}
+	})
 }
 
 func (e TwitterError) isPreconditionError() bool {

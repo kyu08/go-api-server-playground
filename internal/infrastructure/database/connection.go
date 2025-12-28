@@ -18,7 +18,7 @@ var ErrSpannerEmulatorNotInitialized = errors.New("spanner emulator is not initi
 
 func GetSpannerClient(spannerEmulator *tcspanner.Container) (*spanner.Client, func(), error) {
 	if spannerEmulator == nil {
-		return nil, nil, apperrors.WithStack(apperrors.NewInternalError(ErrSpannerEmulatorNotInitialized))
+		return nil, nil, apperrors.NewInternalError(ErrSpannerEmulatorNotInitialized)
 	}
 
 	clients, clientsTeardown, err := spanemuboost.NewClients(context.Background(), spannerEmulator,
