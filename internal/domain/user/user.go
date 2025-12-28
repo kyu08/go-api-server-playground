@@ -16,6 +16,11 @@ type User struct {
 }
 
 func New(screenName, userName, bio string) (*User, error) {
+	return NewWithID(id.New().String(), screenName, userName, bio)
+}
+
+// NewWithID は主にDTOからエンティティを生成する際に使用されることを想定し、IDを外から受け取るようにしている。
+func NewWithID(idString string, screenName, userName, bio string) (*User, error) {
 	s, err := NewUserScreenName(screenName)
 	if err != nil {
 		return nil, err
@@ -32,7 +37,7 @@ func New(screenName, userName, bio string) (*User, error) {
 	}
 
 	user := &User{
-		ID:         id.New(),
+		ID:         id.ID(idString),
 		ScreenName: s,
 		UserName:   u,
 		Bio:        b,

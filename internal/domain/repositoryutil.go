@@ -16,6 +16,9 @@ type (
 		BufferWrite(ms []*spanner.Mutation) error
 	}
 	ReadOnlyDB interface {
+		ReadRow(ctx context.Context, table string, key spanner.Key, columns []string) (*spanner.Row, error)
+		Read(ctx context.Context, table string, keys spanner.KeySet, columns []string) *spanner.RowIterator
+		ReadUsingIndex(ctx context.Context, table, index string, keys spanner.KeySet, columns []string) (ri *spanner.RowIterator)
 		Query(ctx context.Context, statement spanner.Statement) *spanner.RowIterator
 	}
 )

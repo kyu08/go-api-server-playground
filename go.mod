@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/spanner v1.73.0
 	github.com/apstndb/spanemuboost v0.2.16
 	github.com/google/go-cmp v0.7.0
+	github.com/googleapis/gax-go/v2 v2.14.0
 	github.com/testcontainers/testcontainers-go/modules/gcloud v0.37.0
 	google.golang.org/api v0.214.0
 )
@@ -48,7 +49,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/s2a-go v0.1.8 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
-	github.com/googleapis/gax-go/v2 v2.14.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/magiconair/properties v1.8.10 // indirect

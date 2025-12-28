@@ -20,15 +20,12 @@ gen-proto:
 	--go-grpc_out=./api --go-grpc_opt=paths=source_relative \
 	*.proto
 
-# NOTE: yoによるコード生成はSpanner EmulatorまたはSpannerインスタンスに接続して行う
-# サーバー起動中(spanemuboostがエミュレータを起動中)にgen-yo-localを使用
-gen-yo-local:
-	@echo "Generating code from Spanner Emulator schema..."
-	yo test-project test-instance test-database \
-		-o internal/infrastructure/database/yo \
-		-p yo
+gen-yo:
+	yo generate internal/infrastructure/database/schema/schema.sql --from-ddl \
+		-o internal/infrastructure/database/repository \
+		-p repository
 
-gen-all: gen-proto
+gen-all: gen-proto gen-yo
 
 # =========================================
 # アプリケーションの起動、デバッグなど
@@ -54,4 +51,4 @@ handler-list:
 health-check:
 	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
 
-.PHONY: dev-tools gen-proto gen-yo-local gen-all run test lint-go build handler-list health-check
+.PHONY: dev-tools gen-proto gen-yo gen-all run test lint-go build handler-list health-check

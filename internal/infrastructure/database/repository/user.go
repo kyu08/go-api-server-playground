@@ -7,7 +7,6 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 )
 
 type UserRepository struct{}
@@ -17,68 +16,33 @@ func NewUserRepository() user.UserRepository {
 }
 
 func (r UserRepository) Create(ctx context.Context, rwtx domain.ReadWriteDB, u *user.User) error {
-	m, err := spanner.InsertStruct("User", &database.User{
-		ID:         u.ID.String(),
-		ScreenName: u.ScreenName.String(),
-		UserName:   u.UserName.String(),
-		Bio:        u.Bio.String(),
-		IsPrivate:  u.IsPrivate,
-		CreatedAt:  u.CreatedAt,
-	})
-	if err != nil {
-		return apperrors.WithStack(apperrors.NewInternalError(err))
-	}
-
-	return r.apply(rwtx, []*spanner.Mutation{m})
+	return r.apply(rwtx, []*spanner.Mutation{r.fromDomain(u).Insert(ctx)})
 }
 
 func (r UserRepository) FindByScreenName(
 	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
 ) (*user.User, error) {
-	s := spanner.NewStatement(`
-	SELECT ID, ScreenName, UserName, Bio, IsPrivate, CreatedAt FROM User WHERE ScreenName = @screenName LIMIT 1
-	`)
-	s.Params["screenName"] = string(screenName)
-
-	iter := rtx.Query(ctx, s)
-	defer iter.Stop()
-
-	row, err := iter.Next()
+	u, err := FindUserByScreenName(ctx, rtx, screenName.String())
 	if err != nil {
-		if database.IsNotFoundFromDB(err) {
+		if IsNotFound(err) {
 			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
 		}
 
 		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 
-	u, err := database.UserFromRow(row)
-	if err != nil {
-		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
-	}
-
-	return u.ToUser(), nil
+	return r.toDomain(u)
 }
 
 func (r UserRepository) ExistsByScreenName(
-	ctx context.Context, rwtx *spanner.ReadWriteTransaction, screenName user.ScreenName,
+	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
 ) (bool, error) {
-	s := spanner.NewStatement(`
-	SELECT 1 FROM User WHERE ScreenName = @screenName LIMIT 1`)
-	s.Params["screenName"] = string(screenName)
-
-	iter := rwtx.Query(ctx, s)
-	defer iter.Stop()
-
-	_, err := iter.Next()
-	if err != nil {
-		if database.IsNotFoundFromDB(err) {
+	if _, err := FindUserByScreenName(ctx, rtx, screenName.String()); err != nil {
+		if IsNotFound(err) {
 			return false, nil
 		}
-
 		return false, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
-
 	return true, nil
 }
 
@@ -87,4 +51,23 @@ func (UserRepository) apply(rwtx domain.ReadWriteDB, m []*spanner.Mutation) erro
 		return apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 	return nil
+}
+
+func (UserRepository) fromDomain(u *user.User) *User {
+	return &User{
+		ID:         u.ID.String(),
+		ScreenName: u.ScreenName.String(),
+		UserName:   u.UserName.String(),
+		Bio:        u.Bio.String(),
+		IsPrivate:  u.IsPrivate,
+		CreatedAt:  u.CreatedAt,
+	}
+}
+
+func (UserRepository) toDomain(dto *User) (*user.User, error) {
+	u, err := user.NewWithID(dto.ID, dto.ScreenName, dto.UserName, dto.Bio)
+	if err != nil {
+		return nil, apperrors.WithStack(err)
+	}
+	return u, nil
 }
