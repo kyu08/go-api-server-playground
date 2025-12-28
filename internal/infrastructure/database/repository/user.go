@@ -16,12 +16,7 @@ func NewUserRepository() user.UserRepository {
 }
 
 func (r UserRepository) Create(ctx context.Context, rwtx domain.ReadWriteDB, u *user.User) error {
-	m, err := spanner.InsertStruct("User", r.fromDomain(u))
-	if err != nil {
-		return apperrors.WithStack(apperrors.NewInternalError(err))
-	}
-
-	return r.apply(rwtx, []*spanner.Mutation{m})
+	return r.apply(rwtx, []*spanner.Mutation{r.fromDomain(u).Insert(ctx)})
 }
 
 func (r UserRepository) FindByScreenName(
