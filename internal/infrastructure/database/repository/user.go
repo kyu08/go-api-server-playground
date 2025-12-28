@@ -5,17 +5,19 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
+	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
+	"github.com/kyu08/go-api-server-playground/internal/domain/repository"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 )
 
 type UserRepository struct{}
 
-func NewUserRepository() *UserRepository {
+func NewUserRepository() repository.UserRepository {
 	return &UserRepository{}
 }
 
-func (r UserRepository) Create(ctx context.Context, tx *spanner.ReadWriteTransaction, u *user.User) error {
+func (r UserRepository) Create(ctx context.Context, tx domain.ReadWriteDB, u *user.User) error {
 	m, err := spanner.InsertStruct("User", &database.User{
 		ID:         u.ID.String(),
 		ScreenName: u.ScreenName.String(),
@@ -32,7 +34,7 @@ func (r UserRepository) Create(ctx context.Context, tx *spanner.ReadWriteTransac
 }
 
 func (r UserRepository) FindByScreenName(
-	ctx context.Context, tx *spanner.ReadWriteTransaction, screenName user.ScreenName,
+	ctx context.Context, tx domain.ReadOnlyDB, screenName user.ScreenName,
 ) (*user.User, error) {
 	s := spanner.NewStatement(`
 	SELECT ID, ScreenName, UserName, Bio, IsPrivate, CreatedAt FROM User WHERE ScreenName = @screenName LIMIT 1
@@ -81,7 +83,7 @@ func (r UserRepository) ExistsByScreenName(
 	return true, nil
 }
 
-func (UserRepository) apply(tx *spanner.ReadWriteTransaction, m []*spanner.Mutation) error {
+func (UserRepository) apply(tx domain.ReadWriteDB, m []*spanner.Mutation) error {
 	if err := tx.BufferWrite(m); err != nil {
 		return apperrors.WithStack(apperrors.NewInternalError(err))
 	}
