@@ -7,14 +7,14 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
+	"github.com/kyu08/go-api-server-playground/internal/domain/repository"
 	"github.com/kyu08/go-api-server-playground/internal/domain/service"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
 )
 
 type (
 	CreateUserUsecase struct {
 		client         *spanner.Client
-		userRepository *repository.UserRepository
+		userRepository repository.UserRepository
 	}
 	CreateUserInput struct {
 		ScreenName string
@@ -59,7 +59,7 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 	}, nil
 }
 
-func NewCreateUserUsecase(client *spanner.Client, userRepository *repository.UserRepository) *CreateUserUsecase {
+func NewCreateUserUsecase(client *spanner.Client, userRepository repository.UserRepository) *CreateUserUsecase {
 	return &CreateUserUsecase{
 		client:         client,
 		userRepository: userRepository,

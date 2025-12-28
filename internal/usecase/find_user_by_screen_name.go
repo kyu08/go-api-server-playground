@@ -7,13 +7,13 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
 	"github.com/kyu08/go-api-server-playground/internal/domain/entity/user"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
+	"github.com/kyu08/go-api-server-playground/internal/domain/repository"
 )
 
 type (
 	FindUserByScreenNameUsecase struct {
 		client         *spanner.Client
-		userRepository *repository.UserRepository
+		userRepository repository.UserRepository
 	}
 	FindUserByScreenNameInput struct {
 		ScreenName string
@@ -44,14 +44,9 @@ func (u FindUserByScreenNameUsecase) Run(
 		return nil, err
 	}
 
-	var foundUser *user.User
-
-	// Use ReadWriteTransaction to query (read-only operations also work within RW transaction)
-	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, tx *spanner.ReadWriteTransaction) error {
-		var findErr error
-		foundUser, findErr = u.userRepository.FindByScreenName(ctx, tx, screenName)
-		return findErr
-	}); err != nil {
+	rtx := u.client.Single()
+	foundUser, err := u.userRepository.FindByScreenName(ctx, rtx, screenName)
+	if err != nil {
 		if apperrors.IsNotFound(err) {
 			return nil, apperrors.WithStack(ErrFindUserByScreenNameUserNotFound)
 		}
@@ -73,7 +68,7 @@ func (u FindUserByScreenNameUsecase) Run(
 
 func NewFindUserByScreenNameUsecase(
 	client *spanner.Client,
-	userRepository *repository.UserRepository,
+	userRepository repository.UserRepository,
 ) *FindUserByScreenNameUsecase {
 	return &FindUserByScreenNameUsecase{
 		client:         client,
