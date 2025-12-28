@@ -20,12 +20,12 @@ gen-proto:
 	--go-grpc_out=./api --go-grpc_opt=paths=source_relative \
 	*.proto
 
-gen-yo-local:
+gen-yo:
 	yo generate internal/infrastructure/database/schema/schema.sql --from-ddl \
 		-o internal/infrastructure/database/repository \
 		-p repository
 
-gen-all: gen-proto
+gen-all: gen-proto gen-yo
 
 # =========================================
 # アプリケーションの起動、デバッグなど
@@ -51,4 +51,4 @@ handler-list:
 health-check:
 	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
 
-.PHONY: dev-tools gen-proto gen-yo-local gen-all run test lint-go build handler-list health-check
+.PHONY: dev-tools gen-proto gen-yo gen-all run test lint-go build handler-list health-check
