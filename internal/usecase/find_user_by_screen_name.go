@@ -27,7 +27,7 @@ type (
 
 var (
 	ErrFindUserByScreenNameScreenNameRequired = apperrors.NewPreconditionError("screen name is required")
-	ErrFindUserByScreenNameUserNotFound       = apperrors.NewNotFoundError("user not found")
+	ErrFindUserByScreenNameUserNotFound       = apperrors.NewNotFoundError("user")
 )
 
 func (u FindUserByScreenNameUsecase) Run(
