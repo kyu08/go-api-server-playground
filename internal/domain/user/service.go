@@ -21,7 +21,7 @@ func NewUserService(userRepository UserRepository) *UserService {
 
 // TODO: add UT
 func (s UserService) CreateUser(ctx context.Context, rwtx *spanner.ReadWriteTransaction, user *User) error {
-	isExisting, err := s.IsExistingScreenName(ctx, rwtx, user.ScreenName)
+	isExisting, err := s.IsExistingScreenName(ctx, rwtx, user.screenName)
 	if err != nil {
 		return apperrors.WithStack(err)
 	}

@@ -7,6 +7,7 @@ import (
 	goerrors "github.com/go-errors/errors"
 )
 
+// TODO: add UT
 type (
 	ErrorType    int
 	TwitterError struct {

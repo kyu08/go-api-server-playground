@@ -6,12 +6,15 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 )
 
-// TODO: ID以外全部privateにする
+// User はユーザーを表すエンティティ。
+// 基本的にフィールドはprivateにしてドメインロジックの流出を防ぐ。
+// IDやCreatedAtなどの更新されないフィールドに関してはpublicにしている。
+// これらのフィールドは基本的に変更されないのでpublicにするデメリット(安全性の低下)が少ないと判断したため。
 type User struct {
 	ID         domain.ID[User]
-	ScreenName ScreenName
-	UserName   UserName
-	Bio        Bio
+	screenName ScreenName
+	userName   UserName
+	bio        Bio
 	CreatedAt  time.Time
 }
 
@@ -49,9 +52,9 @@ func newUser(id domain.ID[User], screenName, userName, bio string, createdAt tim
 
 	user := &User{
 		ID:         id,
-		ScreenName: s,
-		UserName:   u,
-		Bio:        b,
+		screenName: s,
+		userName:   u,
+		bio:        b,
 		CreatedAt:  createdAt,
 	}
 	if err := user.validate(); err != nil {
@@ -59,6 +62,18 @@ func newUser(id domain.ID[User], screenName, userName, bio string, createdAt tim
 	}
 
 	return user, nil
+}
+
+func (u *User) ScreenName() ScreenName {
+	return u.screenName
+}
+
+func (u *User) UserName() UserName {
+	return u.userName
+}
+
+func (u *User) Bio() Bio {
+	return u.bio
 }
 
 func (u *User) validate() error {

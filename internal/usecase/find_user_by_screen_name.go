@@ -59,9 +59,9 @@ func (u FindUserByScreenNameUsecase) Run(
 
 	return &FindUserByScreenNameOutput{
 		ID:         foundUser.ID,
-		ScreenName: foundUser.ScreenName,
-		UserName:   foundUser.UserName,
-		Bio:        foundUser.Bio,
+		ScreenName: foundUser.ScreenName(),
+		UserName:   foundUser.UserName(),
+		Bio:        foundUser.Bio(),
 	}, nil
 }
 
