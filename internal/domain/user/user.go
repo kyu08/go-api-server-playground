@@ -6,6 +6,7 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 )
 
+// TODO: ID以外全部privateにする
 type User struct {
 	ID         domain.ID[User]
 	ScreenName ScreenName
