@@ -56,9 +56,9 @@ func (UserRepository) apply(rwtx domain.ReadWriteDB, m []*spanner.Mutation) erro
 func (UserRepository) fromDomain(u *user.User) *User {
 	return &User{
 		ID:         u.ID.String(),
-		ScreenName: u.ScreenName.String(),
-		UserName:   u.UserName.String(),
-		Bio:        u.Bio.String(),
+		ScreenName: u.ScreenName().String(),
+		UserName:   u.UserName().String(),
+		Bio:        u.Bio().String(),
 		CreatedAt:  u.CreatedAt,
 	}
 }

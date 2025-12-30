@@ -34,9 +34,9 @@ func TestNewUser(t *testing.T) {
 			},
 			want: &User{
 				ID:         domain.NewID[User](),
-				ScreenName: "screen_name",
-				UserName:   "user_name",
-				Bio:        "bio",
+				screenName: "screen_name",
+				userName:   "user_name",
+				bio:        "bio",
 				CreatedAt:  time.Time{},
 			},
 			wantErrMsg: nil,
@@ -82,7 +82,11 @@ func TestNewUser(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			if diff := cmp.Diff(tt.want, got, cmpopts.IgnoreFields(User{}, "ID", "CreatedAt")); diff != "" {
+			opts := []cmp.Option{
+				cmpopts.IgnoreFields(User{}, "ID", "CreatedAt"),
+				cmp.AllowUnexported(User{}),
+			}
+			if diff := cmp.Diff(tt.want, got, opts...); diff != "" {
 				t.Errorf("New() mismatch (-want +got) = \n%s", diff)
 			}
 		})
@@ -115,9 +119,9 @@ func TestNewFromDTO(t *testing.T) {
 			},
 			want: &User{
 				ID:         lo.Must(domain.NewFromString[User]("f541dd5f-48fd-40d6-8e5b-6c25b4681f3c")),
-				ScreenName: "screen_name",
-				UserName:   "user_name",
-				Bio:        "bio",
+				screenName: "screen_name",
+				userName:   "user_name",
+				bio:        "bio",
 				CreatedAt:  time.Date(2025, time.December, 30, 0, 0, 0, 0, time.UTC),
 			},
 			wantErr: nil,
@@ -174,7 +178,12 @@ func TestNewFromDTO(t *testing.T) {
 				require.EqualError(t, err, tt.wantErr.Error())
 			} else {
 				require.NoError(t, err)
-				if diff := cmp.Diff(tt.want, got, cmpopts.IgnoreFields(User{}, "ID", "CreatedAt")); diff != "" {
+
+				opts := []cmp.Option{
+					cmpopts.IgnoreFields(User{}, "ID", "CreatedAt"),
+					cmp.AllowUnexported(User{}),
+				}
+				if diff := cmp.Diff(tt.want, got, opts...); diff != "" {
 					t.Errorf("NewFromDTO() mismatch (-want +got) = \n%s", diff)
 				}
 			}
