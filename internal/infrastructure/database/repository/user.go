@@ -59,13 +59,12 @@ func (UserRepository) fromDomain(u *user.User) *User {
 		ScreenName: u.ScreenName.String(),
 		UserName:   u.UserName.String(),
 		Bio:        u.Bio.String(),
-		IsPrivate:  u.IsPrivate,
 		CreatedAt:  u.CreatedAt,
 	}
 }
 
 func (UserRepository) toDomain(dto *User) (*user.User, error) {
-	u, err := user.NewWithValues(dto.ID, dto.ScreenName, dto.UserName, dto.Bio, dto.IsPrivate, dto.CreatedAt)
+	u, err := user.NewFromDTO(dto.ID, dto.ScreenName, dto.UserName, dto.Bio, dto.CreatedAt)
 	if err != nil {
 		return nil, apperrors.WithStack(err)
 	}

@@ -5,7 +5,7 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
-	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
+	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 )
 
@@ -18,7 +18,7 @@ type (
 		ScreenName string
 	}
 	FindUserByScreenNameOutput struct {
-		ID         id.ID
+		ID         domain.ID[user.User]
 		ScreenName user.ScreenName
 		UserName   user.UserName
 		Bio        user.Bio
