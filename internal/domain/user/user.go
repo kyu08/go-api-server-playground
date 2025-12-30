@@ -3,24 +3,34 @@ package user
 import (
 	"time"
 
-	"github.com/kyu08/go-api-server-playground/internal/domain/entity/id"
+	"github.com/kyu08/go-api-server-playground/internal/domain"
 )
 
 type User struct {
-	ID         id.ID
+	ID         domain.ID[User]
 	ScreenName ScreenName
 	UserName   UserName
 	Bio        Bio
-	IsPrivate  bool
 	CreatedAt  time.Time
 }
 
-func New(screenName, userName, bio string) (*User, error) {
-	return NewWithValues(id.New().String(), screenName, userName, bio, false, time.Now())
+// NewUser はユーザー作成時に使用するコンストラクタ。
+func NewUser(screenName, userName, bio string) (*User, error) {
+	return newUser(domain.NewID[User](), screenName, userName, bio, time.Now())
 }
 
-// NewWithValues は主にDTOからエンティティを生成する際に使用されることを想定し、IDを外から受け取るようにしている。
-func NewWithValues(idString string, screenName, userName, bio string, isPrivate bool, createdAt time.Time) (*User, error) {
+// NewFromDTO は主にDTOからエンティティを生成する際に使用されることを想定し、IDを外から受け取るようにしている。
+// これがドメイン知識かと言われると微妙だが、レイヤー間の依存関係の都合でこうするのが良いと判断した。
+func NewFromDTO(idString string, screenName, userName, bio string, createdAt time.Time) (*User, error) {
+	id, err := domain.NewFromString[User](idString)
+	if err != nil {
+		return nil, err
+	}
+
+	return newUser(id, screenName, userName, bio, createdAt)
+}
+
+func newUser(id domain.ID[User], screenName, userName, bio string, createdAt time.Time) (*User, error) {
 	s, err := NewUserScreenName(screenName)
 	if err != nil {
 		return nil, err
@@ -37,11 +47,10 @@ func NewWithValues(idString string, screenName, userName, bio string, isPrivate 
 	}
 
 	user := &User{
-		ID:         id.ID(idString),
+		ID:         id,
 		ScreenName: s,
 		UserName:   u,
 		Bio:        b,
-		IsPrivate:  isPrivate,
 		CreatedAt:  createdAt,
 	}
 	if err := user.validate(); err != nil {

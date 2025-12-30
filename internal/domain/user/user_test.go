@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 )
@@ -31,11 +32,10 @@ func TestNew(t *testing.T) {
 				bio:        "bio",
 			},
 			want: &User{
-				ID:         "",
+				ID:         domain.NewID[User](),
 				ScreenName: "screen_name",
 				UserName:   "user_name",
 				Bio:        "bio",
-				IsPrivate:  false,
 				CreatedAt:  time.Time{},
 			},
 			wantErrMsg: nil,
@@ -72,7 +72,7 @@ func TestNew(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := New(tt.in.screenName, tt.in.userName, tt.in.bio)
+			got, err := NewUser(tt.in.screenName, tt.in.userName, tt.in.bio)
 
 			if tt.wantErrMsg != nil {
 				require.Error(t, err)
