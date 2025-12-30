@@ -14,7 +14,8 @@ import (
 // それらの欠点を補うためにPhantom typeを利用して型安全性を高めている。
 type ID[T any] struct {
 	value uuid.UUID
-	// _ T として定義してしまうとinvalid recursive type User (see details) [InvalidDeclCycle]
+	// _ T として定義してしまうと利用側(e.g. User構造体の定義場所)で
+	// invalid recursive type User (see details) [InvalidDeclCycle]
 	// のようなエラーになるためポインタ型にしている。
 	_ *T
 }
