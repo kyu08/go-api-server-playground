@@ -16,7 +16,7 @@ func NewUserScreenName(source string) (ScreenName, error) {
 	s := domain.NewStringVOFromString[ScreenName](source)
 
 	if err := s.validate(); err != nil {
-		return ScreenName{}, apperrors.WithStack(err)
+		return "", apperrors.WithStack(err)
 	}
 
 	return s, nil
@@ -37,4 +37,22 @@ func (s ScreenName) validate() error {
 
 func (s ScreenName) String() string {
 	return string(s)
+}
+
+type (
+	S1 domain.StringVO[S1]
+	S2 domain.StringVO[S2]
+	S3 string
+	S4 string
+)
+
+func some() {
+	s1 := domain.NewStringVOFromString[S1]("foo")
+	s2 := S2(s1)
+
+	f := func(s3 S3) {}
+	s3 := S3(s1)
+	s4 := S4(s3)
+
+	f(s3)
 }
