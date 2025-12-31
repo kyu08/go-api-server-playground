@@ -1,8 +1,11 @@
 package user
 
-import "github.com/kyu08/go-api-server-playground/internal/apperrors"
+import (
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
+	"github.com/kyu08/go-api-server-playground/internal/domain"
+)
 
-type ScreenName string
+type ScreenName domain.StringVO[ScreenName]
 
 var (
 	ErrScreenNameRequired = apperrors.NewPreconditionError("screen_name is required")
@@ -10,10 +13,10 @@ var (
 )
 
 func NewUserScreenName(source string) (ScreenName, error) {
-	s := ScreenName(source)
+	s := domain.NewStringVOFromString[ScreenName](source)
 
 	if err := s.validate(); err != nil {
-		return "", apperrors.WithStack(err)
+		return ScreenName{}, apperrors.WithStack(err)
 	}
 
 	return s, nil
