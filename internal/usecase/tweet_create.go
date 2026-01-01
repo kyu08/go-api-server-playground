@@ -85,7 +85,6 @@ func NewTweetCreateInput(screenName, userName, bio string) *TweetCreateInput {
 	}
 }
 
-// TODO: add UT
 func (i TweetCreateInput) validate() error {
 	if i.AuthorID == "" {
 		return apperrors.WithStack(ErrTweetCreateAuthorIDRequired)
