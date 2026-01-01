@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/kyu08/go-api-server-playground/pkg/api"
+	"github.com/kyu08/go-api-server-playground/proto/api"
 )
 
 func TestCreateUser(t *testing.T) {

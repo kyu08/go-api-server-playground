@@ -16,7 +16,7 @@ dev-tools:
 # 自動生成系
 # =========================================
 gen-proto:
-	cd pkg && protoc --go_out=./api --go_opt=paths=source_relative \
+	cd proto && protoc --go_out=./api --go_opt=paths=source_relative \
 	--go-grpc_out=./api --go-grpc_opt=paths=source_relative \
 	*.proto
 

@@ -14,7 +14,7 @@ import (
 	"github.com/apstndb/spanemuboost"
 	"github.com/kyu08/go-api-server-playground/internal/grpcutil"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
-	"github.com/kyu08/go-api-server-playground/pkg/api"
+	"github.com/kyu08/go-api-server-playground/proto/api"
 	tcspanner "github.com/testcontainers/testcontainers-go/modules/gcloud/spanner"
 )
 
