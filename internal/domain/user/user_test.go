@@ -26,7 +26,7 @@ func TestNewUser(t *testing.T) {
 		want       *User
 		wantErrMsg *string
 	}{
-		"validなUserを渡すとnilが返る": {
+		"validなparamsを渡すとUserが返る": {
 			in: args{
 				screenName: "screen_name",
 				userName:   "user_name",
@@ -37,7 +37,6 @@ func TestNewUser(t *testing.T) {
 				screenName: "screen_name",
 				userName:   "user_name",
 				bio:        "bio",
-				CreatedAt:  time.Time{},
 			},
 			wantErrMsg: nil,
 		},
@@ -83,7 +82,7 @@ func TestNewUser(t *testing.T) {
 			}
 
 			opts := []cmp.Option{
-				cmpopts.IgnoreFields(User{}, "ID", "CreatedAt"),
+				cmpopts.IgnoreFields(User{}, "ID", "CreatedAt", "UpdatedAt"),
 				cmp.AllowUnexported(User{}),
 			}
 			if diff := cmp.Diff(tt.want, got, opts...); diff != "" {
@@ -102,6 +101,7 @@ func TestNewFromDTO(t *testing.T) {
 		userName   string
 		bio        string
 		createdAt  time.Time
+		updatedAt  time.Time
 	}
 
 	tests := map[string]struct {
@@ -109,13 +109,14 @@ func TestNewFromDTO(t *testing.T) {
 		want    *User
 		wantErr error
 	}{
-		"validなUserを渡すとnilが返る": {
+		"validなparamsを渡すとUserが返る": {
 			in: args{
 				id:         "f541dd5f-48fd-40d6-8e5b-6c25b4681f3c",
 				screenName: "screen_name",
 				userName:   "user_name",
 				bio:        "bio",
 				createdAt:  time.Date(2025, time.December, 30, 0, 0, 0, 0, time.UTC),
+				updatedAt:  time.Date(2025, time.December, 30, 0, 0, 0, 0, time.UTC),
 			},
 			want: &User{
 				ID:         lo.Must(domain.NewFromString[User]("f541dd5f-48fd-40d6-8e5b-6c25b4681f3c")),
@@ -123,6 +124,7 @@ func TestNewFromDTO(t *testing.T) {
 				userName:   "user_name",
 				bio:        "bio",
 				CreatedAt:  time.Date(2025, time.December, 30, 0, 0, 0, 0, time.UTC),
+				UpdatedAt:  time.Date(2025, time.December, 30, 0, 0, 0, 0, time.UTC),
 			},
 			wantErr: nil,
 		},
@@ -171,7 +173,7 @@ func TestNewFromDTO(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := NewFromDTO(tt.in.id, tt.in.screenName, tt.in.userName, tt.in.bio, tt.in.createdAt)
+			got, err := NewFromDTO(tt.in.id, tt.in.screenName, tt.in.userName, tt.in.bio, tt.in.createdAt, tt.in.updatedAt)
 
 			if tt.wantErr != nil {
 				require.Error(t, err)

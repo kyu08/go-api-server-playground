@@ -19,6 +19,7 @@ type User struct {
 	UserName   string    `spanner:"UserName" json:"UserName"`     // UserName
 	Bio        string    `spanner:"Bio" json:"Bio"`               // Bio
 	CreatedAt  time.Time `spanner:"CreatedAt" json:"CreatedAt"`   // CreatedAt
+	UpdatedAt  time.Time `spanner:"UpdatedAt" json:"UpdatedAt"`   // UpdatedAt
 }
 
 func UserPrimaryKeys() []string {
@@ -34,6 +35,7 @@ func UserColumns() []string {
 		"UserName",
 		"Bio",
 		"CreatedAt",
+		"UpdatedAt",
 	}
 }
 
@@ -44,6 +46,7 @@ func UserWritableColumns() []string {
 		"UserName",
 		"Bio",
 		"CreatedAt",
+		"UpdatedAt",
 	}
 }
 
@@ -66,6 +69,8 @@ func (u *User) columnsToPtrs(cols []string, customPtrs map[string]interface{}) (
 			ret = append(ret, &u.Bio)
 		case "CreatedAt":
 			ret = append(ret, &u.CreatedAt)
+		case "UpdatedAt":
+			ret = append(ret, &u.UpdatedAt)
 		default:
 			return nil, fmt.Errorf("unknown column: %s", col)
 		}
@@ -87,6 +92,8 @@ func (u *User) columnsToValues(cols []string) ([]interface{}, error) {
 			ret = append(ret, u.Bio)
 		case "CreatedAt":
 			ret = append(ret, u.CreatedAt)
+		case "UpdatedAt":
+			ret = append(ret, u.UpdatedAt)
 		default:
 			return nil, fmt.Errorf("unknown column: %s", col)
 		}
@@ -204,7 +211,7 @@ func (u *User) Delete(ctx context.Context) *spanner.Mutation {
 // Generated from unique index 'UserByScreenName'.
 func FindUserByScreenName(ctx context.Context, db YORODB, screenName string) (*User, error) {
 	const sqlstr = "SELECT " +
-		"ID, ScreenName, UserName, Bio, CreatedAt " +
+		"ID, ScreenName, UserName, Bio, CreatedAt, UpdatedAt " +
 		"FROM User@{FORCE_INDEX=UserByScreenName} " +
 		"WHERE ScreenName = @param0"
 
