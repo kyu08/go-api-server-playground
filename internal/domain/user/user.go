@@ -16,25 +16,36 @@ type User struct {
 	userName   UserName
 	bio        Bio
 	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 // NewUser はユーザー作成時に使用するコンストラクタ。
 func NewUser(screenName, userName, bio string) (*User, error) {
-	return newUser(domain.NewID[User](), screenName, userName, bio, time.Now())
+	return newUser(domain.NewID[User](), screenName, userName, bio, time.Now(), time.Now())
 }
 
 // NewFromDTO は主にDTOからエンティティを生成する際に使用されることを想定し、IDを外から受け取るようにしている。
 // これがドメイン知識かと言われると微妙だが、レイヤー間の依存関係の都合でこうするのが良いと判断した。
-func NewFromDTO(idString string, screenName, userName, bio string, createdAt time.Time) (*User, error) {
+func NewFromDTO(
+	idString string,
+	screenName, userName, bio string,
+	createdAt time.Time,
+	updatedAt time.Time,
+) (*User, error) {
 	id, err := domain.NewFromString[User](idString)
 	if err != nil {
 		return nil, err
 	}
 
-	return newUser(id, screenName, userName, bio, createdAt)
+	return newUser(id, screenName, userName, bio, createdAt, updatedAt)
 }
 
-func newUser(id domain.ID[User], screenName, userName, bio string, createdAt time.Time) (*User, error) {
+func newUser(
+	id domain.ID[User],
+	screenName, userName, bio string,
+	createdAt time.Time,
+	updatedAt time.Time,
+) (*User, error) {
 	s, err := NewUserScreenName(screenName)
 	if err != nil {
 		return nil, err
@@ -56,6 +67,7 @@ func newUser(id domain.ID[User], screenName, userName, bio string, createdAt tim
 		userName:   u,
 		bio:        b,
 		CreatedAt:  createdAt,
+		UpdatedAt:  updatedAt,
 	}
 	if err := user.validate(); err != nil {
 		return nil, err
