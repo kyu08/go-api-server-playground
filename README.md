@@ -15,7 +15,7 @@
 # 各種手順
 
 ## エンドポイント更新時の手順
-1. `api/twitter.proto`を更新
+1. `proto/twitter.proto`を更新
 1. `make gen-proto`
 
 ## ローカルでの開発手順

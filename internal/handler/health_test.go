@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyu08/go-api-server-playground/pkg/api"
+	"github.com/kyu08/go-api-server-playground/proto/api"
 )
 
 func TestHealth(t *testing.T) {

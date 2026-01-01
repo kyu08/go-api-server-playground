@@ -14,7 +14,7 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/grpcutil"
 	"github.com/kyu08/go-api-server-playground/internal/handler"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
-	"github.com/kyu08/go-api-server-playground/pkg/api"
+	"github.com/kyu08/go-api-server-playground/proto/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

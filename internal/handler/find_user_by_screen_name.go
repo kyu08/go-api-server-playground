@@ -5,7 +5,7 @@ import (
 
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/usecase"
-	"github.com/kyu08/go-api-server-playground/pkg/api"
+	"github.com/kyu08/go-api-server-playground/proto/api"
 )
 
 func (s *TwitterServer) FindUserByScreenName(
