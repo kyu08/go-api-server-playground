@@ -34,6 +34,21 @@ func (r UserRepository) FindByScreenName(
 	return r.toDomain(u)
 }
 
+func (r UserRepository) FindByID(
+	ctx context.Context, rtx domain.ReadOnlyDB, userID domain.ID[user.User],
+) (*user.User, error) {
+	u, err := FindUser(ctx, rtx, userID.String())
+	if err != nil {
+		if IsNotFound(err) {
+			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
+		}
+
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+
+	return r.toDomain(u)
+}
+
 func (r UserRepository) ExistsByScreenName(
 	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
 ) (bool, error) {
