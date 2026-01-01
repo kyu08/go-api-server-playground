@@ -1,0 +1,24 @@
+name: gocapsule
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '**.go'
+      - '.github/workflows/gocapsule.yaml'
+
+jobs:
+  gocapsule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.4'
+      - name: Install gocapsule
+        run: ./scripts/install-gocapsule.sh
+      - name: Run gocapsule
+        run: $(go env GOPATH)/bin/gocapsule ./...

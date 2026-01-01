@@ -8,6 +8,7 @@ dev-tools:
 	go install go.mercari.io/yo@latest
 	go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 	go install gotest.tools/gotestsum@latest
+	./scripts/install-gocapsule.sh
 	echo "--------------------------------------------------"
 	echo "⚠️protoc, golangci-lintは別途installしてください。"
 	echo "--------------------------------------------------"
@@ -42,6 +43,9 @@ test-gotestsum:
 lint-go:
 	golangci-lint run -c ./.golangci.yaml --fix --allow-parallel-runners --tests ./...
 
+lint-gocapsule:
+	$(shell go env GOPATH)/bin/gocapsule ./...
+
 build:
 	go build ./...
 
@@ -51,4 +55,4 @@ handler-list:
 health-check:
 	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
 
-.PHONY: dev-tools gen-proto gen-yo gen-all run test lint-go build handler-list health-check
+.PHONY: dev-tools gen-proto gen-yo gen-all run test lint-go lint-gocapsule build handler-list health-check
