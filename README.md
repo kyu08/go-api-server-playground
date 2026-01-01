@@ -10,7 +10,7 @@
 | DB                             | Cloud Spanner (Emulator)                                   |
 | CI                             | GitHub Actions                                             |
 | 依存関係更新                   | dependabot                                                 |
-| Goコードのlint                 | [golangci-lint](https://github.com/golangci/golangci-lint) |
+| Goコードのlint                 | [golangci-lint](https://github.com/golangci/golangci-lint), [gocapsule](https://github.com/YuitoSato/gocapsule) |
 
 # 各種手順
 
@@ -20,4 +20,16 @@
 
 ## ローカルでの開発手順
 1. `make dev-tools`で必要なツールをインストール
-1. 必要に応じて`make test`, `make lint`などを実行
+1. 必要に応じて`make test`, `make lint-go`, `make lint-gocapsule`などを実行
+
+## gocapsuleについて
+[gocapsule](https://github.com/YuitoSato/gocapsule)はカプセル化を強制するGo linterです。
+`New**`コンストラクタが存在する構造体に対して、直接的な構造体リテラルの作成やフィールドの再代入を防ぎます。
+
+### 実行方法
+```bash
+# ローカルで実行
+make lint-gocapsule
+
+# CIで自動実行されます
+```
