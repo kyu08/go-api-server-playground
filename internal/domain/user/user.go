@@ -6,17 +6,21 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 )
 
-// User はユーザーを表すエンティティ。
+// User はユーザーを表すエンティティ
 // 基本的にフィールドはprivateにしてドメインロジックの流出を防ぐ。
 // IDやCreatedAtなどの更新されないフィールドに関してはpublicにしている。
 // これらのフィールドは基本的に変更されないのでpublicにするデメリット(安全性の低下)が少ないと判断したため。
 type User struct {
-	ID         domain.ID[User]
+	// ユーザーID
+	ID domain.ID[User]
+	// スクリーンネーム。メンション時などに@fooのような形式で表示される。
 	screenName ScreenName
-	userName   UserName
-	bio        Bio
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	// 表示名。ユーザーが自由に設定できる。
+	userName UserName
+	// 自己紹介。ユーザー詳細ページなどで表示される。
+	bio       Bio
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // NewUser はユーザー作成時に使用するコンストラクタ。

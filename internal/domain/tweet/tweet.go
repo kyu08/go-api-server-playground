@@ -7,10 +7,14 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 )
 
+// Tweet はツイートを表すentity
 type Tweet struct {
-	ID        domain.ID[Tweet]
-	AuthorID  domain.ID[user.User]
-	body      Body // ツイート本文
+	// ツイート自体のID
+	ID domain.ID[Tweet]
+	// ツイート投稿者のユーザーID
+	AuthorID domain.ID[user.User]
+	// ツイート本文
+	body      Body
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -19,7 +23,7 @@ func (t *Tweet) Body() Body {
 	return t.body
 }
 
-// NewTweet はツイート作成時に使用するコンストラクタ。
+// NewTweet はツイート作成時に使用するコンストラクタ
 func NewTweet(authorID domain.ID[user.User], body string) (*Tweet, error) {
 	now := time.Now()
 	return newTweet(domain.NewID[Tweet](), authorID, body, now, now)
