@@ -23,6 +23,7 @@ const (
 	TwitterService_FindUserByScreenName_FullMethodName = "/twitter.TwitterService/FindUserByScreenName"
 	TwitterService_CreateUser_FullMethodName           = "/twitter.TwitterService/CreateUser"
 	TwitterService_CreateTweet_FullMethodName          = "/twitter.TwitterService/CreateTweet"
+	TwitterService_GetTweet_FullMethodName             = "/twitter.TwitterService/GetTweet"
 )
 
 // TwitterServiceClient is the client API for TwitterService service.
@@ -33,6 +34,7 @@ type TwitterServiceClient interface {
 	FindUserByScreenName(ctx context.Context, in *FindUserByScreenNameRequest, opts ...grpc.CallOption) (*FindUserByScreenNameResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	CreateTweet(ctx context.Context, in *CreateTweetRequest, opts ...grpc.CallOption) (*CreateTweetResponse, error)
+	GetTweet(ctx context.Context, in *GetTweetRequest, opts ...grpc.CallOption) (*GetTweetResponse, error)
 }
 
 type twitterServiceClient struct {
@@ -83,6 +85,16 @@ func (c *twitterServiceClient) CreateTweet(ctx context.Context, in *CreateTweetR
 	return out, nil
 }
 
+func (c *twitterServiceClient) GetTweet(ctx context.Context, in *GetTweetRequest, opts ...grpc.CallOption) (*GetTweetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetTweetResponse)
+	err := c.cc.Invoke(ctx, TwitterService_GetTweet_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TwitterServiceServer is the server API for TwitterService service.
 // All implementations must embed UnimplementedTwitterServiceServer
 // for forward compatibility.
@@ -91,6 +103,7 @@ type TwitterServiceServer interface {
 	FindUserByScreenName(context.Context, *FindUserByScreenNameRequest) (*FindUserByScreenNameResponse, error)
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	CreateTweet(context.Context, *CreateTweetRequest) (*CreateTweetResponse, error)
+	GetTweet(context.Context, *GetTweetRequest) (*GetTweetResponse, error)
 	mustEmbedUnimplementedTwitterServiceServer()
 }
 
@@ -112,6 +125,9 @@ func (UnimplementedTwitterServiceServer) CreateUser(context.Context, *CreateUser
 }
 func (UnimplementedTwitterServiceServer) CreateTweet(context.Context, *CreateTweetRequest) (*CreateTweetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTweet not implemented")
+}
+func (UnimplementedTwitterServiceServer) GetTweet(context.Context, *GetTweetRequest) (*GetTweetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTweet not implemented")
 }
 func (UnimplementedTwitterServiceServer) mustEmbedUnimplementedTwitterServiceServer() {}
 func (UnimplementedTwitterServiceServer) testEmbeddedByValue()                        {}
@@ -206,6 +222,24 @@ func _TwitterService_CreateTweet_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TwitterService_GetTweet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTweetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TwitterServiceServer).GetTweet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TwitterService_GetTweet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TwitterServiceServer).GetTweet(ctx, req.(*GetTweetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TwitterService_ServiceDesc is the grpc.ServiceDesc for TwitterService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +262,10 @@ var TwitterService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTweet",
 			Handler:    _TwitterService_CreateTweet_Handler,
+		},
+		{
+			MethodName: "GetTweet",
+			Handler:    _TwitterService_GetTweet_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
