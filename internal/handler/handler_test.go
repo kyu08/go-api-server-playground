@@ -14,6 +14,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/apstndb/spanemuboost"
+	"github.com/google/uuid"
 	"github.com/kyu08/go-api-server-playground/internal/grpcutil"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/proto/api"
@@ -90,9 +91,17 @@ func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
 }
 
 func assertGRPCError(t *testing.T, err error, wantCode codes.Code, wantMessage string) {
+	t.Helper()
+
 	require.Error(t, err)
 	st, ok := status.FromError(err)
 	require.True(t, ok)
 	require.Equal(t, wantCode, st.Code())
 	require.Contains(t, st.Message(), wantMessage)
+}
+
+// テスト用のscreen nameをランダムに生成して返す。
+func randomScreenName(t *testing.T) string {
+	t.Helper()
+	return uuid.New().String()[:20]
 }

@@ -19,9 +19,9 @@ func TestCreateTweet(t *testing.T) {
 
 	ctx := context.Background()
 
-	t.Run("正常にTweetを作成できる", func(t *testing.T) {
+	t.Run("正常にTweetを作成できる_140文字_マルチバイト文字", func(t *testing.T) {
 		userResp, err := client.CreateUser(ctx, &api.CreateUserRequest{
-			ScreenName: "test_user0",
+			ScreenName: randomScreenName(t),
 			UserName:   "Test User",
 			Bio:        "bio",
 		})
@@ -30,7 +30,27 @@ func TestCreateTweet(t *testing.T) {
 		// tweetを作成
 		tweetResp, err := client.CreateTweet(ctx, &api.CreateTweetRequest{
 			AuthorId: userResp.GetId(),
-			Body:     "またーりついーとなう",
+			Body:     strings.Repeat("あ", 140),
+		})
+
+		require.NoError(t, err)
+		require.Len(t, tweetResp.GetId(), uuidLength)
+
+		// TODO: tweetの取得機能を実装したら、取得して内容を確認するテストを追加
+	})
+
+	t.Run("正常にTweetを作成できる_140文字_ASCII文字", func(t *testing.T) {
+		userResp, err := client.CreateUser(ctx, &api.CreateUserRequest{
+			ScreenName: randomScreenName(t),
+			UserName:   "Test User",
+			Bio:        "bio",
+		})
+		require.NoError(t, err)
+
+		// tweetを作成
+		tweetResp, err := client.CreateTweet(ctx, &api.CreateTweetRequest{
+			AuthorId: userResp.GetId(),
+			Body:     strings.Repeat("a", 140),
 		})
 
 		require.NoError(t, err)
@@ -51,7 +71,7 @@ func TestCreateTweet(t *testing.T) {
 
 	t.Run("Bodyに空文字を指定するとエラーが返る", func(t *testing.T) {
 		userResp, err := client.CreateUser(ctx, &api.CreateUserRequest{
-			ScreenName: "test_user1",
+			ScreenName: randomScreenName(t),
 			UserName:   "Test User",
 			Bio:        "bio",
 		})
@@ -89,7 +109,7 @@ func TestCreateTweet(t *testing.T) {
 
 	t.Run("NewTweetからエラーが返る引数を指定するとエラーが返る", func(t *testing.T) {
 		userResp, err := client.CreateUser(ctx, &api.CreateUserRequest{
-			ScreenName: "test_user2",
+			ScreenName: randomScreenName(t),
 			UserName:   "Test User",
 			Bio:        "bio",
 		})
