@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package twitter;
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "proto/api";
 
 service TwitterService {
@@ -54,6 +56,6 @@ message GetTweetResponse {
   string author_id = 3;
   string author_screen_name = 4;
   string author_display_name = 5;
-  string created_at = 6;
-  string updated_at = 7;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
 }
