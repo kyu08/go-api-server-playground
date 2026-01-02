@@ -5,11 +5,11 @@ import (
 
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/usecase"
-	"github.com/kyu08/go-api-server-playground/pkg/api"
+	"github.com/kyu08/go-api-server-playground/proto/api"
 )
 
 func (s *TwitterServer) CreateTweet(ctx context.Context, req *api.CreateTweetRequest) (*api.CreateTweetResponse, error) {
-	input := usecase.NewTweetCreateInput(req.GetScreenName(), req.GetUserName(), req.GetBio())
+	input := usecase.NewTweetCreateInput(req.GetAuthorId(), req.GetBody())
 
 	output, err := s.TweetCreateUsecase.Run(ctx, input)
 	if err != nil {

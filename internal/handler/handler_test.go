@@ -8,17 +8,23 @@ import (
 	"testing"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/apstndb/spanemuboost"
 	"github.com/kyu08/go-api-server-playground/internal/grpcutil"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/proto/api"
+	"github.com/stretchr/testify/require"
 	tcspanner "github.com/testcontainers/testcontainers-go/modules/gcloud/spanner"
 )
 
-const bufSize = 1024 * 1024
+const (
+	bufSize    = 1024 * 1024
+	uuidLength = 36
+)
 
 var spannerEmulator *tcspanner.Container
 
@@ -81,4 +87,12 @@ func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
 	}
 
 	return api.NewTwitterServiceClient(conn), cleanup
+}
+
+func assertGRPCError(t *testing.T, err error, wantCode codes.Code, wantMessage string) {
+	require.Error(t, err)
+	st, ok := status.FromError(err)
+	require.True(t, ok)
+	require.Equal(t, wantCode, st.Code())
+	require.Contains(t, st.Message(), wantMessage)
 }

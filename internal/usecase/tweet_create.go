@@ -31,6 +31,15 @@ var (
 )
 
 func (u TweetCreateUsecase) Run(ctx context.Context, input *TweetCreateInput) (*TweetCreateOutput, error) {
+	res, err := u.run(ctx, input)
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	return res, nil
+}
+
+func (u TweetCreateUsecase) run(ctx context.Context, input *TweetCreateInput) (*TweetCreateOutput, error) {
 	if err := input.validate(); err != nil {
 		return nil, err
 	}
@@ -40,29 +49,30 @@ func (u TweetCreateUsecase) Run(ctx context.Context, input *TweetCreateInput) (*
 		return nil, err
 	}
 
-	user, err := u.userRepository.FindByID(ctx, u.client.Single(), userID)
-	if err != nil {
-		return nil, err
-	}
-
-	newTweet, err := tweet.NewTweet(user.ID, input.Body)
-	if err != nil {
-		return nil, err
-	}
-
+	var newTweetID domain.ID[tweet.Tweet]
 	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, rwtx *spanner.ReadWriteTransaction) error {
-		return u.tweetRepository.Create(ctx, rwtx, newTweet)
-	}); err != nil {
-		// TODO: ここのエラー変換ロジックはいずれ共通化することになりそう。(どこの層の責務かもちょっと考えたほうがよさそう)
-		if apperrors.IsPrecondition(err) || apperrors.IsNotFound(err) {
-			return nil, apperrors.WithStack(err)
+		user, err := u.userRepository.FindByID(ctx, rwtx, userID)
+		if err != nil {
+			return err
 		}
 
-		return nil, apperrors.NewInternalError(err)
+		newTweet, err := tweet.NewTweet(user.ID, input.Body)
+		if err != nil {
+			return err
+		}
+
+		if err := u.tweetRepository.Create(ctx, rwtx, newTweet); err != nil {
+			return err
+		}
+
+		newTweetID = newTweet.ID
+		return nil
+	}); err != nil {
+		return nil, apperrors.WithStack(err)
 	}
 
 	return &TweetCreateOutput{
-		ID: newTweet.ID,
+		ID: newTweetID,
 	}, nil
 }
 
@@ -78,10 +88,10 @@ func NewTweetCreateUsecase(
 	}
 }
 
-func NewTweetCreateInput(screenName, userName, bio string) *TweetCreateInput {
+func NewTweetCreateInput(authorID string, body string) *TweetCreateInput {
 	return &TweetCreateInput{
-		AuthorID: screenName,
-		Body:     userName,
+		AuthorID: authorID,
+		Body:     body,
 	}
 }
 

@@ -33,7 +33,7 @@ func TestCreateUser(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Len(t, resp.GetId(), 36) // UUID形式
+		require.Len(t, resp.GetId(), uuidLength)
 
 		// 作成したユーザーを取得して確認
 		findResp, err := client.FindUserByScreenName(ctx, &api.FindUserByScreenNameRequest{

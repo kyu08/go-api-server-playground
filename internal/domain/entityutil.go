@@ -28,7 +28,7 @@ func NewID[T any]() ID[T] {
 func NewFromString[T any](s string) (ID[T], error) {
 	u, err := uuid.Parse(s)
 	if err != nil {
-		return ID[T]{}, apperrors.WithStack(err)
+		return ID[T]{}, apperrors.WithStack(apperrors.NewPreconditionError(err.Error()))
 	}
 	//nolint:exhaustruct // Phantom typeなので全フィールド指定できないのは仕方ない。
 	return ID[T]{value: u}, nil

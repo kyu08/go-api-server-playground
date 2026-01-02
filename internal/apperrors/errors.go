@@ -26,11 +26,16 @@ const (
 )
 
 func (e TwitterError) Error() string {
-	if !e.isPreconditionError() {
+	switch e.Type {
+	case internal:
 		return "Internal Error: " + e.Message
+	case precondition:
+		return e.Message
+	case notFound:
+		return e.Message + " not found"
+	default:
+		return "Unknown Error: " + e.Message
 	}
-
-	return e.Message
 }
 
 // NewXxxErrorを呼び出すときは常にWithStackも呼び出したい気がしてきた。
@@ -57,9 +62,9 @@ func NewNotFoundError(entity string) error {
 
 func (e TwitterError) isPreconditionError() bool {
 	switch e.Type {
-	case precondition:
+	case precondition, notFound:
 		return true
-	case internal, notFound:
+	case internal:
 		return false
 	default:
 		return false
