@@ -31,6 +31,15 @@ var (
 )
 
 func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*CreateUserOutput, error) {
+	res, err := u.run(ctx, input)
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	return res, nil
+}
+
+func (u CreateUserUsecase) run(ctx context.Context, input *CreateUserInput) (*CreateUserOutput, error) {
 	if err := input.validate(); err != nil {
 		return nil, err
 	}

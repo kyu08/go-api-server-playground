@@ -11,15 +11,18 @@ import (
 type TwitterServer struct {
 	api.UnimplementedTwitterServiceServer
 
+	TweetCreateUsecase          *usecase.TweetCreateUsecase
 	CreateUserUsecase           *usecase.CreateUserUsecase
 	FindUserByScreenNameUsecase *usecase.FindUserByScreenNameUsecase
 }
 
 func NewTwitterServer(client *spanner.Client) *TwitterServer {
+	tweetRepository := repository.NewTweetRepository()
 	userRepository := repository.NewUserRepository()
 
 	return &TwitterServer{
 		UnimplementedTwitterServiceServer: api.UnimplementedTwitterServiceServer{},
+		TweetCreateUsecase:                usecase.NewTweetCreateUsecase(client, tweetRepository, userRepository),
 		CreateUserUsecase:                 usecase.NewCreateUserUsecase(client, user.NewUserService(userRepository)),
 		FindUserByScreenNameUsecase:       usecase.NewFindUserByScreenNameUsecase(client, userRepository),
 	}

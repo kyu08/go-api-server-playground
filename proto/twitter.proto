@@ -1,21 +1,25 @@
 syntax = "proto3";
 
-option go_package = "proto/api";
-
 package twitter;
+
+option go_package = "proto/api";
 
 service TwitterService {
   rpc Health(HealthRequest) returns (HealthResponse);
 
-  rpc FindUserByScreenName(FindUserByScreenNameRequest)
-      returns (FindUserByScreenNameResponse);
+  rpc FindUserByScreenName(FindUserByScreenNameRequest) returns (FindUserByScreenNameResponse);
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc CreateTweet(CreateTweetRequest) returns (CreateTweetResponse);
 }
 
 message HealthRequest {}
-message HealthResponse { string message = 1; }
+message HealthResponse {
+  string message = 1;
+}
 
-message FindUserByScreenNameRequest { string screen_name = 1; }
+message FindUserByScreenNameRequest {
+  string screen_name = 1;
+}
 message FindUserByScreenNameResponse {
   string id = 1;
   string screen_name = 2;
@@ -28,4 +32,14 @@ message CreateUserRequest {
   string user_name = 2;
   string bio = 3;
 }
-message CreateUserResponse { string id = 1; }
+message CreateUserResponse {
+  string id = 1;
+}
+
+message CreateTweetRequest {
+  string author_id = 1;
+  string body = 2;
+}
+message CreateTweetResponse {
+  string id = 1;
+}
