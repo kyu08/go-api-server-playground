@@ -51,6 +51,9 @@ handler-list:
 health-check:
 	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
 
+format-buf:
+	buf format -w
+
 ci: gen-all lint-go test-gotestsum
 
-.PHONY: dev-tools gen-proto gen-yo gen-all run test lint-go build handler-list health-check ci
+.PHONY: dev-tools gen-proto gen-yo gen-all run test lint-go build handler-list health-check ci format-buf

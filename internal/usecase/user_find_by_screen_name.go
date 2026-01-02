@@ -30,6 +30,7 @@ var (
 	ErrFindUserByScreenNameUserNotFound       = apperrors.NewNotFoundError("user")
 )
 
+// ScreeName指定でユーザーを1件取得する
 func (u FindUserByScreenNameUsecase) Run(
 	ctx context.Context,
 	input *FindUserByScreenNameInput,

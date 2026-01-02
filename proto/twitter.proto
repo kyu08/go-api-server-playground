@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package twitter;
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "proto/api";
 
 service TwitterService {
@@ -10,6 +12,7 @@ service TwitterService {
   rpc FindUserByScreenName(FindUserByScreenNameRequest) returns (FindUserByScreenNameResponse);
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc CreateTweet(CreateTweetRequest) returns (CreateTweetResponse);
+  rpc GetTweet(GetTweetRequest) returns (GetTweetResponse);
 }
 
 message HealthRequest {}
@@ -42,4 +45,17 @@ message CreateTweetRequest {
 }
 message CreateTweetResponse {
   string id = 1;
+}
+
+message GetTweetRequest {
+  string tweet_id = 1;
+}
+message GetTweetResponse {
+  string tweet_id = 1;
+  string body = 2;
+  string author_id = 3;
+  string author_screen_name = 4;
+  string author_display_name = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
 }

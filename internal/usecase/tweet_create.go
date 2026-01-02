@@ -30,6 +30,7 @@ var (
 	ErrTweetCreateBodyRequired     = apperrors.NewPreconditionError("body is required")
 )
 
+// tweetを作成する
 func (u TweetCreateUsecase) Run(ctx context.Context, input *TweetCreateInput) (*TweetCreateOutput, error) {
 	res, err := u.run(ctx, input)
 	if err != nil {
