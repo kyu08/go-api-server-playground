@@ -101,3 +101,12 @@ func IsNotFound(err error) bool {
 
 	return false
 }
+
+func IsInternal(err error) bool {
+	var terror *TwitterError
+	if errors.As(err, &terror) {
+		return terror.Type == internal
+	}
+
+	return false
+}
