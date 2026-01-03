@@ -7,6 +7,8 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/query"
+	"github.com/samber/lo"
 )
 
 type UserRepository struct{}
@@ -15,23 +17,14 @@ func NewUserRepository() user.UserRepository {
 	return &UserRepository{}
 }
 
-func (r UserRepository) Create(ctx context.Context, rwtx domain.ReadWriteDB, u *user.User) error {
-	return r.apply(rwtx, []*spanner.Mutation{r.fromDomain(u).Insert(ctx)})
+type UserQuery struct{}
+
+func NewUserQuery() query.UserQuery {
+	return &UserQuery{}
 }
 
-func (r UserRepository) FindByScreenName(
-	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
-) (*user.User, error) {
-	u, err := FindUserByScreenName(ctx, rtx, screenName.String())
-	if err != nil {
-		if IsNotFound(err) {
-			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
-		}
-
-		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
-	}
-
-	return r.toDomain(u)
+func (r UserRepository) Create(ctx context.Context, rwtx domain.ReadWriteDB, u *user.User) error {
+	return r.apply(rwtx, []*spanner.Mutation{r.fromDomain(u).Insert(ctx)})
 }
 
 func (r UserRepository) FindByID(
@@ -49,7 +42,37 @@ func (r UserRepository) FindByID(
 	return r.toDomain(u)
 }
 
-func (r UserRepository) ExistsByScreenName(
+func (UserQuery) FindByScreenName(
+	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
+) (*query.User, error) {
+	u, err := FindUserByScreenName(ctx, rtx, screenName.String())
+	if err != nil {
+		if IsNotFound(err) {
+			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
+		}
+
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+
+	return lo.ToPtr(query.User(*u)), nil
+}
+
+func (UserQuery) FindByID(
+	ctx context.Context, rtx domain.ReadOnlyDB, userID domain.ID[user.User],
+) (*query.User, error) {
+	u, err := FindUser(ctx, rtx, userID.String())
+	if err != nil {
+		if IsNotFound(err) {
+			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
+		}
+
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+
+	return lo.ToPtr(query.User(*u)), nil
+}
+
+func (UserQuery) ExistsByScreenName(
 	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
 ) (bool, error) {
 	if _, err := FindUserByScreenName(ctx, rtx, screenName.String()); err != nil {

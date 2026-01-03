@@ -11,11 +11,13 @@ import (
 //
 // spanner固有の構造体をrepositoryの引数として受け取るよりはinterfaceを切っておいた方が
 // 後に別DBに移行する場合などでも多少柔軟性が上がると考えてこの形にしている。
+//
+// 便宜上domain層に定義しているが、query層からも依存しているので別の共有パッケージ等に切り出す
+// or それぞれのパッケージで定義するなどしてもいいかもしれない。
 type (
 	ReadWriteDB interface {
 		BufferWrite(ms []*spanner.Mutation) error
 	}
-	// TODO: cqrs化が完了したらquery packageに移動できるはず
 	ReadOnlyDB interface {
 		ReadRow(ctx context.Context, table string, key spanner.Key, columns []string) (*spanner.Row, error)
 		Read(ctx context.Context, table string, keys spanner.KeySet, columns []string) *spanner.RowIterator
