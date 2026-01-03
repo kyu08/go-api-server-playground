@@ -34,6 +34,7 @@ func TestCreateTweet(t *testing.T) {
 			Body:     body,
 		})
 
+		// 取得して確認
 		require.NoError(t, err)
 		require.Len(t, tweetResp.GetId(), uuidLength)
 
@@ -54,15 +55,22 @@ func TestCreateTweet(t *testing.T) {
 		require.NoError(t, err)
 
 		// tweetを作成
+		body := strings.Repeat("あ", 140)
 		tweetResp, err := client.CreateTweet(ctx, &api.CreateTweetRequest{
 			AuthorId: userResp.GetId(),
-			Body:     strings.Repeat("a", 140),
+			Body:     body,
 		})
 
 		require.NoError(t, err)
 		require.Len(t, tweetResp.GetId(), uuidLength)
 
-		// TODO: tweetの取得機能を実装したら、取得して内容を確認するテストを追加
+		// 取得して確認
+		tweetDetail, err := client.GetTweet(ctx, &api.GetTweetRequest{
+			TweetId: tweetResp.GetId(),
+		})
+		require.NoError(t, err)
+		require.Equal(t, tweetResp.GetId(), tweetDetail.GetTweetId())
+		require.Equal(t, body, tweetDetail.GetBody())
 	})
 
 	t.Run("AuthorIDに空文字を指定するとエラーが返る", func(t *testing.T) {
