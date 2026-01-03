@@ -9,6 +9,7 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/tweet"
 	"github.com/kyu08/go-api-server-playground/internal/query"
+	"github.com/samber/lo"
 )
 
 type (
@@ -22,7 +23,7 @@ type (
 	TweetGetOutput struct {
 		TweetID           string
 		Body              string
-		AuthorId          string
+		AuthorID          string
 		AuthorScreenName  string
 		AuthorDisplayName string
 		CreatedAt         time.Time
@@ -57,15 +58,7 @@ func (u TweetGetUsecase) run(ctx context.Context, input *TweetGetInput) (*TweetG
 		return nil, err
 	}
 
-	return &TweetGetOutput{
-		TweetID:           res.TweetID,
-		Body:              res.Body,
-		AuthorId:          res.AuthorID,
-		AuthorScreenName:  res.AuthorScreenName,
-		AuthorDisplayName: res.AuthorDisplayName,
-		CreatedAt:         res.CreatedAt,
-		UpdatedAt:         res.UpdatedAt,
-	}, nil
+	return lo.ToPtr(TweetGetOutput(*res)), nil
 }
 
 func NewTweetGetUsecase(
