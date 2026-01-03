@@ -28,15 +28,21 @@ func TestCreateTweet(t *testing.T) {
 		require.NoError(t, err)
 
 		// tweetを作成
+		body := strings.Repeat("あ", 140)
 		tweetResp, err := client.CreateTweet(ctx, &api.CreateTweetRequest{
 			AuthorId: userResp.GetId(),
-			Body:     strings.Repeat("あ", 140),
+			Body:     body,
 		})
 
 		require.NoError(t, err)
 		require.Len(t, tweetResp.GetId(), uuidLength)
 
-		// TODO: tweetの取得機能を実装したら、取得して内容を確認するテストを追加
+		tweetDetail, err := client.GetTweet(ctx, &api.GetTweetRequest{
+			TweetId: tweetResp.GetId(),
+		})
+		require.NoError(t, err)
+		require.Equal(t, tweetResp.GetId(), tweetDetail.GetTweetId())
+		require.Equal(t, body, tweetDetail.GetBody())
 	})
 
 	t.Run("正常にTweetを作成できる_140文字_ASCII文字", func(t *testing.T) {

@@ -47,16 +47,16 @@ func (TweetRepository) fromDomain(u *tweet.Tweet) *Tweet {
 func (TweetQuery) GetDetail(ctx context.Context, rtx domain.ReadOnlyDB, tweetID string) (*query.TweetDetail, error) {
 	queryStr := `
 	SELECT
-		TweetID,
-		Body,
-		AuthorID,
-		AuthorScreenName,
-		AuthorDisplayName,
-		CreatedAt,
-		UpdatedAt
-	FROM 
+		t.ID AS TweetID,
+		t.Body,
+		t.AuthorID,
+		u.ScreenName AS AuthorScreenName,
+		u.UserName AS AuthorDisplayName,
+		t.CreatedAt,
+		t.UpdatedAt
+	FROM
 		Tweet as t
-	INNER JOIN 
+	INNER JOIN
 		User as u
 		ON u.ID = t.AuthorID
 	WHERE
