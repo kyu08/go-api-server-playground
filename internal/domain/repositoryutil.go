@@ -15,6 +15,7 @@ type (
 	ReadWriteDB interface {
 		BufferWrite(ms []*spanner.Mutation) error
 	}
+	// TODO: cqrs化が完了したらquery packageに移動できるはず
 	ReadOnlyDB interface {
 		ReadRow(ctx context.Context, table string, key spanner.Key, columns []string) (*spanner.Row, error)
 		Read(ctx context.Context, table string, keys spanner.KeySet, columns []string) *spanner.RowIterator

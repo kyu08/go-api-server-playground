@@ -97,7 +97,7 @@ func assertGRPCError(t *testing.T, err error, wantCode codes.Code, wantMessage s
 	st, ok := status.FromError(err)
 	require.True(t, ok)
 	require.Equal(t, wantCode, st.Code())
-	require.Contains(t, st.Message(), wantMessage)
+	require.Equal(t, wantMessage, st.Message())
 }
 
 // テスト用のscreen nameをランダムに生成して返す。

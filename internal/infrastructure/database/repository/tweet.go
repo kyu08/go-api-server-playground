@@ -7,12 +7,20 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/tweet"
+	"github.com/kyu08/go-api-server-playground/internal/query"
 )
 
+// TODO: のちほどTweetQueryに統合する
 type TweetRepository struct{}
 
 func NewTweetRepository() tweet.TweetRepository {
 	return &TweetRepository{}
+}
+
+type TweetQuery struct{}
+
+func NewTweetQuery() query.TweetQuery {
+	return &TweetQuery{}
 }
 
 func (r TweetRepository) Create(ctx context.Context, rwtx domain.ReadWriteDB, u *tweet.Tweet) error {
@@ -34,6 +42,42 @@ func (TweetRepository) fromDomain(u *tweet.Tweet) *Tweet {
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}
+}
+
+func (TweetQuery) GetDetail(ctx context.Context, rtx domain.ReadOnlyDB, tweetID string) (*query.TweetDetail, error) {
+	queryStr := `
+	SELECT
+		t.ID AS TweetID,
+		t.Body,
+		t.AuthorID,
+		u.ScreenName AS AuthorScreenName,
+		u.UserName AS AuthorDisplayName,
+		t.CreatedAt,
+		t.UpdatedAt
+	FROM
+		Tweet as t
+	INNER JOIN
+		User as u
+		ON u.ID = t.AuthorID
+	WHERE
+		t.ID = @tweetID
+	`
+
+	statement := spanner.NewStatement(queryStr)
+	statement.Params["tweetID"] = tweetID
+
+	iter := rtx.Query(ctx, statement)
+	defer iter.Stop()
+
+	result, err := toStruct[query.TweetDetail](iter)
+	if err != nil {
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+	if len(result) == 0 {
+		return nil, apperrors.WithStack(newNotFoundError[query.TweetDetail]())
+	}
+
+	return result[0], nil
 }
 
 // func (TweetRepository) toDomain(dto *Tweet) (*tweet.Tweet, error) {
