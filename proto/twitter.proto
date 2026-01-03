@@ -57,5 +57,5 @@ message GetTweetResponse {
   string author_screen_name = 4;
   string author_display_name = 5;
   google.protobuf.Timestamp created_at = 6;
-   google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp updated_at = 7;
 }
