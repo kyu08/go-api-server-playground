@@ -19,7 +19,7 @@ func NewTweetRepository() tweet.TweetRepository {
 
 type TweetQuery struct{}
 
-func NewTweetQuery() tweet.TweetQuery {
+func NewTweetQuery() query.TweetQuery {
 	return &TweetQuery{}
 }
 
@@ -44,7 +44,7 @@ func (TweetRepository) fromDomain(u *tweet.Tweet) *Tweet {
 	}
 }
 
-func (TweetQuery) GetDetail(ctx context.Context, rtx domain.ReadOnlyDB, tweetID string) ([]*query.TweetDetail, error) {
+func (TweetQuery) GetDetail(ctx context.Context, rtx domain.ReadOnlyDB, tweetID string) (*query.TweetDetail, error) {
 	queryStr := `
 	SELECT
 		TweetID,
@@ -73,8 +73,11 @@ func (TweetQuery) GetDetail(ctx context.Context, rtx domain.ReadOnlyDB, tweetID 
 	if err != nil {
 		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
+	if len(result) == 0 {
+		return nil, apperrors.WithStack(newNotFoundError[query.TweetDetail]())
+	}
 
-	return result, nil
+	return result[0], nil
 }
 
 // func (TweetRepository) toDomain(dto *Tweet) (*tweet.Tweet, error) {

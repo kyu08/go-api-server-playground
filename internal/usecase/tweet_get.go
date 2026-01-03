@@ -8,14 +8,13 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/tweet"
-	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/query"
 )
 
 type (
 	TweetGetUsecase struct {
-		client          *spanner.Client
-		tweetRepository tweet.TweetRepository
-		userRepository  user.UserRepository
+		client     *spanner.Client
+		tweetQuery query.TweetQuery
 	}
 	TweetGetInput struct {
 		TweetID string
@@ -53,35 +52,29 @@ func (u TweetGetUsecase) run(ctx context.Context, input *TweetGetInput) (*TweetG
 		return nil, err
 	}
 
-	// var newTweetID domain.ID[tweet.Tweet]
-	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, rwtx *spanner.ReadWriteTransaction) error {
-		panic("implement me")
-	}); err != nil {
-		return nil, apperrors.WithStack(err)
+	res, err := u.tweetQuery.GetDetail(ctx, u.client.Single(), tweetID.String())
+	if err != nil {
+		return nil, err
 	}
 
 	return &TweetGetOutput{
-		// TODO: fill this struct
-		TweetID:           tweetID.String(),
-		Body:              "",
-		AuthorId:          "TODO",
-		AuthorScreenName:  "",
-		AuthorDisplayName: "",
-		CreatedAt:         time.Time{},
-		UpdatedAt:         time.Time{},
+		TweetID:           res.TweetID,
+		Body:              res.Body,
+		AuthorId:          res.AuthorID,
+		AuthorScreenName:  res.AuthorScreenName,
+		AuthorDisplayName: res.AuthorDisplayName,
+		CreatedAt:         res.CreatedAt,
+		UpdatedAt:         res.UpdatedAt,
 	}, nil
 }
 
 func NewTweetGetUsecase(
 	client *spanner.Client,
-	tweetRepository tweet.TweetRepository,
-	userRepository user.UserRepository,
+	tweetQuery query.TweetQuery,
 ) *TweetGetUsecase {
 	return &TweetGetUsecase{
-		client: client,
-		// TODO: これをtweetUserRepositoryにする？tweetDetailRepositoryとかにする？
-		tweetRepository: tweetRepository,
-		userRepository:  userRepository,
+		client:     client,
+		tweetQuery: tweetQuery,
 	}
 }
 

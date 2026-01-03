@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"time"
 
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 )
@@ -17,7 +18,7 @@ type (
 		AuthorID          string
 		AuthorScreenName  string
 		AuthorDisplayName string
-		CreatedAt         string
-		UpdatedAt         string
+		CreatedAt         time.Time
+		UpdatedAt         time.Time
 	}
 )
