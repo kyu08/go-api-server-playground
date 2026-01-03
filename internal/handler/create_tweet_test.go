@@ -55,7 +55,7 @@ func TestCreateTweet(t *testing.T) {
 		require.NoError(t, err)
 
 		// tweetを作成
-		body := strings.Repeat("あ", 140)
+		body := strings.Repeat("a", 140)
 		tweetResp, err := client.CreateTweet(ctx, &api.CreateTweetRequest{
 			AuthorId: userResp.GetId(),
 			Body:     body,
