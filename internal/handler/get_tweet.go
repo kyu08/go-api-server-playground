@@ -18,9 +18,9 @@ func (s *TwitterServer) GetTweet(ctx context.Context, req *api.GetTweetRequest) 
 	}
 
 	return &api.GetTweetResponse{
-		TweetId:           output.TweetID.String(),
+		TweetId:           output.TweetID,
 		Body:              output.Body,
-		AuthorId:          output.AuthorId.String(),
+		AuthorId:          output.AuthorId,
 		AuthorScreenName:  output.AuthorScreenName,
 		AuthorDisplayName: output.AuthorDisplayName,
 		CreatedAt:         timestamppb.New(output.CreatedAt),

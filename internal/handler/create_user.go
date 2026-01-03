@@ -17,6 +17,6 @@ func (s *TwitterServer) CreateUser(ctx context.Context, req *api.CreateUserReque
 	}
 
 	return &api.CreateUserResponse{
-		Id: output.ID.String(),
+		Id: output.ID,
 	}, nil
 }

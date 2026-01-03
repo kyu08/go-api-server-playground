@@ -5,7 +5,6 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
-	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 )
 
@@ -18,10 +17,10 @@ type (
 		ScreenName string
 	}
 	FindUserByScreenNameOutput struct {
-		ID         domain.ID[user.User]
-		ScreenName user.ScreenName
-		UserName   user.UserName
-		Bio        user.Bio
+		ID         string
+		ScreenName string
+		UserName   string
+		Bio        string
 	}
 )
 
@@ -59,10 +58,10 @@ func (u FindUserByScreenNameUsecase) Run(
 	}
 
 	return &FindUserByScreenNameOutput{
-		ID:         foundUser.ID,
-		ScreenName: foundUser.ScreenName(),
-		UserName:   foundUser.UserName(),
-		Bio:        foundUser.Bio(),
+		ID:         foundUser.ID.String(),
+		ScreenName: foundUser.ScreenName().String(),
+		UserName:   foundUser.UserName().String(),
+		Bio:        foundUser.Bio().String(),
 	}, nil
 }
 
