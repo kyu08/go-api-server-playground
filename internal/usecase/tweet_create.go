@@ -21,7 +21,7 @@ type (
 		Body     string
 	}
 	TweetCreateOutput struct {
-		ID domain.ID[tweet.Tweet]
+		ID string
 	}
 )
 
@@ -73,7 +73,7 @@ func (u TweetCreateUsecase) run(ctx context.Context, input *TweetCreateInput) (*
 	}
 
 	return &TweetCreateOutput{
-		ID: newTweetID,
+		ID: newTweetID.String(),
 	}, nil
 }
 

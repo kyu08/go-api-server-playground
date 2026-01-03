@@ -17,6 +17,6 @@ func (s *TwitterServer) CreateTweet(ctx context.Context, req *api.CreateTweetReq
 	}
 
 	return &api.CreateTweetResponse{
-		Id: output.ID.String(),
+		Id: output.ID,
 	}, nil
 }

@@ -20,9 +20,9 @@ func (s *TwitterServer) FindUserByScreenName(
 	}
 
 	return &api.FindUserByScreenNameResponse{
-		Id:         output.ID.String(),
-		ScreenName: output.ScreenName.String(),
-		UserName:   output.UserName.String(),
-		Bio:        output.Bio.String(),
+		Id:         output.ID,
+		ScreenName: output.ScreenName,
+		UserName:   output.UserName,
+		Bio:        output.Bio,
 	}, nil
 }

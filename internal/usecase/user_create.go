@@ -5,7 +5,6 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
-	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
 )
 
@@ -20,7 +19,7 @@ type (
 		Bio        string
 	}
 	CreateUserOutput struct {
-		ID domain.ID[user.User]
+		ID string
 	}
 )
 
@@ -61,7 +60,7 @@ func (u CreateUserUsecase) run(ctx context.Context, input *CreateUserInput) (*Cr
 	}
 
 	return &CreateUserOutput{
-		ID: newUser.ID,
+		ID: newUser.ID.String(),
 	}, nil
 }
 

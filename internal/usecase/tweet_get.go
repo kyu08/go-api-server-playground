@@ -21,11 +21,9 @@ type (
 		TweetID string
 	}
 	TweetGetOutput struct {
-		TweetID domain.ID[tweet.Tweet]
-		// TODO: この辺をBody型にすべきかどうか迷う。
-		// 結果によってはIDもstringにすべきかもしれない。
+		TweetID           string
 		Body              string
-		AuthorId          domain.ID[user.User]
+		AuthorId          string
 		AuthorScreenName  string
 		AuthorDisplayName string
 		CreatedAt         time.Time
@@ -64,9 +62,9 @@ func (u TweetGetUsecase) run(ctx context.Context, input *TweetGetInput) (*TweetG
 
 	return &TweetGetOutput{
 		// TODO: fill this struct
-		TweetID:           tweetID,
+		TweetID:           tweetID.String(),
 		Body:              "",
-		AuthorId:          domain.ID[user.User]{},
+		AuthorId:          "TODO",
 		AuthorScreenName:  "",
 		AuthorDisplayName: "",
 		CreatedAt:         time.Time{},
