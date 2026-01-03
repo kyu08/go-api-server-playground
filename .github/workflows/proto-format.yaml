@@ -1,0 +1,29 @@
+name: Proto format check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '**.proto'
+      - '.github/workflows/proto-format.yaml'
+
+jobs:
+  proto-format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup buf
+        uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check proto format
+        run: |
+          buf format -w
+          git add -N .
+          git diff --exit-code
