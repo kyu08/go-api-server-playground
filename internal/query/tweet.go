@@ -1,9 +1,13 @@
 package query
 
-import "context"
+import (
+	"context"
+
+	"github.com/kyu08/go-api-server-playground/internal/domain"
+)
 
 type TweetQuery interface {
-	GetDetail(ctx context.Context, tweetID string) (*TweetDetail, error)
+	GetDetail(ctx context.Context, rtx domain.ReadOnlyDB, tweetID string) (*TweetDetail, error)
 }
 
 type (
