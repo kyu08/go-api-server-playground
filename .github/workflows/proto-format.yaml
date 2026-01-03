@@ -24,4 +24,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Check proto format
         run: |
-          buf format -d --exit-code
+          buf format -w
+          git add -N .
+          git diff --exit-code
