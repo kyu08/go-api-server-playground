@@ -6,8 +6,7 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/model"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/dao"
 	"github.com/kyu08/go-api-server-playground/internal/query"
 	"github.com/samber/lo"
 )
@@ -21,9 +20,9 @@ func NewUserQuery() query.UserQuery {
 func (UserQuery) FindByScreenName(
 	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
 ) (*query.User, error) {
-	u, err := model.FindUserByScreenName(ctx, rtx, screenName.String())
+	u, err := dao.FindUserByScreenName(ctx, rtx, screenName.String())
 	if err != nil {
-		if database.IsNotFound(err) {
+		if dao.IsNotFound(err) {
 			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
 		}
 
@@ -36,9 +35,9 @@ func (UserQuery) FindByScreenName(
 func (UserQuery) FindByID(
 	ctx context.Context, rtx domain.ReadOnlyDB, userID domain.ID[user.User],
 ) (*query.User, error) {
-	u, err := model.FindUser(ctx, rtx, userID.String())
+	u, err := dao.FindUser(ctx, rtx, userID.String())
 	if err != nil {
-		if database.IsNotFound(err) {
+		if dao.IsNotFound(err) {
 			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
 		}
 
@@ -51,8 +50,8 @@ func (UserQuery) FindByID(
 func (UserQuery) ExistsByScreenName(
 	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
 ) (bool, error) {
-	if _, err := model.FindUserByScreenName(ctx, rtx, screenName.String()); err != nil {
-		if database.IsNotFound(err) {
+	if _, err := dao.FindUserByScreenName(ctx, rtx, screenName.String()); err != nil {
+		if dao.IsNotFound(err) {
 			return false, nil
 		}
 		return false, apperrors.WithStack(apperrors.NewInternalError(err))

@@ -1,13 +1,11 @@
-package database
+package dao
 
 import (
 	"errors"
-
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/model"
 )
 
 func IsNotFound(err error) bool {
-	var ye *model.YoError
+	var ye *yoError
 	if errors.As(err, &ye) {
 		return ye.NotFound()
 	}

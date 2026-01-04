@@ -1,4 +1,4 @@
-package database
+package dao
 
 import (
 	"errors"
@@ -7,7 +7,6 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/model"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 )
@@ -40,12 +39,12 @@ func ToStruct[T any](iter *spanner.RowIterator) ([]*T, error) {
 			if errors.Is(err, iterator.Done) {
 				break
 			}
-			return nil, model.NewError(callerName, entityName, err)
+			return nil, newError(callerName, entityName, err)
 		}
 
 		var t T
 		if err := row.ToStruct(&t); err != nil {
-			return nil, model.NewErrorWithCode(codes.Internal, callerName, entityName, err)
+			return nil, newErrorWithCode(codes.Internal, callerName, entityName, err)
 		}
 
 		res = append(res, &t)

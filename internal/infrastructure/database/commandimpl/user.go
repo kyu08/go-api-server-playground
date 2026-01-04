@@ -7,8 +7,7 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/model"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/dao"
 )
 
 type UserRepository struct{}
@@ -24,9 +23,9 @@ func (r UserRepository) Create(ctx context.Context, rwtx domain.ReadWriteDB, u *
 func (r UserRepository) FindByID(
 	ctx context.Context, rtx domain.ReadOnlyDB, userID domain.ID[user.User],
 ) (*user.User, error) {
-	u, err := model.FindUser(ctx, rtx, userID.String())
+	u, err := dao.FindUser(ctx, rtx, userID.String())
 	if err != nil {
-		if database.IsNotFound(err) {
+		if dao.IsNotFound(err) {
 			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
 		}
 
@@ -39,9 +38,9 @@ func (r UserRepository) FindByID(
 func (r UserRepository) FindByScreenName(
 	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
 ) (*user.User, error) {
-	u, err := model.FindUserByScreenName(ctx, rtx, screenName.String())
+	u, err := dao.FindUserByScreenName(ctx, rtx, screenName.String())
 	if err != nil {
-		if database.IsNotFound(err) {
+		if dao.IsNotFound(err) {
 			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
 		}
 
@@ -58,8 +57,8 @@ func (UserRepository) apply(rwtx domain.ReadWriteDB, m []*spanner.Mutation) erro
 	return nil
 }
 
-func (UserRepository) fromDomain(u *user.User) *model.User {
-	return &model.User{
+func (UserRepository) fromDomain(u *user.User) *dao.User {
+	return &dao.User{
 		ID:         u.ID.String(),
 		ScreenName: u.ScreenName().String(),
 		UserName:   u.UserName().String(),
@@ -69,7 +68,7 @@ func (UserRepository) fromDomain(u *user.User) *model.User {
 	}
 }
 
-func (UserRepository) toDomain(dto *model.User) (*user.User, error) {
+func (UserRepository) toDomain(dto *dao.User) (*user.User, error) {
 	u, err := user.NewFromDTO(
 		dto.ID,
 		dto.ScreenName,

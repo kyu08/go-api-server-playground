@@ -6,7 +6,7 @@ import (
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/dao"
 	"github.com/kyu08/go-api-server-playground/internal/query"
 )
 
@@ -41,12 +41,12 @@ func (TweetQuery) GetDetail(ctx context.Context, rtx domain.ReadOnlyDB, tweetID 
 	iter := rtx.Query(ctx, statement)
 	defer iter.Stop()
 
-	result, err := database.ToStruct[query.TweetDetail](iter)
+	result, err := dao.ToStruct[query.TweetDetail](iter)
 	if err != nil {
 		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
 	if len(result) == 0 {
-		return nil, apperrors.WithStack(database.NewNotFoundError[query.TweetDetail]())
+		return nil, apperrors.WithStack(dao.NewNotFoundError[query.TweetDetail]())
 	}
 
 	return result[0], nil

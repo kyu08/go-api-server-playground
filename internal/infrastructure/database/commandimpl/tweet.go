@@ -7,7 +7,7 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/tweet"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/model"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/dao"
 )
 
 type TweetRepository struct{}
@@ -27,8 +27,8 @@ func (TweetRepository) apply(rwtx domain.ReadWriteDB, m []*spanner.Mutation) err
 	return nil
 }
 
-func (TweetRepository) fromDomain(u *tweet.Tweet) *model.Tweet {
-	return &model.Tweet{
+func (TweetRepository) fromDomain(u *tweet.Tweet) *dao.Tweet {
+	return &dao.Tweet{
 		ID:        u.ID.String(),
 		AuthorID:  u.AuthorID.String(),
 		Body:      u.Body().String(),
