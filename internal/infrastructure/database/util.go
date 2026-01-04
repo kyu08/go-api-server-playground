@@ -1,4 +1,4 @@
-package repository
+package database
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/model"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 )
@@ -15,7 +16,7 @@ func typeNameFromT[T any]() string {
 	return reflect.TypeFor[T]().Name()
 }
 
-func toStruct[T any](iter *spanner.RowIterator) ([]*T, error) {
+func ToStruct[T any](iter *spanner.RowIterator) ([]*T, error) {
 	res := make([]*T, 0, iter.RowCount)
 
 	callerName := func() string {
@@ -39,12 +40,12 @@ func toStruct[T any](iter *spanner.RowIterator) ([]*T, error) {
 			if errors.Is(err, iterator.Done) {
 				break
 			}
-			return nil, newError(callerName, entityName, err)
+			return nil, model.NewError(callerName, entityName, err)
 		}
 
 		var t T
 		if err := row.ToStruct(&t); err != nil {
-			return nil, newErrorWithCode(codes.Internal, callerName, entityName, err)
+			return nil, model.NewErrorWithCode(codes.Internal, callerName, entityName, err)
 		}
 
 		res = append(res, &t)
@@ -53,6 +54,6 @@ func toStruct[T any](iter *spanner.RowIterator) ([]*T, error) {
 	return res, nil
 }
 
-func newNotFoundError[T any]() error {
+func NewNotFoundError[T any]() error {
 	return apperrors.NewNotFoundError(typeNameFromT[T]())
 }

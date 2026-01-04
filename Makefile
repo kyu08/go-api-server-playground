@@ -22,8 +22,8 @@ gen-proto:
 
 gen-yo:
 	yo generate internal/infrastructure/database/schema/schema.sql --from-ddl \
-		-o internal/infrastructure/database/repository \
-		-p repository
+		-o internal/infrastructure/database/model \
+		-p model
 
 gen-all: gen-proto gen-yo
 

@@ -1,11 +1,13 @@
-package repository
+package database
 
 import (
 	"errors"
+
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/model"
 )
 
 func IsNotFound(err error) bool {
-	var ye *yoError
+	var ye *model.YoError
 	if errors.As(err, &ye) {
 		return ye.NotFound()
 	}

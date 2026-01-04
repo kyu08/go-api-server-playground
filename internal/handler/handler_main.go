@@ -3,7 +3,8 @@ package handler
 import (
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/repository"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/commandimpl"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/queryimpl"
 	"github.com/kyu08/go-api-server-playground/internal/usecase"
 	"github.com/kyu08/go-api-server-playground/proto/api"
 )
@@ -18,10 +19,13 @@ type TwitterServer struct {
 }
 
 func NewTwitterServer(client *spanner.Client) *TwitterServer {
-	tweetRepository := repository.NewTweetRepository()
-	userQuery := repository.NewUserQuery()
-	userRepository := repository.NewUserRepository()
-	tweetQuery := repository.NewTweetQuery()
+	// repository実装
+	tweetRepository := commandimpl.NewTweetRepository()
+	userRepository := commandimpl.NewUserRepository()
+
+	// query実装
+	tweetQuery := queryimpl.NewTweetQuery()
+	userQuery := queryimpl.NewUserQuery()
 
 	return &TwitterServer{
 		UnimplementedTwitterServiceServer: api.UnimplementedTwitterServiceServer{},
