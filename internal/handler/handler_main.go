@@ -19,6 +19,7 @@ type TwitterServer struct {
 
 func NewTwitterServer(client *spanner.Client) *TwitterServer {
 	tweetRepository := repository.NewTweetRepository()
+	userQuery := repository.NewUserQuery()
 	userRepository := repository.NewUserRepository()
 	tweetQuery := repository.NewTweetQuery()
 
@@ -27,6 +28,6 @@ func NewTwitterServer(client *spanner.Client) *TwitterServer {
 		TweetCreateUsecase:                usecase.NewTweetCreateUsecase(client, tweetRepository, userRepository),
 		TweetGetUsecase:                   usecase.NewTweetGetUsecase(client, tweetQuery),
 		CreateUserUsecase:                 usecase.NewCreateUserUsecase(client, user.NewUserService(userRepository)),
-		FindUserByScreenNameUsecase:       usecase.NewFindUserByScreenNameUsecase(client, userRepository),
+		FindUserByScreenNameUsecase:       usecase.NewFindUserByScreenNameUsecase(client, userQuery),
 	}
 }
