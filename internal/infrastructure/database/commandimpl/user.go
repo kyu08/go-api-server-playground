@@ -1,4 +1,4 @@
-package repository
+package commandimpl
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database/dao"
 )
 
 type UserRepository struct{}
@@ -19,27 +20,12 @@ func (r UserRepository) Create(ctx context.Context, rwtx domain.ReadWriteDB, u *
 	return r.apply(rwtx, []*spanner.Mutation{r.fromDomain(u).Insert(ctx)})
 }
 
-func (r UserRepository) FindByScreenName(
-	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
-) (*user.User, error) {
-	u, err := FindUserByScreenName(ctx, rtx, screenName.String())
-	if err != nil {
-		if IsNotFound(err) {
-			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
-		}
-
-		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
-	}
-
-	return r.toDomain(u)
-}
-
 func (r UserRepository) FindByID(
 	ctx context.Context, rtx domain.ReadOnlyDB, userID domain.ID[user.User],
 ) (*user.User, error) {
-	u, err := FindUser(ctx, rtx, userID.String())
+	u, err := dao.FindUser(ctx, rtx, userID.String())
 	if err != nil {
-		if IsNotFound(err) {
+		if dao.IsNotFound(err) {
 			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
 		}
 
@@ -49,16 +35,19 @@ func (r UserRepository) FindByID(
 	return r.toDomain(u)
 }
 
-func (r UserRepository) ExistsByScreenName(
+func (r UserRepository) FindByScreenName(
 	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
-) (bool, error) {
-	if _, err := FindUserByScreenName(ctx, rtx, screenName.String()); err != nil {
-		if IsNotFound(err) {
-			return false, nil
+) (*user.User, error) {
+	u, err := dao.FindUserByScreenName(ctx, rtx, screenName.String())
+	if err != nil {
+		if dao.IsNotFound(err) {
+			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
 		}
-		return false, apperrors.WithStack(apperrors.NewInternalError(err))
+
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
 	}
-	return true, nil
+
+	return r.toDomain(u)
 }
 
 func (UserRepository) apply(rwtx domain.ReadWriteDB, m []*spanner.Mutation) error {
@@ -68,8 +57,8 @@ func (UserRepository) apply(rwtx domain.ReadWriteDB, m []*spanner.Mutation) erro
 	return nil
 }
 
-func (UserRepository) fromDomain(u *user.User) *User {
-	return &User{
+func (UserRepository) fromDomain(u *user.User) *dao.User {
+	return &dao.User{
 		ID:         u.ID.String(),
 		ScreenName: u.ScreenName().String(),
 		UserName:   u.UserName().String(),
@@ -79,7 +68,7 @@ func (UserRepository) fromDomain(u *user.User) *User {
 	}
 }
 
-func (UserRepository) toDomain(dto *User) (*user.User, error) {
+func (UserRepository) toDomain(dto *dao.User) (*user.User, error) {
 	u, err := user.NewFromDTO(
 		dto.ID,
 		dto.ScreenName,

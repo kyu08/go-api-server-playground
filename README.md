@@ -11,6 +11,9 @@
 | CI                             | GitHub Actions                                             |
 | 依存関係更新                   | dependabot                                                 |
 | Goコードのlint                 | [golangci-lint](https://github.com/golangci/golangci-lint) |
+| アーキテクチャ                 | レイヤードアーキテクチャ + CQRS                            |
+
+詳細は[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)を参照。
 
 # 各種手順
 

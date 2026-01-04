@@ -1,4 +1,4 @@
-package repository
+package dao
 
 import (
 	"errors"
@@ -15,7 +15,7 @@ func typeNameFromT[T any]() string {
 	return reflect.TypeFor[T]().Name()
 }
 
-func toStruct[T any](iter *spanner.RowIterator) ([]*T, error) {
+func ToStruct[T any](iter *spanner.RowIterator) ([]*T, error) {
 	res := make([]*T, 0, iter.RowCount)
 
 	callerName := func() string {
@@ -53,6 +53,6 @@ func toStruct[T any](iter *spanner.RowIterator) ([]*T, error) {
 	return res, nil
 }
 
-func newNotFoundError[T any]() error {
+func NewNotFoundError[T any]() error {
 	return apperrors.NewNotFoundError(typeNameFromT[T]())
 }

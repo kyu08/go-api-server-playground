@@ -6,12 +6,13 @@ import (
 	"cloud.google.com/go/spanner"
 	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/query"
 )
 
 type (
 	FindUserByScreenNameUsecase struct {
-		client         *spanner.Client
-		userRepository user.UserRepository
+		client    *spanner.Client
+		userQuery query.UserQuery
 	}
 	FindUserByScreenNameInput struct {
 		ScreenName string
@@ -44,7 +45,7 @@ func (u FindUserByScreenNameUsecase) Run(
 	}
 
 	rtx := u.client.Single()
-	foundUser, err := u.userRepository.FindByScreenName(ctx, rtx, screenName)
+	foundUser, err := u.userQuery.FindByScreenName(ctx, rtx, screenName)
 	if err != nil {
 		if apperrors.IsNotFound(err) {
 			return nil, apperrors.WithStack(ErrFindUserByScreenNameUserNotFound)
@@ -58,20 +59,20 @@ func (u FindUserByScreenNameUsecase) Run(
 	}
 
 	return &FindUserByScreenNameOutput{
-		ID:         foundUser.ID.String(),
-		ScreenName: foundUser.ScreenName().String(),
-		UserName:   foundUser.UserName().String(),
-		Bio:        foundUser.Bio().String(),
+		ID:         foundUser.ID,
+		ScreenName: foundUser.ScreenName,
+		UserName:   foundUser.UserName,
+		Bio:        foundUser.Bio,
 	}, nil
 }
 
 func NewFindUserByScreenNameUsecase(
 	client *spanner.Client,
-	userRepository user.UserRepository,
+	userQuery query.UserQuery,
 ) *FindUserByScreenNameUsecase {
 	return &FindUserByScreenNameUsecase{
-		client:         client,
-		userRepository: userRepository,
+		client:    client,
+		userQuery: userQuery,
 	}
 }
 
