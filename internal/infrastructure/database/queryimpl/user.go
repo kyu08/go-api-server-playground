@@ -46,15 +46,3 @@ func (UserQuery) FindByID(
 
 	return lo.ToPtr(query.User(*u)), nil
 }
-
-func (UserQuery) ExistsByScreenName(
-	ctx context.Context, rtx domain.ReadOnlyDB, screenName user.ScreenName,
-) (bool, error) {
-	if _, err := dao.FindUserByScreenName(ctx, rtx, screenName.String()); err != nil {
-		if dao.IsNotFound(err) {
-			return false, nil
-		}
-		return false, apperrors.WithStack(apperrors.NewInternalError(err))
-	}
-	return true, nil
-}
