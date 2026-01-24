@@ -31,7 +31,7 @@ func NewTwitterServer(client *spanner.Client) *TwitterServer {
 		UnimplementedTwitterServiceServer: api.UnimplementedTwitterServiceServer{},
 		TweetCreateUsecase:                usecase.NewTweetCreateUsecase(client, tweetRepository, userRepository),
 		TweetGetUsecase:                   usecase.NewTweetGetUsecase(client, tweetQuery),
-		CreateUserUsecase:                 usecase.NewCreateUserUsecase(client, user.NewUserService(userRepository)),
+		CreateUserUsecase:                 usecase.NewCreateUserUsecase(client, user.NewCreateUserService(userRepository)),
 		FindUserByScreenNameUsecase:       usecase.NewFindUserByScreenNameUsecase(client, userQuery),
 	}
 }

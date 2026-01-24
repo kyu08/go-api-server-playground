@@ -11,7 +11,7 @@ import (
 type (
 	CreateUserUsecase struct {
 		client      *spanner.Client
-		userService *user.UserService
+		userService *user.CreateUserService
 	}
 	CreateUserInput struct {
 		ScreenName string
@@ -64,7 +64,7 @@ func (u CreateUserUsecase) run(ctx context.Context, input *CreateUserInput) (*Cr
 	}, nil
 }
 
-func NewCreateUserUsecase(client *spanner.Client, userRepository *user.UserService) *CreateUserUsecase {
+func NewCreateUserUsecase(client *spanner.Client, userRepository *user.CreateUserService) *CreateUserUsecase {
 	return &CreateUserUsecase{
 		client:      client,
 		userService: userRepository,
