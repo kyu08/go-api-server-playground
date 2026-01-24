@@ -109,6 +109,7 @@ func randomScreenName(t *testing.T) string {
 }
 
 func loggerForTest(t *testing.T) grpc.UnaryServerInterceptor {
+	t.Helper()
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		methodName := strings.Split(info.FullMethod, "/")[2]
 
