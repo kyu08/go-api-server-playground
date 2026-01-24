@@ -50,6 +50,14 @@ linters:
         linters:
           - tparallel # DBを使うテストでは並列実行を避けたい場合があるため無効化
           - paralleltest # 同上
+      - path: internal/command/handler/.*_test\.go
+        linters:
+          - tparallel # DBを使う統合テストでは並列実行を避けたい場合があるため無効化
+          - paralleltest # 同上
+      - path: internal/query/handler/.*_test\.go
+        linters:
+          - tparallel # DBを使う統合テストでは並列実行を避けたい場合があるため無効化
+          - paralleltest # 同上
 
   settings:
     revive:

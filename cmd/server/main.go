@@ -9,12 +9,13 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/apstndb/spanemuboost"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	"github.com/kyu08/go-api-server-playground/internal/grpcutil"
-	"github.com/kyu08/go-api-server-playground/internal/handler"
-	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
-	"github.com/kyu08/go-api-server-playground/proto/api"
+	"github.com/kyu08/go-api-server-playground/internal/server"
+	"github.com/kyu08/go-api-server-playground/internal/shared/grpcutil"
+	"github.com/kyu08/go-api-server-playground/internal/shared/infrastructure/database"
+	"github.com/kyu08/go-api-server-playground/internal/shared/proto/api"
+
+	"github.com/apstndb/spanemuboost"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -36,16 +37,16 @@ func main() {
 	defer teardown()
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
+	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
 		grpcutil.ConversionError(),
 		grpcutil.Logger(logger),
 		grpc_recovery.UnaryServerInterceptor(),
 	))
 
-	twitterServer := handler.NewTwitterServer(client)
+	twitterServer := server.NewTwitterServer(client)
 
-	api.RegisterTwitterServiceServer(server, twitterServer)
-	reflection.Register(server)
+	api.RegisterTwitterServiceServer(grpcServer, twitterServer)
+	reflection.Register(grpcServer)
 
 	go func() {
 		const (
@@ -62,7 +63,7 @@ func main() {
 			panic(err)
 		}
 
-		if err := server.Serve(listener); err != nil {
+		if err := grpcServer.Serve(listener); err != nil {
 			panic(err)
 		}
 	}()
@@ -71,5 +72,5 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	logger.Info("stopping gRPC server...")
-	server.GracefulStop() // NOTE: 受け付けているリクエストを捌き切ってからサーバーを停止するために必要
+	grpcServer.GracefulStop() // NOTE: 受け付けているリクエストを捌き切ってからサーバーを停止するために必要
 }
