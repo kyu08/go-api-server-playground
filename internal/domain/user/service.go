@@ -38,7 +38,11 @@ func (s CreateUserService) CreateUser(ctx context.Context, rwtx *spanner.ReadWri
 }
 
 // TODO: add UT
-func (s CreateUserService) IsExistingScreenName(ctx context.Context, rwtx *spanner.ReadWriteTransaction, screenName ScreenName) (bool, error) {
+func (s CreateUserService) IsExistingScreenName(
+	ctx context.Context,
+	rwtx *spanner.ReadWriteTransaction,
+	screenName ScreenName,
+) (bool, error) {
 	user, err := s.userRepository.FindByScreenName(ctx, rwtx, screenName)
 	if err != nil {
 		if apperrors.IsNotFound(err) {

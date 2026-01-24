@@ -10,7 +10,7 @@ import (
 
 type (
 	CreateUserUsecase struct {
-		client             *spanner.Client
+		client            *spanner.Client
 		createUserService *user.CreateUserService
 	}
 	CreateUserInput struct {
