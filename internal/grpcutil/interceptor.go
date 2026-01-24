@@ -23,6 +23,7 @@ func ConversionError() grpc.UnaryServerInterceptor {
 	}
 }
 
+//nolint:wrapcheck // gRPCステータスエラーはラップせずそのまま返す
 func convertErrorToGRPCStatus(err error) error {
 	if apperrors.IsNotFound(err) {
 		return status.Error(codes.NotFound, err.Error())
