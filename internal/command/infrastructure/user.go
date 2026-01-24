@@ -1,0 +1,85 @@
+package infrastructure
+
+import (
+	"context"
+
+	"cloud.google.com/go/spanner"
+	"github.com/kyu08/go-api-server-playground/internal/command/domain"
+	"github.com/kyu08/go-api-server-playground/internal/command/domain/user"
+	"github.com/kyu08/go-api-server-playground/internal/shared/apperrors"
+	"github.com/kyu08/go-api-server-playground/internal/shared/infrastructure"
+	"github.com/kyu08/go-api-server-playground/internal/shared/infrastructure/database/dao"
+)
+
+type UserRepository struct{}
+
+func NewUserRepository() user.UserRepository {
+	return &UserRepository{}
+}
+
+func (r UserRepository) Create(ctx context.Context, rwtx infrastructure.ReadWriteDB, u *user.User) error {
+	return r.apply(rwtx, []*spanner.Mutation{r.fromDomain(u).Insert(ctx)})
+}
+
+func (r UserRepository) FindByID(
+	ctx context.Context, rtx infrastructure.ReadOnlyDB, userID domain.ID[user.User],
+) (*user.User, error) {
+	u, err := dao.FindUser(ctx, rtx, userID.String())
+	if err != nil {
+		if dao.IsNotFound(err) {
+			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
+		}
+
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+
+	return r.toDomain(u)
+}
+
+func (r UserRepository) FindByScreenName(
+	ctx context.Context, rtx infrastructure.ReadOnlyDB, screenName user.ScreenName,
+) (*user.User, error) {
+	u, err := dao.FindUserByScreenName(ctx, rtx, screenName.String())
+	if err != nil {
+		if dao.IsNotFound(err) {
+			return nil, apperrors.WithStack(apperrors.NewNotFoundError("user"))
+		}
+
+		return nil, apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+
+	return r.toDomain(u)
+}
+
+func (UserRepository) apply(rwtx infrastructure.ReadWriteDB, m []*spanner.Mutation) error {
+	if err := rwtx.BufferWrite(m); err != nil {
+		return apperrors.WithStack(apperrors.NewInternalError(err))
+	}
+	return nil
+}
+
+func (UserRepository) fromDomain(u *user.User) *dao.User {
+	return &dao.User{
+		ID:         u.ID.String(),
+		ScreenName: u.ScreenName().String(),
+		UserName:   u.UserName().String(),
+		Bio:        u.Bio().String(),
+		CreatedAt:  u.CreatedAt,
+		UpdatedAt:  u.UpdatedAt,
+	}
+}
+
+func (UserRepository) toDomain(dto *dao.User) (*user.User, error) {
+	u, err := user.NewFromDTO(
+		dto.ID,
+		dto.ScreenName,
+		dto.UserName,
+		dto.Bio,
+		dto.CreatedAt,
+		dto.UpdatedAt,
+	)
+	if err != nil {
+		return nil, apperrors.WithStack(err)
+	}
+	return u, nil
+}
