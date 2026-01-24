@@ -9,18 +9,18 @@ import (
 
 var ErrCreateUserScreenNameAlreadyUsed = apperrors.NewPreconditionError("the screen name specified is already used")
 
-type UserService struct {
+type CreateUserService struct {
 	userRepository UserRepository
 }
 
-func NewUserService(userRepository UserRepository) *UserService {
-	return &UserService{
+func NewCreateUserService(userRepository UserRepository) *CreateUserService {
+	return &CreateUserService{
 		userRepository: userRepository,
 	}
 }
 
 // TODO: add UT
-func (s UserService) CreateUser(ctx context.Context, rwtx *spanner.ReadWriteTransaction, user *User) error {
+func (s CreateUserService) CreateUser(ctx context.Context, rwtx *spanner.ReadWriteTransaction, user *User) error {
 	isExisting, err := s.IsExistingScreenName(ctx, rwtx, user.ScreenName())
 	if err != nil {
 		return apperrors.WithStack(err)
@@ -38,7 +38,11 @@ func (s UserService) CreateUser(ctx context.Context, rwtx *spanner.ReadWriteTran
 }
 
 // TODO: add UT
-func (s UserService) IsExistingScreenName(ctx context.Context, rwtx *spanner.ReadWriteTransaction, screenName ScreenName) (bool, error) {
+func (s CreateUserService) IsExistingScreenName(
+	ctx context.Context,
+	rwtx *spanner.ReadWriteTransaction,
+	screenName ScreenName,
+) (bool, error) {
 	user, err := s.userRepository.FindByScreenName(ctx, rwtx, screenName)
 	if err != nil {
 		if apperrors.IsNotFound(err) {

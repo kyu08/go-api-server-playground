@@ -10,8 +10,8 @@ import (
 
 type (
 	CreateUserUsecase struct {
-		client      *spanner.Client
-		userService *user.UserService
+		client            *spanner.Client
+		createUserService *user.CreateUserService
 	}
 	CreateUserInput struct {
 		ScreenName string
@@ -40,7 +40,7 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 	}
 
 	if _, err := u.client.ReadWriteTransaction(ctx, func(ctx context.Context, rwtx *spanner.ReadWriteTransaction) error {
-		return u.userService.CreateUser(ctx, rwtx, newUser)
+		return u.createUserService.CreateUser(ctx, rwtx, newUser)
 	}); err != nil {
 		// TODO: ここのエラー変換ロジックはいずれ共通化することになりそう。(どこの層の責務かもちょっと考えたほうがよさそう)
 		if apperrors.IsPrecondition(err) || apperrors.IsNotFound(err) {
@@ -55,10 +55,10 @@ func (u CreateUserUsecase) Run(ctx context.Context, input *CreateUserInput) (*Cr
 	}, nil
 }
 
-func NewCreateUserUsecase(client *spanner.Client, userRepository *user.UserService) *CreateUserUsecase {
+func NewCreateUserUsecase(client *spanner.Client, createUserService *user.CreateUserService) *CreateUserUsecase {
 	return &CreateUserUsecase{
-		client:      client,
-		userService: userRepository,
+		client:            client,
+		createUserService: createUserService,
 	}
 }
 
