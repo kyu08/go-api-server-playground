@@ -55,25 +55,3 @@ func Logger(logger *slog.Logger) grpc.UnaryServerInterceptor {
 		return resp, err
 	}
 }
-
-// TestLogger is a logger interface for testing.
-type TestLogger interface {
-	Logf(format string, args ...any)
-}
-
-func LoggerForTest(t TestLogger) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		methodName := strings.Split(info.FullMethod, "/")[2]
-
-		t.Logf("[gRPC] start: %s, request: %+v", methodName, req)
-
-		resp, err := handler(ctx, req)
-		if err != nil {
-			t.Logf("[gRPC] error: %s, error: %v, stack: %s", methodName, err, apperrors.GetStackTrace(err))
-		} else {
-			t.Logf("[gRPC] end: %s, response: %+v", methodName, resp)
-		}
-
-		return resp, err
-	}
-}

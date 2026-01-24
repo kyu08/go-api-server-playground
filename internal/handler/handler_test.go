@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 	"testing"
 
 	"google.golang.org/grpc"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/apstndb/spanemuboost"
 	"github.com/google/uuid"
+	"github.com/kyu08/go-api-server-playground/internal/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/grpcutil"
 	"github.com/kyu08/go-api-server-playground/internal/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/proto/api"
@@ -57,7 +59,7 @@ func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
 	lis := bufconn.Listen(bufSize)
 	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
 		grpcutil.ConversionError(),
-		grpcutil.LoggerForTest(t),
+		loggerForTest(t),
 	))
 
 	twitterServer := NewTwitterServer(client)
@@ -104,4 +106,21 @@ func assertGRPCError(t *testing.T, err error, wantCode codes.Code, wantMessage s
 func randomScreenName(t *testing.T) string {
 	t.Helper()
 	return uuid.New().String()[:20]
+}
+
+func loggerForTest(t *testing.T) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+		methodName := strings.Split(info.FullMethod, "/")[2]
+
+		t.Logf("[gRPC] start: %s, request: %+v", methodName, req)
+
+		resp, err := handler(ctx, req)
+		if err != nil {
+			t.Logf("[gRPC] error: %s, error: %v, stack: %s", methodName, err, apperrors.GetStackTrace(err))
+		} else {
+			t.Logf("[gRPC] end: %s, response: %+v", methodName, resp)
+		}
+
+		return resp, err
+	}
 }
