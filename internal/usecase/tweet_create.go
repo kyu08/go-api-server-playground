@@ -32,15 +32,6 @@ var (
 
 // tweetを作成する
 func (u TweetCreateUsecase) Run(ctx context.Context, input *TweetCreateInput) (*TweetCreateOutput, error) {
-	res, err := u.run(ctx, input)
-	if err != nil {
-		return nil, handleError(err)
-	}
-
-	return res, nil
-}
-
-func (u TweetCreateUsecase) run(ctx context.Context, input *TweetCreateInput) (*TweetCreateOutput, error) {
 	if err := input.validate(); err != nil {
 		return nil, err
 	}

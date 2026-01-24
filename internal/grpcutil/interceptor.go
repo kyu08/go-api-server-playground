@@ -16,19 +16,24 @@ func ConversionError() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		resp, err := handler(ctx, req)
 		if err != nil {
-			if apperrors.IsNotFound(err) {
-				return resp, status.Error(codes.NotFound, err.Error())
-			}
-
-			if apperrors.IsPrecondition(err) {
-				return resp, status.Error(codes.InvalidArgument, err.Error())
-			}
-
-			return resp, status.Error(codes.Internal, "internal server error")
+			return resp, convertErrorToGRPCStatus(err)
 		}
 
 		return resp, err
 	}
+}
+
+//nolint:wrapcheck // gRPCステータスエラーはラップせずそのまま返す
+func convertErrorToGRPCStatus(err error) error {
+	if apperrors.IsNotFound(err) {
+		return status.Error(codes.NotFound, err.Error())
+	}
+
+	if apperrors.IsPrecondition(err) {
+		return status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return status.Error(codes.Internal, "internal server error")
 }
 
 func Logger(logger *slog.Logger) grpc.UnaryServerInterceptor {

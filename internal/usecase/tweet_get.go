@@ -35,15 +35,6 @@ var ErrTweetGetTweetIDRequired = apperrors.NewPreconditionError("tweet_id is req
 
 // ID指定でtweet詳細を1件取得する
 func (u TweetGetUsecase) Run(ctx context.Context, input *TweetGetInput) (*TweetGetOutput, error) {
-	res, err := u.run(ctx, input)
-	if err != nil {
-		return nil, handleError(err)
-	}
-
-	return res, nil
-}
-
-func (u TweetGetUsecase) run(ctx context.Context, input *TweetGetInput) (*TweetGetOutput, error) {
 	if err := input.validate(); err != nil {
 		return nil, err
 	}
