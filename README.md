@@ -1,17 +1,17 @@
 # go-api-server-playground
-[kyu08](https://github.com/kyu08)がGoの素振りをするためのリポジトリです。
+[kyu08](https://github.com/kyu08)がGoでAPI Serverを書くときのアーキテクチャやライブラリの検証をするためのリポジトリです。
 
 # 実装内容や使用技術など
 
-| 題材                           | Twitter風のAPIサーバー                                     |
-| :---                           | :---                                                       |
-| 言語                           | Go 1.25.4                                                  |
-| 通信方式                       | gRPC                                                       |
-| DB                             | Cloud Spanner (Emulator)                                   |
-| CI                             | GitHub Actions                                             |
-| 依存関係更新                   | dependabot                                                 |
-| Goコードのlint                 | [golangci-lint](https://github.com/golangci/golangci-lint) |
-| アーキテクチャ                 | レイヤードアーキテクチャ + CQRS                            |
+| 題材           | Twitter風のAPIサーバー                                                                                               |
+| :---           | :---                                                                                                                 |
+| 言語           | Go 1.25.4                                                                                                            |
+| 通信方式       | gRPC                                                                                                                 |
+| DB             | Cloud Spanner (Emulator)(ローカル実行のみできれば問題ないのでDBは常にSpanenr Emulatorに接続する設定になっています。) |
+| CI             | GitHub Actions                                                                                                       |
+| 依存関係更新   | dependabot                                                                                                           |
+| Goコードのlint | [golangci-lint](https://github.com/golangci/golangci-lint)                                                           |
+| アーキテクチャ | レイヤードアーキテクチャ + CQRS                                                                                      |
 
 詳細は[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)を参照。
 
