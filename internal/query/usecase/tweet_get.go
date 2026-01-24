@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"cloud.google.com/go/spanner"
@@ -78,7 +79,7 @@ func (i TweetGetInput) validate() error {
 func validateUUID(s string) error {
 	// UUID形式の簡易バリデーション (長さチェック)
 	if len(s) != 36 {
-		return apperrors.WithStack(apperrors.NewPreconditionError("invalid UUID length: " + string(rune(len(s)))))
+		return apperrors.WithStack(apperrors.NewPreconditionError("invalid UUID length: " + strconv.Itoa(len(s))))
 	}
 	return nil
 }
