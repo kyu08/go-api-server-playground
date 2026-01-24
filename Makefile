@@ -16,13 +16,14 @@ dev-tools:
 # 自動生成系
 # =========================================
 gen-proto:
-	cd proto && protoc --go_out=./api --go_opt=paths=source_relative \
-	--go-grpc_out=./api --go-grpc_opt=paths=source_relative \
-	*.proto
+	protoc --go_out=./internal/shared/proto/api --go_opt=paths=source_relative \
+	--go-grpc_out=./internal/shared/proto/api --go-grpc_opt=paths=source_relative \
+	-I./proto \
+	./proto/*.proto
 
 gen-yo:
-	yo generate internal/infrastructure/database/schema/schema.sql --from-ddl \
-		-o internal/infrastructure/database/dao \
+	yo generate internal/shared/infrastructure/database/schema/schema.sql --from-ddl \
+		-o internal/shared/infrastructure/database/dao \
 		-p dao
 
 gen-all: gen-proto gen-yo

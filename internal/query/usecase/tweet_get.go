@@ -30,8 +30,12 @@ type (
 	}
 )
 
-var ErrTweetGetTweetIDRequired = apperrors.NewPreconditionError("tweet_id is required")
-var ErrTweetGetInvalidTweetID = apperrors.NewPreconditionError("invalid UUID length: ")
+const uuidLength = 36
+
+var (
+	ErrTweetGetTweetIDRequired = apperrors.NewPreconditionError("tweet_id is required")
+	ErrTweetGetInvalidTweetID  = apperrors.NewPreconditionError("invalid UUID length: ")
+)
 
 // ID指定でtweet詳細を1件取得する
 func (u TweetGetUsecase) Run(ctx context.Context, input *TweetGetInput) (*TweetGetOutput, error) {
@@ -78,7 +82,7 @@ func (i TweetGetInput) validate() error {
 
 func validateUUID(s string) error {
 	// UUID形式の簡易バリデーション (長さチェック)
-	if len(s) != 36 {
+	if len(s) != uuidLength {
 		return apperrors.WithStack(apperrors.NewPreconditionError("invalid UUID length: " + strconv.Itoa(len(s))))
 	}
 	return nil

@@ -79,6 +79,7 @@ func main() {
 // TwitterServer は command と query のハンドラーを統合するサーバー
 type TwitterServer struct {
 	api.UnimplementedTwitterServiceServer
+
 	CommandHandler *commandhandler.Handler
 	QueryHandler   *queryhandler.Handler
 }
@@ -101,7 +102,10 @@ func (s *TwitterServer) CreateTweet(ctx context.Context, req *api.CreateTweetReq
 }
 
 // Query methods
-func (s *TwitterServer) FindUserByScreenName(ctx context.Context, req *api.FindUserByScreenNameRequest) (*api.FindUserByScreenNameResponse, error) {
+func (s *TwitterServer) FindUserByScreenName(
+	ctx context.Context,
+	req *api.FindUserByScreenNameRequest,
+) (*api.FindUserByScreenNameResponse, error) {
 	return s.QueryHandler.FindUserByScreenName(ctx, req)
 }
 
