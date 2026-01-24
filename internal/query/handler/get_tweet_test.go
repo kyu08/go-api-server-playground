@@ -1,4 +1,4 @@
-package main
+package handler_test
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"google.golang.org/protobuf/testing/protocmp"
 
 	"github.com/kyu08/go-api-server-playground/internal/shared/proto/api"
+	"github.com/kyu08/go-api-server-playground/internal/shared/testutil"
 )
 
 func TestGetTweet(t *testing.T) {
@@ -21,7 +22,7 @@ func TestGetTweet(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("存在するTweetの詳細を取得できる", func(t *testing.T) {
-		screenName := randomScreenName(t)
+		screenName := testutil.RandomScreenName(t)
 		createUserResp, err := client.CreateUser(ctx, &api.CreateUserRequest{
 			ScreenName: screenName,
 			UserName:   "昼寝のプロ",
@@ -63,7 +64,7 @@ func TestGetTweet(t *testing.T) {
 		})
 		require.Error(t, err)
 		require.Nil(t, tweetDetail)
-		assertGRPCError(t, err, codes.InvalidArgument, "tweet_id is required")
+		testutil.AssertGRPCError(t, err, codes.InvalidArgument, "tweet_id is required")
 	})
 
 	t.Run("不正な形式のTweetIDを指定するとエラーが返る", func(t *testing.T) {
@@ -72,7 +73,7 @@ func TestGetTweet(t *testing.T) {
 		})
 		require.Error(t, err)
 		require.Nil(t, tweetDetail)
-		assertGRPCError(t, err, codes.InvalidArgument, "invalid UUID length: 12")
+		testutil.AssertGRPCError(t, err, codes.InvalidArgument, "invalid UUID length: 12")
 	})
 
 	t.Run("存在しないTweetIDを指定するとエラーが返る", func(t *testing.T) {
@@ -81,6 +82,6 @@ func TestGetTweet(t *testing.T) {
 		})
 		require.Error(t, err)
 		require.Nil(t, tweetDetail)
-		assertGRPCError(t, err, codes.NotFound, "TweetDetail not found")
+		testutil.AssertGRPCError(t, err, codes.NotFound, "TweetDetail not found")
 	})
 }

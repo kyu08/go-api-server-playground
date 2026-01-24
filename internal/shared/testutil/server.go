@@ -1,4 +1,4 @@
-package main
+package testutil
 
 import (
 	"context"
@@ -8,30 +8,29 @@ import (
 	"strings"
 	"testing"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/status"
-	"google.golang.org/grpc/test/bufconn"
-
+	"cloud.google.com/go/spanner"
 	"github.com/apstndb/spanemuboost"
-	"github.com/google/uuid"
 	"github.com/kyu08/go-api-server-playground/internal/shared/apperrors"
 	"github.com/kyu08/go-api-server-playground/internal/shared/grpcutil"
 	"github.com/kyu08/go-api-server-playground/internal/shared/infrastructure/database"
 	"github.com/kyu08/go-api-server-playground/internal/shared/proto/api"
-	"github.com/stretchr/testify/require"
 	tcspanner "github.com/testcontainers/testcontainers-go/modules/gcloud/spanner"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/test/bufconn"
 )
 
 const (
-	bufSize    = 1024 * 1024
-	uuidLength = 36
+	bufSize = 1024 * 1024
+
+	// UUIDLength はUUIDの文字列長
+	UUIDLength = 36
 )
 
 var spannerEmulator *tcspanner.Container
 
-func TestMain(m *testing.M) {
+// SetupTestMain はTestMainで呼び出し、エミュレーターを起動してteardown関数を返す
+func SetupTestMain(m *testing.M) {
 	emulator, emulatorTeardown, err := spanemuboost.NewEmulator(context.Background(), spanemuboost.EnableInstanceAutoConfigOnly())
 	if err != nil {
 		log.Fatalln(err)
@@ -48,8 +47,12 @@ func TestMain(m *testing.M) {
 	os.Exit(exitCode)
 }
 
-// setupTestServer テスト用のDBとgGRPCサーバーを立ち上げる。
-func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
+// ServerFactory はSpannerクライアントを受け取り、TwitterServiceServerを返す関数型
+type ServerFactory func(client *spanner.Client) api.TwitterServiceServer
+
+// SetupTestServer テスト用のDBとgRPCサーバーを立ち上げる。
+// serverFactory はSpannerクライアントを受け取り、TwitterServiceServerを返す関数
+func SetupTestServer(t *testing.T, serverFactory ServerFactory) (api.TwitterServiceClient, func()) {
 	t.Helper()
 	client, teardown, err := database.GetSpannerClient(spannerEmulator)
 	if err != nil {
@@ -57,16 +60,16 @@ func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
 	}
 
 	lis := bufconn.Listen(bufSize)
-	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
+	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
 		grpcutil.ConversionError(),
 		loggerForTest(t),
 	))
 
-	twitterServer := NewTwitterServer(client)
-	api.RegisterTwitterServiceServer(server, twitterServer)
+	twitterServer := serverFactory(client)
+	api.RegisterTwitterServiceServer(grpcServer, twitterServer)
 
 	go func() {
-		if err := server.Serve(lis); err != nil {
+		if err := grpcServer.Serve(lis); err != nil {
 			t.Logf("server exited: %v", err)
 		}
 	}()
@@ -85,27 +88,11 @@ func setupTestServer(t *testing.T) (api.TwitterServiceClient, func()) {
 	cleanup := func() {
 		_ = conn.Close()
 
-		server.Stop()
+		grpcServer.Stop()
 		teardown()
 	}
 
 	return api.NewTwitterServiceClient(conn), cleanup
-}
-
-func assertGRPCError(t *testing.T, err error, wantCode codes.Code, wantMessage string) {
-	t.Helper()
-
-	require.Error(t, err)
-	st, ok := status.FromError(err)
-	require.True(t, ok)
-	require.Equal(t, wantCode, st.Code())
-	require.Equal(t, wantMessage, st.Message())
-}
-
-// テスト用のscreen nameをランダムに生成して返す。
-func randomScreenName(t *testing.T) string {
-	t.Helper()
-	return uuid.New().String()[:20]
 }
 
 func loggerForTest(t *testing.T) grpc.UnaryServerInterceptor {

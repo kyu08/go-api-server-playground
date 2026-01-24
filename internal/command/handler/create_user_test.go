@@ -1,4 +1,4 @@
-package main
+package handler_test
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/kyu08/go-api-server-playground/internal/shared/proto/api"
+	"github.com/kyu08/go-api-server-playground/internal/shared/testutil"
 )
 
 func TestCreateUser(t *testing.T) {
@@ -33,7 +34,7 @@ func TestCreateUser(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Len(t, resp.GetId(), uuidLength)
+		require.Len(t, resp.GetId(), testutil.UUIDLength)
 
 		// 作成したユーザーを取得して確認
 		findResp, err := client.FindUserByScreenName(ctx, &api.FindUserByScreenNameRequest{
