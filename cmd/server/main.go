@@ -31,8 +31,8 @@ func main() {
 
 	client, teardown, err := database.GetSpannerClient(emulator)
 	if err != nil {
-		emulatorTeardown()
-		log.Fatalf("failed to get spanner client: %v", err)
+		log.Printf("failed to get spanner client: %v", err)
+		return
 	}
 	defer teardown()
 
