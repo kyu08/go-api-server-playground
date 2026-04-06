@@ -31,6 +31,7 @@ func main() {
 
 	client, teardown, err := database.GetSpannerClient(emulator)
 	if err != nil {
+		emulatorTeardown()
 		log.Fatalf("failed to get spanner client: %v", err)
 	}
 	defer teardown()
@@ -72,7 +73,13 @@ func main() {
 	<-quit
 	logger.Info("stopping gRPC server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	gracefulShutdown(logger, server)
+}
+
+const gracefulStopTimeout = 10 * time.Second
+
+func gracefulShutdown(logger *slog.Logger, server *grpc.Server) {
+	ctx, cancel := context.WithTimeout(context.Background(), gracefulStopTimeout)
 	defer cancel()
 
 	stopped := make(chan struct{})
