@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/apstndb/spanemuboost"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -24,14 +25,13 @@ func main() {
 	// そのためエミュレーターに接続する前提で実装している。
 	emulator, emulatorTeardown, err := spanemuboost.NewEmulator(context.Background(), spanemuboost.EnableInstanceAutoConfigOnly())
 	if err != nil {
-		log.Fatalln(err)
-		return
+		log.Fatalf("failed to create emulator: %v", err)
 	}
 	defer emulatorTeardown()
 
 	client, teardown, err := database.GetSpannerClient(emulator)
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to get spanner client: %v", err)
 	}
 	defer teardown()
 
@@ -59,11 +59,11 @@ func main() {
 
 		listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, port))
 		if err != nil {
-			panic(err)
+			log.Fatalf("failed to listen on port %d: %v", port, err)
 		}
 
 		if err := server.Serve(listener); err != nil {
-			panic(err)
+			log.Fatalf("failed to serve gRPC server: %v", err)
 		}
 	}()
 
@@ -71,5 +71,21 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	logger.Info("stopping gRPC server...")
-	server.GracefulStop() // NOTE: 受け付けているリクエストを捌き切ってからサーバーを停止するために必要
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	stopped := make(chan struct{})
+	go func() {
+		server.GracefulStop()
+		close(stopped)
+	}()
+
+	select {
+	case <-stopped:
+		logger.Info("gRPC server stopped gracefully")
+	case <-ctx.Done():
+		logger.Warn("graceful stop timed out, forcing shutdown")
+		server.Stop()
+	}
 }
