@@ -56,4 +56,5 @@ format-buf:
 
 ci: gen-all lint-go test-gotestsum
 
+# hoge
 .PHONY: dev-tools gen-proto gen-yo gen-all run test lint-go build handler-list health-check ci format-buf

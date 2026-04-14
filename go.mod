@@ -2,6 +2,8 @@ module github.com/kyu08/go-api-server-playground
 
 go 1.25.4
 
+// TODO: foo
+
 require (
 	cloud.google.com/go/spanner v1.73.0
 	github.com/apstndb/spanemuboost v0.2.16
