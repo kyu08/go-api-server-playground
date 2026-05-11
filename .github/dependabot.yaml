@@ -11,7 +11,8 @@ updates:
     reviewers:
       - "kyu08"
 
-  - package-ecosystem: "gomod"
+  # uv が生成する uv.lock を更新するため、pip ecosystem を利用する.
+  - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "monthly"

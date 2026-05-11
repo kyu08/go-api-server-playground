@@ -1,0 +1,126 @@
+[project]
+name = "twitter-api"
+version = "0.1.0"
+description = "FastAPI + SQLAlchemy で Twitter 風 API を書く検証用リポジトリ"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [{ name = "kyu08" }]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "aiosqlite>=0.20",
+    "asyncpg>=0.30",
+    "alembic>=1.14",
+    "pydantic>=2.10",
+    "pydantic-settings>=2.6",
+    "structlog>=24.4",
+]
+
+[project.scripts]
+twitter-api = "twitter_api.__main__:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "httpx>=0.28",
+    "ruff>=0.8",
+    "mypy>=1.13",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/twitter_api"]
+
+# ---------- ruff ----------
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# default: all 相当を目指し、必要なものを ignore する方針 (Go 側の golangci-lint と同じ思想)
+select = ["ALL"]
+ignore = [
+    "D",       # docstring 強制はしない
+    "ANN",     # 型は mypy で見るので annotations ルールは緩める
+    "COM812",  # ruff format と衝突
+    "ISC001",  # ruff format と衝突
+    "TRY003",  # 例外メッセージのリテラルを許可
+    "EM101",   # 例外に文字列リテラルを直接渡すのを許可
+    "EM102",   # 同上 (f-string)
+    "RUF001",  # 全角記号許可 (日本語コメント・テスト名で使う)
+    "RUF002",
+    "RUF003",
+    "TC",      # TYPE_CHECKING ブロック必須化は不要
+    "FBT",     # bool 引数禁止は緩める
+    "PLR0913", # 引数の数制限を緩める
+    "INP001",  # __init__.py がないディレクトリも許可
+    "ERA001",  # コメントアウトコード許可
+    "FIX",     # TODO コメント許可
+    "TD",      # TODO フォーマット強制しない
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",    # assert OK
+    "PLR2004", # マジックナンバー許可
+    "SLF001",  # private アクセス許可
+    "S106",    # ハードコードされた password 風 string 許可
+    "N802",    # 日本語テスト名を許可
+    "PLC2401", # 関数名の非ASCII文字を許可 (日本語テスト名)
+    "PLC0415", # テスト内でのローカル import を許可
+    "PT019",   # `_` フィクスチャ名許可
+]
+"migrations/**/*.py" = ["E501", "I001", "W291"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+
+# ---------- mypy ----------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_decorators = false
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+# ---------- pytest ----------
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra --strict-markers --strict-config"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+filterwarnings = [
+    "error",
+    # SQLAlchemy が出す deprecation 等は適宜 ignore
+    "ignore::DeprecationWarning:passlib.*",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/twitter_api"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]

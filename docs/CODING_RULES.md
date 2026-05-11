@@ -1,52 +1,32 @@
 # コーディング規約
-このドキュメントでは、本リポジトリで採用している特徴的なコーディング規約を記載する。
 
-## Linter設定
-golangci-lintで`default: all`を採用し、必要に応じて個別のlinterを無効化している。
+## Lint / Format
+- `ruff` を `select = ["ALL"]` で運用し、必要なルールだけ `ignore` する方針 (旧 Go 実装の golangci-lint と同じ思想).
+- 新しい ruff にルールが追加されたら、まず試してから採用可否を判断する.
+- フォーマッタは `ruff format` (Black 互換).
 
-これはgolangci-lintのバージョンアップ時に新規追加されたlinterを試したうえで有効化するかどうかを判断したいためである。
+## 型
+- `mypy --strict` を CI で実行.
+- 関数は基本的に型注釈を付ける. 例外はテストの fixture 等.
 
-## エラーハンドリング
-- 自リポジトリ内のパッケージで発生したエラーは発生場所でラップする。（スタックトレースを付与するため）
-    ```go
-    import (
-        "github.com/kyu08/go-api-server-playground/internal/apperrors"
-    )
-    func someFunc() error {
-        // ...
+## 命名
+- ルーティングは REST 流の名詞ベース (`/users`, `/tweets`).
+- テストは `tests/test_<対象>.py` に置き、関数名は `test_xxx` または日本語可 (per-file-ignore で許可).
+- Pydantic スキーマは `XxxRequest` / `XxxResponse` を基本とする.
 
-        isExisting, err := s.IsExistingScreenName(ctx, rtx, user.ScreenName)
-        if err != nil {
-            return apperrors.WithStack(err)
-        }
+## バリデーション
+- HTTP 入力のバリデーションは **Pydantic スキーマ** に書く. service 層の入り口では信頼してよい.
+- 業務ロジック由来のバリデーション (重複, 存在チェック等) は **service 層で AppError サブクラスを送出**.
 
-        // ...
-    }
-    ```
+## エラー
+- 業務エラーは `twitter_api.exceptions.AppError` のサブクラス (`NotFoundError` / `ConflictError` / `ValidationError`) を `raise`.
+- これらは FastAPI の例外ハンドラで HTTP ステータスに変換される.
+- 個別の HTTP ステータスを返したい場合は router 内で `HTTPException` を直接送出してもよい.
 
-## コードフォーマット
-- gofumpt, goimportsを使用(golangci-lintを使ってCIで実行しているためCIが通れば問題ない)
+## 非同期
+- service / router / DB アクセスはすべて `async def`.
+- 同期コードと混ぜたい場合は `anyio.to_thread.run_sync` でラップする.
 
-## handler, usecase層のファイル名の命名規則
-- handler層のファイル名はRPC名をスネークケースに変換したものとする。
-    - 例: CreateUser RPCのhandler層のファイル名は`create_user.go`
-- usecase層のファイル名は`${エンティティ名}_${操作}.go`の形式とする。
-    - 例: CreateUserユースケースのusecase層のファイル名は`user_create.go`
-- 背景
-    - handler層のファイルはRPCと一対一に対応しているためRPC名をファイル名にすることで対応関係が明確になる。
-    - 一方でusecase層のファイルは上記の形式にしておくことで、ファイル一覧を見た際にエンティティごとのどのようなユースケースが存在するかを把握しやすくなる利点があると考えこのような規約を設定している。
-
-## usecase層からはプリミティブな型のみを返す（domain層に独自定義したVOなどの型を返さない）
-もし返すことにするとdomainの事情がhandlerまで染み出ることになるが、それだと以下のようなデメリットがあるため。
-- あるusecaseが複数のhandlerから呼ばれる場合、domain -> primitiveへの変換を呼び出し側の数だけ行う必要がある。
-- handler層でdomain modelの業務ロジックを呼べてしまう。
-- （これはあくまで感覚の話だが）複数のレイヤーをまたぐと上記のようになにかと保守性が落ちがちなのでやめておいたほうがいい、という感覚がある。
-
-## エンティティのIDのフィールド名は`UserID`のようにエンティティの名前を含める
-- why
-    - エンティティ名を明示しておいたほうがSQLでのJOIN時や複数のエンティティを扱うquery modelなどにおいてより意図が明確になるというメリットがあるため。
-- 適用範囲
-    - domain層のエンティティ定義
-    - query層のDTO定義
-    - DDL
-    - その他IDを定義するすべての箇所。
+## 依存管理
+- 依存追加は `uv add <package>` (本番) または `uv add --dev <package>` (開発のみ).
+- `uv.lock` は必ずコミット. CI では `uv sync --frozen`.

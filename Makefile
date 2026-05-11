@@ -1,59 +1,61 @@
+.PHONY: install run dev test test-cov lint format typecheck check ci migrate migration clean
+
 # =========================================
 # 開発環境構築
 # =========================================
-dev-tools:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
-	go install github.com/izumin5210/cgt@latest
-	go install go.mercari.io/yo@latest
-	go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
-	go install gotest.tools/gotestsum@latest
-	echo "--------------------------------------------------"
-	echo "⚠️protoc, golangci-lintは別途installしてください。"
-	echo "--------------------------------------------------"
+install: ## 依存をインストール (uv が必要)
+	uv sync
 
 # =========================================
-# 自動生成系
+# アプリケーションの起動
 # =========================================
-gen-proto:
-	cd proto && protoc --go_out=./api --go_opt=paths=source_relative \
-	--go-grpc_out=./api --go-grpc_opt=paths=source_relative \
-	*.proto
+run: ## サーバを起動 (uvicorn)
+	uv run twitter-api
 
-gen-yo:
-	yo generate internal/infrastructure/database/schema/schema.sql --from-ddl \
-		-o internal/infrastructure/database/dao \
-		-p dao
-
-gen-all: gen-proto gen-yo
+dev: ## 開発モード起動 (自動リロード)
+	uv run uvicorn twitter_api.main:app --reload --host 0.0.0.0 --port 8080
 
 # =========================================
-# アプリケーションの起動、デバッグなど
+# テスト
 # =========================================
-run:
-	go run cmd/server/main.go
+test: ## pytest 実行
+	uv run pytest
 
-test:
-	go test -v ./... | cgt
+test-cov: ## カバレッジ付きで pytest 実行
+	uv run pytest --cov --cov-report=term-missing
 
-test-gotestsum:
-	gotestsum -- -v ./...
+# =========================================
+# 静的解析
+# =========================================
+lint: ## ruff lint
+	uv run ruff check .
 
-lint-go:
-	golangci-lint run -c ./.golangci.yaml --fix --allow-parallel-runners --tests ./...
+format: ## ruff format + lint --fix
+	uv run ruff format .
+	uv run ruff check . --fix
 
-build:
-	go build ./...
+typecheck: ## mypy 実行
+	uv run mypy src tests
 
-handler-list:
-	grpcurl -plaintext localhost:8080 list twitter.TwitterService
+check: lint typecheck test ## lint + typecheck + test
 
-health-check:
-	grpcurl -plaintext localhost:8080 twitter.TwitterService.Health
+ci: check ## CI 用 (check と同じ)
 
-format-buf:
-	buf format -w
+# =========================================
+# DB マイグレーション (alembic)
+# =========================================
+migrate: ## 最新へマイグレーション
+	uv run alembic upgrade head
 
-ci: gen-all lint-go test-gotestsum
+migration: ## 新規 migration 生成 (例: make migration MSG="add foo")
+	uv run alembic revision --autogenerate -m "$(MSG)"
 
-.PHONY: dev-tools gen-proto gen-yo gen-all run test lint-go build handler-list health-check ci format-buf
+# =========================================
+# Misc
+# =========================================
+clean: ## キャッシュ削除
+	rm -rf .pytest_cache .mypy_cache .ruff_cache .coverage htmlcov
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+
+help: ## このヘルプを表示
+	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*##"}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
