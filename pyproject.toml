@@ -112,6 +112,17 @@ filterwarnings = [
     "ignore::DeprecationWarning:passlib.*",
 ]
 
+# ---------- pyright / basedpyright (Neovim LSP 用) ----------
+# uv の editable install + src/ layout だと .venv 側経由でも twitter_api を import 可能になり、
+# LSP が site-packages と src/ の両方を index して定義ジャンプ候補が 2 件出る. include で
+# src/tests のみに限定し、extraPaths で `twitter_api.*` を src/ から解決させる.
+[tool.pyright]
+include = ["src", "tests"]
+extraPaths = ["src"]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.12"
+
 [tool.coverage.run]
 branch = true
 source = ["src/twitter_api"]
